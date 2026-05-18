@@ -53,8 +53,8 @@ document.querySelectorAll('.nav__links a').forEach(link => {
    GOOGLE ANALYTICS 4 — Event tracking helpers
    ============================================================
 
-   GA4 Measurement ID: G-XXXXXXXXXX
-   IMPORTANT: Replace G-XXXXXXXXXX with your actual GA4 Measurement ID
+   GA4 Measurement ID: G-5D0X4RLR71
+   IMPORTANT: Replace G-5D0X4RLR71 with your actual GA4 Measurement ID
    in the <head> script tag of each HTML file.
 
    Events tracked:

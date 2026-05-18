@@ -20,7 +20,7 @@ window.CONTENT = {
     linkedin:    "https://www.linkedin.com/in/anubhavp2000/",
     dribbble:    "https://dribbble.com/anubhavp",
     resumeUrl:   "https://drive.google.com/file/d/1M_Dw0t9avEZ7Y_Web8o-7EVGs0UCwxro/view?usp=sharing",
-    gaId:        "G-XXXXXXXXXX",
+    gaId:        "G-5D0X4RLR71",
     footerDesc:  "Product Designer. Designing clarity into systems that resist it. Open to founding designer and senior product design roles.",
     copyright:   "© 2026 Anubhav Pandey. All rights reserved."
   },
