@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login — Anubhav Pandey</title>
+  <meta name="robots" content="noindex, nofollow" />
+
+  <!-- EmailJS — required for OTP delivery -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500&family=Inter:wght@300;400;500;600&display=swap"
+    rel="stylesheet" />
+
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --accent: #1C3D2B;
+      --accent-mid: #2D6A4F;
+      --accent-soft: #52B788;
+      --bg: #F7F5F1;
+      --card: #FFFFFF;
+      --text: #111110;
+      --text-sec: #6A6A66;
+      --text-muted: #9A9A96;
+      --border: #E0DDD7;
+      --danger: #C0392B;
+      --radius: 8px;
+      --font-serif: 'Lora', Georgia, serif;
+      --font-sans: 'Inter', -apple-system, sans-serif;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      font-size: 14px;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      -webkit-font-smoothing: antialiased;
+      padding: 2rem 1rem;
+    }
+
+    .login-wrap {
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .login-brand {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .login-brand-dot {
+      width: 10px;
+      height: 10px;
+      background: var(--accent-soft);
+      border-radius: 50%;
+      margin: 0 auto 1rem;
+    }
+
+    .login-brand h1 {
+      font-family: var(--font-serif);
+      font-size: 1.4rem;
+      font-weight: 400;
+      color: var(--text);
+      margin-bottom: 0.3rem;
+    }
+
+    .login-brand p {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      letter-spacing: 0.02em;
+    }
+
+    .login-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+    }
+
+    .step {
+      display: none;
+    }
+
+    .step.active {
+      display: block;
+    }
+
+    .step-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+    }
+
+    .step-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+      line-height: 1.55;
+    }
+
+    .field {
+      margin-bottom: 1rem;
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-sec);
+      margin-bottom: 0.35rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .field input {
+      width: 100%;
+      padding: 0.6rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      font-size: 0.88rem;
+      font-family: var(--font-sans);
+      color: var(--text);
+      background: var(--bg);
+      transition: border-color 0.15s;
+      outline: none;
+    }
+
+    .field input:focus {
+      border-color: var(--accent-mid);
+    }
+
+    .field input.otp-input {
+      font-size: 1.4rem;
+      letter-spacing: 0.4em;
+      text-align: center;
+      font-family: var(--font-serif);
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 0.65rem 1rem;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      font-family: var(--font-sans);
+      cursor: pointer;
+      margin-top: 0.25rem;
+      transition: background 0.15s, opacity 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .btn-submit:hover {
+      background: var(--accent-mid);
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .btn-spinner {
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+
+    .btn-submit.loading .btn-spinner {
+      display: block;
+    }
+
+    .btn-submit.loading .btn-label {
+      opacity: 0.7;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .error-msg {
+      font-size: 0.78rem;
+      color: var(--danger);
+      margin-top: 0.75rem;
+      padding: 0.5rem 0.65rem;
+      background: #FDF0EE;
+      border-radius: 4px;
+      border-left: 3px solid var(--danger);
+      display: none;
+    }
+
+    .error-msg.visible {
+      display: block;
+    }
+
+    .otp-meta {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 1rem;
+      text-align: center;
+    }
+
+    .otp-meta a {
+      color: var(--accent-mid);
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    .timer {
+      font-weight: 500;
+      color: var(--text-sec);
+    }
+
+    .setup-note {
+      margin-top: 1.5rem;
+      padding: 0.75rem;
+      background: #FFF9EC;
+      border: 1px solid #F0E0A0;
+      border-radius: 5px;
+      font-size: 0.75rem;
+      color: #7A6020;
+      line-height: 1.55;
+      display: none;
+    }
+
+    .setup-note strong {
+      font-weight: 600;
+    }
+
+    .setup-note a {
+      color: #7A6020;
+    }
+
+    .login-footer {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .login-footer a {
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+
+    .login-footer a:hover {
+      color: var(--text);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="login-wrap">
+
+    <div class="login-brand">
+      <div class="login-brand-dot"></div>
+      <h1>Anubhav Pandey</h1>
+      <p>Portfolio Admin</p>
+    </div>
+
+    <div class="login-card">
+
+      <!-- STEP 1: Email + Password -->
+      <div class="step active" id="step1">
+        <div class="step-title">Sign in</div>
+        <div class="step-desc">Enter your credentials. A one-time code will be sent to your email.</div>
+
+        <div class="field">
+          <label>Email</label>
+          <input type="email" id="email" placeholder="your@email.com" autocomplete="email" />
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" id="password" placeholder="••••••••" autocomplete="current-password"
+            onkeydown="if(event.key==='Enter') handleLogin()" />
+        </div>
+
+        <button class="btn-submit" id="loginBtn" onclick="handleLogin()">
+          <span class="btn-spinner"></span>
+          <span class="btn-label">Continue</span>
+        </button>
+
+        <div class="error-msg" id="loginError"></div>
+
+        <!-- Shown if EmailJS is not configured -->
+        <div class="setup-note" id="emailjsNote">
+          <strong>EmailJS not configured.</strong> To enable OTP delivery, sign up at
+          <a href="https://www.emailjs.com" target="_blank">emailjs.com</a> (free), create a Gmail service
+          and an email template with variable <code>{{otp_code}}</code>, then replace the three
+          <code>YOUR_EMAILJS_*</code> placeholders at the bottom of this file with your actual IDs.
+        </div>
+      </div>
+
+      <!-- STEP 2: OTP -->
+      <div class="step" id="step2">
+        <div class="step-title">Check your email</div>
+        <div class="step-desc" id="otpDesc">Enter the 6-digit code sent to your email. It expires in <span class="timer"
+            id="timer">10:00</span>.</div>
+
+        <div class="field">
+          <label>One-time code</label>
+          <input type="text" id="otp" class="otp-input" maxlength="6" placeholder="000000" inputmode="numeric"
+            pattern="[0-9]*" onkeydown="if(event.key==='Enter') handleOTP()" />
+        </div>
+
+        <button class="btn-submit" id="otpBtn" onclick="handleOTP()">
+          <span class="btn-spinner"></span>
+          <span class="btn-label">Verify and open Admin</span>
+        </button>
+
+        <div class="error-msg" id="otpError"></div>
+
+        <div class="otp-meta">
+          Didn't get it? <a onclick="resendOTP()">Resend code</a> &nbsp;·&nbsp;
+          <a onclick="backToStep1()">Back</a>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="login-footer">
+      <a href="index.html">← Back to portfolio</a>
+    </div>
+
+  </div>
+
+  <script>
+    /* ═══════════════════════════════════════════════
+       CONFIGURATION — fill these in after setting up
+       your EmailJS account at emailjs.com
+    ═══════════════════════════════════════════════ */
+    const EMAILJS_PUBLIC_KEY = '9pRMeqcwMzHUkNN85';
+    const EMAILJS_SERVICE_ID = 'service_k6en379';
+    const EMAILJS_TEMPLATE_ID = 'template_5bpwi5o';
+
+    /* ═══════════════════════════════════════════════
+       AUTH CONSTANTS — do not change
+    ═══════════════════════════════════════════════ */
+    // Authorised email
+    const ADMIN_EMAIL = 'pandeyanubhav229@gmail.com';
+
+    // Password check uses base64 encoding (crypto.subtle is unreliable on file:// URLs)
+    // Note: on a static site the source is always readable — this provides
+    // reasonable protection against casual access, not determined attackers.
+    const PASSWORD_B64 = 'UmVMVjE5NDI=';
+
+    const SESSION_KEY = 'portfolio_admin_session';
+    const OTP_KEY = 'portfolio_admin_otp';
+    const OTP_TTL = 10 * 60 * 1000; // 10 minutes
+    const SESSION_TTL = 8 * 60 * 60 * 1000; // 8 hours
+
+    let timerInterval = null;
+
+    /* ── Init ── */
+    window.addEventListener('DOMContentLoaded', () => {
+      // Already authenticated? Go straight to admin
+      const session = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
+      if (session && session.expires > Date.now()) {
+        window.location.href = 'admin.html';
+        return;
+      }
+
+      const emailjsReady = EMAILJS_PUBLIC_KEY !== 'YOUR_EMAILJS_PUBLIC_KEY';
+      if (emailjsReady) {
+        emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+      } else {
+        document.getElementById('emailjsNote').style.display = 'block';
+      }
+    });
+
+    /* ══════════════════════════════════════════════
+       STEP 1: Email + Password
+    ══════════════════════════════════════════════ */
+    function handleLogin() {
+      const email = document.getElementById('email').value.trim().toLowerCase();
+      const password = document.getElementById('password').value;
+      const errEl = document.getElementById('loginError');
+      const btn = document.getElementById('loginBtn');
+
+      clearError(errEl);
+
+      if (!email || !password) {
+        return showError(errEl, 'Please enter your email and password.');
+      }
+
+      if (email !== ADMIN_EMAIL) {
+        return showError(errEl, 'Access denied.');
+      }
+
+      // Compare using base64 — avoids crypto.subtle which can fail on file:// URLs
+      if (password !== atob(PASSWORD_B64)) {
+        return showError(errEl, 'Incorrect password.');
+      }
+
+      // Credentials correct — generate and send OTP
+      setLoading(btn, true);
+
+      const otp = String(Math.floor(100000 + Math.random() * 900000));
+      localStorage.setItem(OTP_KEY, JSON.stringify({ code: otp, expires: Date.now() + OTP_TTL }));
+
+      const emailjsReady = EMAILJS_PUBLIC_KEY !== 'YOUR_EMAILJS_PUBLIC_KEY';
+
+      function proceedToStep2() {
+        setLoading(btn, false);
+        showStep2();
+        document.getElementById('otpDesc').innerHTML =
+          'Your code: <strong style="font-family:monospace;letter-spacing:0.1em;font-size:1.1em">' + otp + '</strong>. (Also sent to your email if configured.) Expires in <span class="timer" id="timer">10:00</span>.';
+      }
+
+      if (emailjsReady) {
+        emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+          to_email: ADMIN_EMAIL,
+          otp_code: otp,
+        }).then(function() {
+          proceedToStep2();
+        }).catch(function(err) {
+          console.error('EmailJS error:', err);
+          // Still proceed — OTP is shown on screen as fallback
+          proceedToStep2();
+        });
+      } else {
+        console.warn('[DEV] EmailJS not configured. OTP:', otp);
+        proceedToStep2();
+      }
+    }
+
+    /* ══════════════════════════════════════════════
+       STEP 2: OTP
+    ══════════════════════════════════════════════ */
+    function showStep2() {
+      document.getElementById('step1').classList.remove('active');
+      document.getElementById('step2').classList.add('active');
+      document.getElementById('otp').focus();
+      startTimer();
+    }
+
+    function backToStep1() {
+      document.getElementById('step2').classList.remove('active');
+      document.getElementById('step1').classList.add('active');
+      clearInterval(timerInterval);
+      clearError(document.getElementById('otpError'));
+      document.getElementById('otp').value = '';
+    }
+
+    function handleOTP() {
+      const entered = document.getElementById('otp').value.trim();
+      const errEl = document.getElementById('otpError');
+      const btn = document.getElementById('otpBtn');
+
+      clearError(errEl);
+
+      const stored = JSON.parse(localStorage.getItem(OTP_KEY) || 'null');
+
+      if (!stored || Date.now() > stored.expires) {
+        return showError(errEl, 'This code has expired. Please start over.', true);
+      }
+
+      if (entered !== stored.code) {
+        return showError(errEl, 'Incorrect code. Check your email and try again.');
+      }
+
+      // Success
+      clearInterval(timerInterval);
+      localStorage.removeItem(OTP_KEY);
+      localStorage.setItem(SESSION_KEY, JSON.stringify({
+        token: generateToken(),
+        expires: Date.now() + SESSION_TTL
+      }));
+
+      setLoading(btn, true);
+      setTimeout(() => { window.location.href = 'admin.html'; }, 300);
+    }
+
+    async function resendOTP() {
+      backToStep1();
+      // Re-enter password to resend
+      document.getElementById('password').focus();
+    }
+
+    /* ── Timer ── */
+    function startTimer() {
+      const stored = JSON.parse(localStorage.getItem(OTP_KEY) || 'null');
+      if (!stored) return;
+
+      function tick() {
+        const remaining = Math.max(0, stored.expires - Date.now());
+        const mm = String(Math.floor(remaining / 60000)).padStart(2, '0');
+        const ss = String(Math.floor((remaining % 60000) / 1000)).padStart(2, '0');
+        const timerEl = document.getElementById('timer');
+        if (timerEl) timerEl.textContent = `${mm}:${ss}`;
+        if (remaining === 0) {
+          clearInterval(timerInterval);
+          showError(document.getElementById('otpError'), 'Code expired. Go back and request a new one.');
+        }
+      }
+      tick();
+      timerInterval = setInterval(tick, 1000);
+    }
+
+    /* ══════════════════════════════════════════════
+       HELPERS
+    ══════════════════════════════════════════════ */
+    function generateToken() {
+      return Array.from(crypto.getRandomValues(new Uint8Array(24)))
+        .map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    function showError(el, msg, goBack) {
+      el.textContent = msg;
+      el.classList.add('visible');
+      if (goBack) setTimeout(backToStep1, 2500);
+    }
+
+    function clearError(el) {
+      el.textContent = '';
+      el.classList.remove('visible');
+    }
+
+    function setLoading(btn, loading) {
+      btn.disabled = loading;
+      btn.classList.toggle('loading', loading);
+    }
+  </script>
+
+</body>
+
+</html>

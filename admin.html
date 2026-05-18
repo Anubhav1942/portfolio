@@ -1,0 +1,2689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portfolio Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ════════════════════════════════════════
+       ADMIN PANEL STYLES
+    ════════════════════════════════════════ */
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --sidebar-w:  240px;
+      --topbar-h:   52px;
+      --bg:         #F5F4F0;
+      --card:       #FFFFFF;
+      --sidebar:    #141413;
+      --text:       #111110;
+      --text-sec:   #6A6A66;
+      --text-muted: #9A9A96;
+      --accent:     #1C3D2B;
+      --accent-mid: #2D6A4F;
+      --accent-soft:#52B788;
+      --border:     #E0DDD7;
+      --danger:     #C0392B;
+      --success:    #27AE60;
+      --radius:     6px;
+      --ease:       0.18s ease;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      font-size: 14px;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Topbar ── */
+    .topbar {
+      height: var(--topbar-h);
+      background: var(--sidebar);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.5rem;
+      flex-shrink: 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .topbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .topbar-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--accent-soft);
+      border-radius: 50%;
+    }
+
+    .topbar-title {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #FFFFFF;
+      letter-spacing: -0.01em;
+    }
+
+    .topbar-subtitle {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.35);
+      margin-left: 0.5rem;
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .save-indicator {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.35);
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: color var(--ease);
+    }
+
+    .save-indicator.saved  { color: var(--accent-soft); }
+    .save-indicator.saving { color: rgba(255,255,255,0.5); }
+
+    .save-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .btn-topbar {
+      font-size: 0.75rem;
+      font-weight: 500;
+      padding: 0.38rem 0.9rem;
+      border-radius: 4px;
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+      transition: background var(--ease), color var(--ease);
+    }
+
+    .btn-preview {
+      background: rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.7);
+    }
+
+    .btn-preview:hover { background: rgba(255,255,255,0.14); color: #fff; }
+
+    .btn-export {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-export:hover { background: var(--accent-mid); }
+
+    /* ── Body layout ── */
+    .admin-body {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--sidebar);
+      flex-shrink: 0;
+      overflow-y: auto;
+      padding: 1.25rem 0;
+    }
+
+    .sidebar::-webkit-scrollbar { width: 3px; }
+    .sidebar::-webkit-scrollbar-track { background: transparent; }
+    .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+    .sidebar-group {
+      margin-bottom: 0.5rem;
+    }
+
+    .sidebar-group-label {
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.22);
+      padding: 0.75rem 1.25rem 0.4rem;
+      display: block;
+    }
+
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.52rem 1.25rem;
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.5);
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-family: inherit;
+      width: 100%;
+      text-align: left;
+      transition: color var(--ease), background var(--ease);
+      border-left: 2px solid transparent;
+    }
+
+    .sidebar-item:hover { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.04); }
+
+    .sidebar-item.active {
+      color: #fff;
+      background: rgba(255,255,255,0.06);
+      border-left-color: var(--accent-soft);
+    }
+
+    .sidebar-item-icon {
+      font-size: 0.8rem;
+      opacity: 0.6;
+      flex-shrink: 0;
+    }
+
+    /* ── Main content ── */
+    .main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 2rem 2.5rem;
+    }
+
+    .main::-webkit-scrollbar { width: 5px; }
+    .main::-webkit-scrollbar-track { background: transparent; }
+    .main::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    /* Section panel */
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    .panel-header {
+      margin-bottom: 2rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .panel-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.3rem;
+    }
+
+    .panel-desc {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Card */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 1rem;
+      overflow: hidden;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.9rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      background: #FAFAF8;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .card-header-left {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .card-header-num {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      color: var(--accent-mid);
+      background: rgba(44,106,79,0.08);
+      padding: 0.15rem 0.45rem;
+      border-radius: 3px;
+    }
+
+    .card-header-title {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .card-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .card-toggle {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      transition: transform var(--ease);
+    }
+
+    .card.collapsed .card-toggle { transform: rotate(-90deg); }
+    .card.collapsed .card-body  { display: none; }
+
+    .card-body {
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .card-body-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    /* Form fields */
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .field.full { grid-column: 1 / -1; }
+
+    label {
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: var(--text-sec);
+      letter-spacing: 0.01em;
+    }
+
+    .field-hint {
+      font-size: 0.67rem;
+      color: var(--text-muted);
+      margin-top: -0.2rem;
+    }
+
+    input[type="text"],
+    input[type="url"],
+    input[type="email"],
+    textarea,
+    select {
+      font-family: inherit;
+      font-size: 0.82rem;
+      color: var(--text);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.52rem 0.75rem;
+      outline: none;
+      transition: border-color var(--ease), box-shadow var(--ease);
+      width: 100%;
+      resize: vertical;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--accent-mid);
+      box-shadow: 0 0 0 3px rgba(44,106,79,0.1);
+    }
+
+    textarea {
+      min-height: 90px;
+      line-height: 1.6;
+    }
+
+    textarea.short { min-height: 60px; }
+    textarea.tall  { min-height: 140px; }
+
+    /* List editor (for skills, tools, etc.) */
+    .list-editor {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .list-item-row {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .list-item-row input { flex: 1; }
+
+    .btn-remove-item {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: none;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      flex-shrink: 0;
+      transition: background var(--ease), color var(--ease), border-color var(--ease);
+    }
+
+    .btn-remove-item:hover {
+      background: #FEF0EE;
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+
+    /* Repeatable card item */
+    .repeat-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 0.75rem;
+      overflow: hidden;
+    }
+
+    .repeat-item-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.7rem 1rem;
+      background: #FAFAF8;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .repeat-item-label {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .repeat-item-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .btn-icon {
+      width: 26px;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: none;
+      cursor: pointer;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      transition: background var(--ease), color var(--ease);
+    }
+
+    .btn-icon:hover { background: var(--bg); color: var(--text); }
+    .btn-icon.danger:hover { background: #FEF0EE; border-color: var(--danger); color: var(--danger); }
+
+    .repeat-item-body {
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .repeat-item-body.collapsed { display: none; }
+
+    .repeat-body-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.85rem;
+    }
+
+    /* Add button */
+    .btn-add {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--accent-mid);
+      background: rgba(44,106,79,0.07);
+      border: 1px dashed rgba(44,106,79,0.3);
+      border-radius: var(--radius);
+      padding: 0.6rem 1rem;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background var(--ease), border-color var(--ease);
+      width: 100%;
+      justify-content: center;
+      margin-top: 0.25rem;
+    }
+
+    .btn-add:hover {
+      background: rgba(44,106,79,0.12);
+      border-color: rgba(44,106,79,0.5);
+    }
+
+    /* Section divider */
+    .section-divider {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 1.5rem 0 0.75rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 1rem;
+    }
+
+    /* Stat row (for hero stats) */
+    .stat-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 0.6rem;
+      align-items: center;
+    }
+
+    /* Bio paragraph type toggle */
+    .type-toggle {
+      display: flex;
+      gap: 0.4rem;
+    }
+
+    .type-btn {
+      font-size: 0.72rem;
+      font-weight: 500;
+      padding: 0.28rem 0.7rem;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: none;
+      cursor: pointer;
+      font-family: inherit;
+      color: var(--text-sec);
+      transition: background var(--ease), color var(--ease), border-color var(--ease);
+    }
+
+    .type-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    /* Export modal overlay */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: var(--card);
+      border-radius: var(--radius);
+      width: 640px;
+      max-width: 92vw;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .modal-close {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-family: inherit;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      transition: background var(--ease);
+    }
+
+    .modal-close:hover { background: var(--bg); }
+
+    .modal-body {
+      padding: 1.25rem 1.5rem;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .modal-body p {
+      font-size: 0.82rem;
+      color: var(--text-sec);
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+
+    .modal-code {
+      background: #1A1A18;
+      border-radius: 4px;
+      padding: 1rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.72rem;
+      color: #A8E6CF;
+      line-height: 1.5;
+      overflow-x: auto;
+      max-height: 200px;
+      overflow-y: auto;
+      white-space: pre;
+    }
+
+    .modal-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 0.75rem;
+      justify-content: flex-end;
+    }
+
+    .btn-modal {
+      font-size: 0.8rem;
+      font-weight: 500;
+      padding: 0.55rem 1.25rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: inherit;
+      border: none;
+      transition: background var(--ease);
+    }
+
+    .btn-modal-sec {
+      background: var(--bg);
+      color: var(--text-sec);
+      border: 1px solid var(--border);
+    }
+
+    .btn-modal-sec:hover { background: var(--border); }
+
+    .btn-modal-pri {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-modal-pri:hover { background: var(--accent-mid); }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #fff;
+      background: var(--accent);
+      border: none;
+      border-radius: var(--radius);
+      padding: 0.55rem 1.1rem;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background var(--ease);
+      white-space: nowrap;
+    }
+    .btn-primary:hover { background: var(--accent-mid); }
+
+    /* Block editor */
+    .block-row {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 0.5rem;
+      background: var(--bg);
+      overflow: hidden;
+    }
+    .block-row-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0.6rem;
+      background: #F0EFEb;
+      border-bottom: 1px solid var(--border);
+    }
+    .block-type-badge {
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.15rem 0.45rem;
+      border-radius: 3px;
+      background: var(--accent-tint, #EDF5F0);
+      color: var(--accent-mid);
+      flex-shrink: 0;
+    }
+    .block-type-badge.callout { background: #FFF8E6; color: #B8860B; }
+    .block-type-badge.metric  { background: #EEF3FF; color: #3A56A7; }
+    .block-type-badge.image   { background: #F5EFF8; color: #7B4FA6; }
+    .block-type-badge.list    { background: #FFF1F1; color: #B03A3A; }
+    .block-row-body { padding: 0.6rem 0.75rem; }
+    .block-row-body textarea { min-height: 64px; }
+    .block-add-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    .block-add-row select {
+      flex: 1;
+      padding: 0.35rem 0.5rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.8rem;
+      background: var(--card);
+      color: var(--text);
+    }
+    .sub-item-row {
+      display: flex;
+      gap: 0.4rem;
+      align-items: center;
+      margin-bottom: 0.35rem;
+    }
+    .sub-item-row input { flex: 1; }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: var(--sidebar);
+      color: #fff;
+      font-size: 0.78rem;
+      padding: 0.65rem 1.1rem;
+      border-radius: var(--radius);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      transform: translateY(80px);
+      opacity: 0;
+      transition: transform 0.25s ease, opacity 0.25s ease;
+      z-index: 500;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* ── Case Study internal tabs ── */
+    .cs-panel-tabs { margin-top: 0.5rem; }
+
+    .cs-panel-tab-bar {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 1.75rem;
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+      z-index: 10;
+      padding-top: 0.25rem;
+    }
+
+    .cs-panel-tab-btn {
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      padding: 0.55rem 1.1rem;
+      cursor: pointer;
+      transition: color var(--ease), border-color var(--ease);
+      margin-bottom: -1px;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      white-space: nowrap;
+    }
+
+    .cs-panel-tab-btn:hover { color: var(--text); }
+
+    .cs-panel-tab-btn.active {
+      color: var(--accent-mid);
+      border-bottom-color: var(--accent-mid);
+    }
+
+    .cs-tab-badge {
+      font-size: 0.62rem;
+      font-weight: 600;
+      background: var(--border);
+      color: var(--text-sec);
+      padding: 0.1rem 0.45rem;
+      border-radius: 10px;
+      min-width: 18px;
+      text-align: center;
+    }
+
+    .cs-panel-tab-btn.active .cs-tab-badge {
+      background: rgba(44,106,79,0.12);
+      color: var(--accent-mid);
+    }
+
+    .cs-panel-pane { display: none; }
+    .cs-panel-pane.active { display: block; }
+
+    /* Status dot on section / decision collapsed headers */
+    .cs-status-dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--border);
+      flex-shrink: 0;
+      margin-right: 0.15rem;
+    }
+    .cs-status-dot.filled { background: var(--success); }
+
+    /* Block content preview shown in collapsed block header */
+    .block-preview-text {
+      font-size: 0.71rem;
+      color: var(--text-muted);
+      font-style: italic;
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      padding: 0 0.25rem;
+    }
+
+    /* ── Visibility / hide controls ── */
+    .btn-hide {
+      width: 26px;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: none;
+      cursor: pointer;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      transition: background var(--ease), color var(--ease), border-color var(--ease);
+      flex-shrink: 0;
+    }
+    .btn-hide:hover { background: var(--bg); color: var(--text); }
+    .btn-hide.is-hidden { background: #FFFBEB; border-color: #D4AC0D; color: #7D6608; }
+
+    .item-hidden .repeat-item-label { opacity: 0.5; text-decoration: line-through; }
+
+    .hidden-badge {
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: #7D6608;
+      background: #FFFBEB;
+      border: 1px solid #D4AC0D;
+      padding: 0.1rem 0.4rem;
+      border-radius: 3px;
+      margin-left: 0.35rem;
+      flex-shrink: 0;
+    }
+
+    .sidebar-item.is-hidden { opacity: 0.45; }
+    .sidebar-hidden-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #D4AC0D;
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+
+    /* CS-level visibility banner */
+    .cs-visibility-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: #FAFAF8;
+      margin-bottom: 1.25rem;
+    }
+    .cs-visibility-row.is-hidden { background: #FFFBEB; border-color: #D4AC0D; }
+    .cs-visibility-label { font-size: 0.82rem; font-weight: 500; }
+    .cs-visibility-row.is-hidden .cs-visibility-label { color: #7D6608; }
+
+    /* Toggle pill */
+    .toggle-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .toggle-pill-label { font-size: 0.75rem; color: var(--text-sec); }
+    .toggle-pill-btn {
+      position: relative;
+      width: 36px;
+      height: 20px;
+      background: var(--border);
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      transition: background var(--ease);
+      flex-shrink: 0;
+    }
+    .toggle-pill-btn.on { background: var(--accent-mid); }
+    .toggle-pill-btn::after {
+      content: '';
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      background: #fff;
+      border-radius: 50%;
+      top: 3px;
+      left: 3px;
+      transition: transform var(--ease);
+    }
+    .toggle-pill-btn.on::after { transform: translateX(16px); }
+
+    /* Danger zone (CS delete) */
+    .danger-zone {
+      border: 1px solid #F5C6C2;
+      border-radius: var(--radius);
+      padding: 0.85rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      background: #FFF8F7;
+      margin-top: 1.5rem;
+    }
+    .danger-zone-desc { font-size: 0.78rem; color: var(--danger); }
+    .btn-danger {
+      font-size: 0.75rem;
+      font-weight: 500;
+      padding: 0.38rem 0.9rem;
+      border-radius: 4px;
+      border: 1px solid var(--danger);
+      background: none;
+      color: var(--danger);
+      cursor: pointer;
+      font-family: inherit;
+      transition: background var(--ease), color var(--ease);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .btn-danger:hover { background: var(--danger); color: #fff; }
+
+    /* Add CS button in sidebar */
+    .sidebar-add-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.45rem 1.25rem;
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.35);
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-family: inherit;
+      width: 100%;
+      text-align: left;
+      transition: color var(--ease);
+    }
+    .sidebar-add-btn:hover { color: var(--accent-soft); }
+
+    /* ── Rich Text Editor ── */
+    .rte-wrap { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: #fff; }
+    .rte-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      padding: 4px 6px;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    .rte-btn {
+      background: none;
+      border: 1px solid transparent;
+      border-radius: 3px;
+      padding: 2px 7px;
+      cursor: pointer;
+      font-size: 11.5px;
+      color: var(--text);
+      font-family: inherit;
+      line-height: 1.5;
+      white-space: nowrap;
+    }
+    .rte-btn:hover { background: var(--border); border-color: var(--border); }
+    .rte-sep { width: 1px; height: 14px; background: var(--border); margin: 0 3px; align-self: center; }
+    .rte-editor {
+      padding: 8px 10px;
+      min-height: 64px;
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--text);
+      outline: none;
+      background: #fff;
+    }
+    .rte-editor.tall { min-height: 110px; }
+    .rte-editor:focus { box-shadow: inset 0 0 0 2px rgba(44,106,79,0.2); }
+    .rte-editor ul, .rte-editor ol { padding-left: 1.2rem; margin: 0.2em 0; }
+    .rte-editor li { margin-bottom: 0.1em; }
+  </style>
+</head>
+
+<body>
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-brand">
+      <div class="topbar-dot"></div>
+      <span class="topbar-title">Portfolio Admin</span>
+      <span class="topbar-subtitle">/ Anubhav Pandey</span>
+    </div>
+    <div class="topbar-actions">
+      <div class="save-indicator" id="saveIndicator">
+        <div class="save-dot"></div>
+        <span id="saveText">All changes saved</span>
+      </div>
+      <button class="btn-topbar btn-preview" onclick="previewSite()">Preview site ↗</button>
+      <button class="btn-topbar btn-export" onclick="openExportModal()">Export content.js</button>
+      <button class="btn-topbar" onclick="logout()" style="background:transparent;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.55)" title="Sign out">Sign out</button>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="admin-body">
+
+    <!-- SIDEBAR -->
+    <nav class="sidebar">
+
+      <div class="sidebar-group">
+        <span class="sidebar-group-label">Settings</span>
+        <button class="sidebar-item active" onclick="showPanel('global', this)">
+          <span class="sidebar-item-icon">⚙</span> Global Settings
+        </button>
+      </div>
+
+      <div class="sidebar-group">
+        <span class="sidebar-group-label">Home Page</span>
+        <button class="sidebar-item" onclick="showPanel('hero', this)">
+          <span class="sidebar-item-icon">◉</span> Hero
+        </button>
+        <button class="sidebar-item" onclick="showPanel('projects', this)">
+          <span class="sidebar-item-icon">◫</span> Projects
+        </button>
+        <button class="sidebar-item" onclick="showPanel('experience', this)">
+          <span class="sidebar-item-icon">◑</span> Experience
+        </button>
+        <button class="sidebar-item" onclick="showPanel('aiprojects', this)">
+          <span class="sidebar-item-icon">◈</span> AI Projects
+        </button>
+        <button class="sidebar-item" onclick="showPanel('blog', this)">
+          <span class="sidebar-item-icon">◻</span> Blog
+        </button>
+      </div>
+
+      <div class="sidebar-group">
+        <span class="sidebar-group-label">About Page</span>
+        <button class="sidebar-item" onclick="showPanel('about-bio', this)">
+          <span class="sidebar-item-icon">◷</span> Bio
+        </button>
+        <button class="sidebar-item" onclick="showPanel('about-sidebar', this)">
+          <span class="sidebar-item-icon">◱</span> Sidebar & Skills
+        </button>
+        <button class="sidebar-item" onclick="showPanel('about-cta', this)">
+          <span class="sidebar-item-icon">◲</span> CTA
+        </button>
+      </div>
+
+      <div class="sidebar-group">
+        <span class="sidebar-group-label">Case Studies</span>
+        <div id="sidebar-cs-items"></div>
+        <button class="sidebar-add-btn" onclick="promptAddCaseStudy()">＋ Add case study</button>
+      </div>
+
+      <div class="sidebar-group">
+        <div class="sidebar-group-label">Versions</div>
+        <button class="sidebar-item" onclick="showPanel('versions',this)">
+          <span class="sidebar-item-icon">⏱</span> Saved Versions
+        </button>
+      </div>
+
+    </nav>
+
+    <!-- MAIN -->
+    <main class="main">
+
+      <!-- ── GLOBAL ── -->
+      <div class="panel active" id="panel-global">
+        <div class="panel-header">
+          <div class="panel-title">Global Settings</div>
+          <div class="panel-desc">These values appear on every page — name, contact, resume link, analytics ID.</div>
+        </div>
+        <div class="card">
+          <div class="card-body card-body-grid">
+            <div class="field"><label>Your Name</label><input type="text" data-path="global.name" /></div>
+            <div class="field"><label>Tagline</label><input type="text" data-path="global.tagline" /></div>
+            <div class="field"><label>Email</label><input type="email" data-path="global.email" /></div>
+            <div class="field"><label>LinkedIn URL</label><input type="url" data-path="global.linkedin" /></div>
+            <div class="field"><label>Dribbble URL</label><input type="url" data-path="global.dribbble" /></div>
+            <div class="field"><label>Resume URL</label><input type="text" data-path="global.resumeUrl" /><span class="field-hint">Google Drive or local path — e.g. https://drive.google.com/file/d/…/view</span></div>
+            <div class="field"><label>Google Analytics ID</label><input type="text" data-path="global.gaId" /><span class="field-hint">Replace G-XXXXXXXXXX with your real GA4 ID</span></div>
+            <div class="field full"><label>Footer description</label>
+              <div class="rte-wrap">
+                <div class="rte-toolbar" onmousedown="event.preventDefault()">
+                  <button type="button" class="rte-btn" onclick="rteCmd(this,'bold')" title="Bold"><b>B</b></button>
+                  <button type="button" class="rte-btn" onclick="rteCmd(this,'italic')" title="Italic"><em>I</em></button>
+                  <span class="rte-sep"></span>
+                  <button type="button" class="rte-btn" onclick="rteCmd(this,'insertUnorderedList')" title="Bullet list">• List</button>
+                  <button type="button" class="rte-btn" onclick="rteCmd(this,'insertOrderedList')" title="1. List">1. List</button>
+                  <span class="rte-sep"></span>
+                  <button type="button" class="rte-btn" onclick="rteInsertBr(this)" title="Line break">↵ BR</button>
+                </div>
+                <div class="rte-editor" contenteditable="true" data-path="global.footerDesc"></div>
+              </div>
+            </div>
+            <div class="field full"><label>Copyright line</label><input type="text" data-path="global.copyright" /></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── HERO ── -->
+      <div class="panel" id="panel-hero">
+        <div class="panel-header">
+          <div class="panel-title">Hero Section</div>
+          <div class="panel-desc">The first thing visitors see. Each heading line is separate. The last line gets italic green styling automatically.</div>
+        </div>
+
+        <div class="card">
+          <div class="card-header" onclick="toggleCard(this)">
+            <div class="card-header-left"><span class="card-header-title">Heading & Subtitle</span></div>
+            <span class="card-toggle">▾</span>
+          </div>
+          <div class="card-body">
+            <div class="field"><label>Label (small text above heading)</label><input type="text" data-path="home.hero.label" /></div>
+            <div class="field"><label>Heading — Line 1</label><input type="text" data-path="home.hero.headingLines.0" /></div>
+            <div class="field"><label>Heading — Line 2</label><input type="text" data-path="home.hero.headingLines.1" /></div>
+            <div class="field"><label>Heading — Line 3 (italic green)</label><input type="text" data-path="home.hero.headingLines.2" /></div>
+            <div class="field"><label>Subtitle paragraph</label>
+              <div class="rte-wrap">
+                <div class="rte-toolbar" onmousedown="event.preventDefault()">
+                  <button type="button" class="rte-btn" onclick="rteCmd(this,'bold')" title="Bold"><b>B</b></button>
+                  <button type="button" class="rte-btn" onclick="rteCmd(this,'italic')" title="Italic"><em>I</em></button>
+                  <span class="rte-sep"></span>
+                  <button type="button" class="rte-btn" onclick="rteCmd(this,'insertUnorderedList')" title="Bullet list">• List</button>
+                  <button type="button" class="rte-btn" onclick="rteCmd(this,'insertOrderedList')" title="1. List">1. List</button>
+                  <span class="rte-sep"></span>
+                  <button type="button" class="rte-btn" onclick="rteInsertBr(this)" title="Line break">↵ BR</button>
+                </div>
+                <div class="rte-editor" contenteditable="true" data-path="home.hero.subtitle"></div>
+              </div>
+            </div>
+            <div class="field card-body-grid">
+              <div><label>CTA 1 button label</label><input type="text" data-path="home.hero.cta1Label" /></div>
+              <div><label>CTA 2 button label</label><input type="text" data-path="home.hero.cta2Label" /></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header" onclick="toggleCard(this)">
+            <div class="card-header-left"><span class="card-header-title">Stats strip</span></div>
+            <span class="card-toggle">▾</span>
+          </div>
+          <div class="card-body">
+            <div class="field-hint" style="margin-bottom:0.5rem">Up to 6 stats. Each has a large value and a small label. Duplicatable.</div>
+            <div id="stats-list"></div>
+            <button class="btn-add" onclick="addStat()">+ Add stat</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── PROJECTS ── -->
+      <div class="panel" id="panel-projects">
+        <div class="panel-header">
+          <div class="panel-title">Projects Grid</div>
+          <div class="panel-desc">4 project cards on the home page. Duplicatable — add new projects. Changing order here updates the display order.</div>
+        </div>
+        <div id="projects-list"></div>
+        <button class="btn-add" onclick="addProject()">+ Add project</button>
+      </div>
+
+      <!-- ── EXPERIENCE ── -->
+      <div class="panel" id="panel-experience">
+        <div class="panel-header">
+          <div class="panel-title">Experience Strip</div>
+          <div class="panel-desc">Dark section listing where you have worked. Duplicatable — add new companies.</div>
+        </div>
+        <div id="experience-list"></div>
+        <button class="btn-add" onclick="addExperience()">+ Add company</button>
+      </div>
+
+      <!-- ── AI PROJECTS ── -->
+      <div class="panel" id="panel-aiprojects">
+        <div class="panel-header">
+          <div class="panel-title">AI &amp; Independent Projects</div>
+          <div class="panel-desc">Living section — add new projects as you build them. Each card has a tag, title, description, and optional link.</div>
+        </div>
+        <div class="cs-visibility-row" id="ai-section-visibility-row">
+          <span class="cs-visibility-label" id="ai-section-visibility-label">● Section visible on homepage</span>
+          <div class="toggle-pill">
+            <span class="toggle-pill-label">Visible</span>
+            <button class="toggle-pill-btn on" id="ai-section-vis-btn" onclick="toggleAiSectionHidden()"></button>
+          </div>
+        </div>
+        <div id="aiprojects-list"></div>
+        <button class="btn-add" onclick="addAiProject()">+ Add project</button>
+      </div>
+
+      <!-- ── BLOG ── -->
+      <div class="panel" id="panel-blog">
+        <div class="panel-header">
+          <div class="panel-title">Blog Posts</div>
+          <div class="panel-desc">Post metadata shown on the home page. Add a row for each published post. The actual post content is in its own HTML file.</div>
+        </div>
+        <div id="blog-list"></div>
+        <button class="btn-add" onclick="addBlogPost()">+ Add post</button>
+      </div>
+
+      <!-- ── ABOUT BIO ── -->
+      <div class="panel" id="panel-about-bio">
+        <div class="panel-header">
+          <div class="panel-title">About — Bio</div>
+          <div class="panel-desc">Hero heading, then bio paragraphs and section headings.</div>
+        </div>
+
+        <div class="card">
+          <div class="card-header" onclick="toggleCard(this)">
+            <div class="card-header-left"><span class="card-header-title">Hero heading</span></div>
+            <span class="card-toggle">▾</span>
+          </div>
+          <div class="card-body">
+            <div class="field-hint" style="margin-bottom:0.5rem">Three-line h1 at the top of the About page. The last line gets italic green styling automatically.</div>
+            <div class="field"><label>Line 1</label><input type="text" data-path="about.heroHeadingLines.0" /></div>
+            <div class="field"><label>Line 2</label><input type="text" data-path="about.heroHeadingLines.1" /></div>
+            <div class="field"><label>Line 3 (italic green)</label><input type="text" data-path="about.heroHeadingLines.2" /></div>
+          </div>
+        </div>
+
+        <div class="section-divider">Bio paragraphs</div>
+        <div id="bio-list"></div>
+        <div style="display:flex;gap:0.5rem;margin-top:0.25rem;">
+          <button class="btn-add" style="flex:1" onclick="addBioItem('paragraph')">+ Add paragraph</button>
+          <button class="btn-add" style="flex:1" onclick="addBioItem('heading')">+ Add heading</button>
+        </div>
+      </div>
+
+      <!-- ── ABOUT SIDEBAR ── -->
+      <div class="panel" id="panel-about-sidebar">
+        <div class="panel-header">
+          <div class="panel-title">About — Sidebar &amp; Skills</div>
+          <div class="panel-desc">Skills list, tools list, and custom sidebar blocks (Currently, Location, etc.).</div>
+        </div>
+        <div class="card">
+          <div class="card-header" onclick="toggleCard(this)">
+            <div class="card-header-left"><span class="card-header-title">Skills</span></div>
+            <span class="card-toggle">▾</span>
+          </div>
+          <div class="card-body">
+            <div class="list-editor" id="skills-list"></div>
+            <button class="btn-add" onclick="addListItem('skills')">+ Add skill</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header" onclick="toggleCard(this)">
+            <div class="card-header-left"><span class="card-header-title">Tools</span></div>
+            <span class="card-toggle">▾</span>
+          </div>
+          <div class="card-body">
+            <div class="list-editor" id="tools-list"></div>
+            <button class="btn-add" onclick="addListItem('tools')">+ Add tool</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header" onclick="toggleCard(this)">
+            <div class="card-header-left"><span class="card-header-title">Sidebar blocks</span></div>
+            <span class="card-toggle">▾</span>
+          </div>
+          <div class="card-body">
+            <div class="field-hint" style="margin-bottom:0.5rem">Custom blocks like "Currently", "Location", "Reading". Duplicatable.</div>
+            <div id="sidebar-blocks-list"></div>
+            <button class="btn-add" onclick="addSidebarBlock()">+ Add block</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ABOUT CTA ── -->
+      <div class="panel" id="panel-about-cta">
+        <div class="panel-header">
+          <div class="panel-title">About — Call to Action</div>
+          <div class="panel-desc">The "Let's work together" section at the bottom of the About page.</div>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <div class="field"><label>CTA heading</label><input type="text" data-path="about.ctaHeading" /></div>
+            <div class="field"><label>CTA paragraph</label>
+              <div class="rte-wrap">
+                <div class="rte-toolbar" onmousedown="event.preventDefault()">
+                  <button type="button" class="rte-btn" onclick="rteCmd(this,'bold')" title="Bold"><b>B</b></button>
+                  <button type="button" class="rte-btn" onclick="rteCmd(this,'italic')" title="Italic"><em>I</em></button>
+                  <span class="rte-sep"></span>
+                  <button type="button" class="rte-btn" onclick="rteCmd(this,'insertUnorderedList')" title="Bullet list">• List</button>
+                  <button type="button" class="rte-btn" onclick="rteCmd(this,'insertOrderedList')" title="1. List">1. List</button>
+                  <span class="rte-sep"></span>
+                  <button type="button" class="rte-btn" onclick="rteInsertBr(this)" title="Line break">↵ BR</button>
+                </div>
+                <div class="rte-editor" contenteditable="true" data-path="about.ctaParagraph"></div>
+              </div>
+            </div>
+            <div class="field"><label>Button label</label><input type="text" data-path="about.ctaButtonLabel" /></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── CASE STUDY: SECURESHARE ── -->
+      <div class="panel" id="panel-cs-secureshare">
+        <div class="panel-header">
+          <div class="panel-title">Case Study — SecureShare</div>
+          <div class="panel-desc">Hero, outcomes bar, content sections, and design decisions. Sections and decisions are duplicatable.</div>
+        </div>
+        <div id="cs-secureshare-fields"></div>
+      </div>
+
+      <!-- ── CASE STUDY: SMARTBALANCE ── -->
+      <div class="panel" id="panel-cs-smartbalance">
+        <div class="panel-header">
+          <div class="panel-title">Case Study — SmartBalance</div>
+          <div class="panel-desc">Hero, outcomes, sections, decisions.</div>
+        </div>
+        <div id="cs-smartbalance-fields"></div>
+      </div>
+
+      <!-- ── CASE STUDY: GREENSKILLS ── -->
+      <div class="panel" id="panel-cs-greenskills">
+        <div class="panel-header">
+          <div class="panel-title">Case Study — GreenSkills</div>
+          <div class="panel-desc">Placeholder — add content when brief is finalised.</div>
+        </div>
+        <div id="cs-greenskills-fields"></div>
+      </div>
+
+      <!-- ── CASE STUDY: SANTHE ── -->
+      <div class="panel" id="panel-cs-santhe">
+        <div class="panel-header">
+          <div class="panel-title">Case Study — Santhe</div>
+          <div class="panel-desc">Hero, outcomes, sections.</div>
+        </div>
+        <div id="cs-santhe-fields"></div>
+      </div>
+
+      <!-- ── VERSIONS ── -->
+      <div class="panel" id="panel-versions">
+        <div class="panel-header">
+          <div class="panel-title">Saved Versions</div>
+          <div class="panel-desc">Save named snapshots of your content. Restore any version to go back to a previous state.</div>
+        </div>
+        <div style="padding:0 0 1rem">
+          <div class="card">
+            <div class="card-body">
+              <div style="display:flex;gap:0.5rem;align-items:flex-end">
+                <div class="field" style="flex:1;margin:0"><label>Version name</label><input type="text" id="versionNameInput" placeholder="e.g. Before adding images" /></div>
+                <button class="btn-primary" style="margin-bottom:0" onclick="saveVersion()">Save snapshot</button>
+              </div>
+            </div>
+          </div>
+          <div id="versions-list" style="margin-top:1rem"></div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- EXPORT MODAL -->
+  <div class="modal-overlay" id="exportModal">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title">Export content.js</span>
+        <button class="modal-close" onclick="closeExportModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p>Copy the code below and replace the contents of <strong>portfolio/content.js</strong> on your computer. This makes your changes permanent across all pages.</p>
+        <p>Alternatively, click <strong>Download</strong> to save the file directly.</p>
+        <div class="modal-code" id="exportCode"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-modal btn-modal-sec" onclick="copyExport()">Copy to clipboard</button>
+        <button class="btn-modal btn-modal-pri" onclick="downloadExport()">Download content.js</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Load content.js defaults -->
+  <script src="content.js"></script>
+
+  <script>
+  /* ════════════════════════════════════════
+     ADMIN PANEL — LOGIC
+  ════════════════════════════════════════ */
+
+  const STORAGE_KEY  = 'portfolio_content_v1';
+  const SESSION_KEY  = 'portfolio_admin_session';
+  let C = {}; // working copy of content
+  let saveTimer = null;
+
+  /* ── Auth guard ── */
+  (function checkAuth() {
+    const session = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
+    if (!session || session.expires <= Date.now()) {
+      window.location.href = 'login.html';
+    }
+  })();
+
+  /* ── Bootstrap ── */
+  function init() {
+    // Load from localStorage first, fall back to content.js defaults
+    const stored = localStorage.getItem(STORAGE_KEY);
+    C = stored ? JSON.parse(stored) : deepClone(window.CONTENT);
+
+    renderAllPanels();
+    bindSimpleFields();
+    showSaved();
+  }
+
+  /* ── Logout ── */
+  function logout() {
+    if (!confirm('Sign out of the admin panel?')) return;
+    localStorage.removeItem(SESSION_KEY);
+    window.location.href = 'login.html';
+  }
+
+  function deepClone(obj) {
+    return JSON.parse(JSON.stringify(obj));
+  }
+
+  /* ── Panel navigation ── */
+  function showPanel(id, btn) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
+    document.getElementById('panel-' + id).classList.add('active');
+    if (btn) btn.classList.add('active');
+  }
+
+  /* ── Card collapse ── */
+  function toggleCard(header) {
+    header.closest('.card').classList.toggle('collapsed');
+  }
+
+  /* ── Get/set nested value by dot-path ── */
+  function getPath(obj, path) {
+    return path.split('.').reduce((o, k) => o?.[k], obj);
+  }
+
+  function setPath(obj, path, value) {
+    const keys = path.split('.');
+    let cur = obj;
+    for (let i = 0; i < keys.length - 1; i++) {
+      if (cur[keys[i]] === undefined) cur[keys[i]] = {};
+      cur = cur[keys[i]];
+    }
+    cur[keys[keys.length - 1]] = value;
+  }
+
+  /* ── Bind all data-path inputs/textareas/RTE editors ── */
+  function bindSimpleFields() {
+    document.querySelectorAll('[data-path]').forEach(el => {
+      const path = el.dataset.path;
+      const val = getPath(C, path);
+      const isRTE = el.contentEditable === 'true';
+      if (val !== undefined) {
+        if (isRTE) el.innerHTML = val;
+        else el.value = val;
+      }
+      el.addEventListener('input', () => {
+        setPath(C, path, isRTE ? el.innerHTML : el.value);
+        scheduleSave();
+      });
+    });
+  }
+
+  /* ── Auto-save ── */
+  function scheduleSave() {
+    showSaving();
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(save, 600);
+  }
+
+  function save() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(C));
+    showSaved();
+  }
+
+  function showSaving() {
+    const ind = document.getElementById('saveIndicator');
+    ind.className = 'save-indicator saving';
+    document.getElementById('saveText').textContent = 'Saving…';
+  }
+
+  function showSaved() {
+    const ind = document.getElementById('saveIndicator');
+    ind.className = 'save-indicator saved';
+    document.getElementById('saveText').textContent = 'All changes saved';
+  }
+
+  /* ── Toast ── */
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  /* ════════════════════════════════════════
+     RENDER: Stats
+  ════════════════════════════════════════ */
+  function renderStats() {
+    const container = document.getElementById('stats-list');
+    container.innerHTML = '';
+    (C.home.hero.stats || []).forEach((stat, i) => {
+      const row = document.createElement('div');
+      row.className = 'stat-row';
+      row.style.marginBottom = '0.5rem';
+      row.innerHTML = `
+        <div class="field">
+          ${i===0 ? '<label>Value (large text)</label>' : ''}
+          <input type="text" value="${esc(stat.value)}" placeholder="e.g. >95%" oninput="updateStat(${i},'value',this.value)" />
+        </div>
+        <div class="field">
+          ${i===0 ? '<label>Label (small text)</label>' : ''}
+          <input type="text" value="${esc(stat.label)}" placeholder="Label" oninput="updateStat(${i},'label',this.value)" />
+        </div>
+        <button class="btn-icon danger" title="Remove" onclick="removeStat(${i})" style="margin-top:${i===0?'1.4rem':'0'}">✕</button>
+      `;
+      container.appendChild(row);
+    });
+  }
+
+  function updateStat(i, key, val) { C.home.hero.stats[i][key] = val; scheduleSave(); }
+  function removeStat(i) { C.home.hero.stats.splice(i, 1); renderStats(); scheduleSave(); }
+  function addStat() {
+    C.home.hero.stats.push({ value: '', label: '' });
+    renderStats(); scheduleSave();
+    showToast('Stat added');
+  }
+
+  /* ════════════════════════════════════════
+     RENDER: Projects
+  ════════════════════════════════════════ */
+  function renderProjects() {
+    const container = document.getElementById('projects-list');
+    container.innerHTML = '';
+    (C.home.projects || []).forEach((p, i) => {
+      const item = document.createElement('div');
+      item.className = 'repeat-item' + (p.hidden ? ' item-hidden' : '');
+      item.innerHTML = `
+        <div class="repeat-item-header" onclick="toggleRepeat(this)">
+          <span class="repeat-item-label">${esc(p.name) || 'Project ' + (i+1)}${p.hidden ? '<span class="hidden-badge">Hidden</span>' : ''}</span>
+          <div class="repeat-item-controls">
+            <button class="btn-icon" title="Move up" onclick="moveItem('projects',${i},-1,event)">↑</button>
+            <button class="btn-icon" title="Move down" onclick="moveItem('projects',${i},1,event)">↓</button>
+            <button class="btn-hide ${p.hidden ? 'is-hidden' : ''}" title="${p.hidden ? 'Show' : 'Hide'}" onclick="toggleItemHidden('projects',${i},event)">${p.hidden ? '○' : '●'}</button>
+            <button class="btn-icon danger" title="Delete" onclick="removeItem('projects',${i},event)">✕</button>
+          </div>
+        </div>
+        <div class="repeat-item-body">
+          <div class="repeat-body-grid">
+            <div class="field"><label>Number (e.g. 01)</label><input type="text" value="${esc(p.number)}" oninput="updateItem('projects',${i},'number',this.value)" /></div>
+            <div class="field"><label>Tag label</label><input type="text" value="${esc(p.tag)}" oninput="updateItem('projects',${i},'tag',this.value)" /></div>
+            <div class="field"><label>Project name</label><input type="text" value="${esc(p.name)}" oninput="updateItem('projects',${i},'name',this.value)" /></div>
+            <div class="field"><label>Subtitle</label><input type="text" value="${esc(p.subtitle)}" oninput="updateItem('projects',${i},'subtitle',this.value)" /></div>
+          </div>
+          <div class="field"><label>Description</label>${rteHtml(p.description,"updateItem('projects',"+i+",'description',this.innerHTML)")}</div>
+          <div class="repeat-body-grid">
+            <div class="field"><label>Metric line</label><input type="text" value="${esc(p.metric)}" oninput="updateItem('projects',${i},'metric',this.value)" /></div>
+            <div class="field"><label>Case study URL</label><input type="url" value="${esc(p.url)}" oninput="updateItem('projects',${i},'url',this.value)" /></div>
+          </div>
+        </div>
+      `;
+      container.appendChild(item);
+    });
+  }
+
+  function addProject() {
+    C.home.projects.push({ id:'new-'+Date.now(), number:'0'+(C.home.projects.length+1), tag:'', name:'New Project', subtitle:'', description:'', metric:'', url:'' });
+    renderProjects(); scheduleSave(); showToast('Project added');
+  }
+
+  /* ════════════════════════════════════════
+     RENDER: Experience
+  ════════════════════════════════════════ */
+  function renderExperience() {
+    const container = document.getElementById('experience-list');
+    container.innerHTML = '';
+    (C.home.experience || []).forEach((e, i) => {
+      const item = document.createElement('div');
+      item.className = 'repeat-item' + (e.hidden ? ' item-hidden' : '');
+      item.innerHTML = `
+        <div class="repeat-item-header" onclick="toggleRepeat(this)">
+          <span class="repeat-item-label">${esc(e.company) || 'Company ' + (i+1)}${e.hidden ? '<span class="hidden-badge">Hidden</span>' : ''}</span>
+          <div class="repeat-item-controls">
+            <button class="btn-icon" onclick="moveItem('experience',${i},-1,event)">↑</button>
+            <button class="btn-icon" onclick="moveItem('experience',${i},1,event)">↓</button>
+            <button class="btn-hide ${e.hidden ? 'is-hidden' : ''}" title="${e.hidden ? 'Show' : 'Hide'}" onclick="toggleItemHidden('experience',${i},event)">${e.hidden ? '○' : '●'}</button>
+            <button class="btn-icon danger" onclick="removeItem('experience',${i},event)">✕</button>
+          </div>
+        </div>
+        <div class="repeat-item-body">
+          <div class="repeat-body-grid">
+            <div class="field"><label>Company name</label><input type="text" value="${esc(e.company)}" oninput="updateItem('experience',${i},'company',this.value)" /></div>
+            <div class="field"><label>Metric (right column)</label><input type="text" value="${esc(e.metric)}" oninput="updateItem('experience',${i},'metric',this.value)" /></div>
+            <div class="field"><label>Role title</label><input type="text" value="${esc(e.role)}" oninput="updateItem('experience',${i},'role',this.value)" /></div>
+            <div class="field"><label>Period</label><input type="text" value="${esc(e.period)}" oninput="updateItem('experience',${i},'period',this.value)" /></div>
+          </div>
+          <div class="field"><label>Description</label>${rteHtml(e.description,"updateItem('experience',"+i+",'description',this.innerHTML)")}</div>
+        </div>
+      `;
+      container.appendChild(item);
+    });
+  }
+
+  function addExperience() {
+    C.home.experience.push({ company:'', role:'', period:'', description:'', metric:'' });
+    renderExperience(); scheduleSave(); showToast('Experience entry added');
+  }
+
+  /* ════════════════════════════════════════
+     RENDER: AI Projects
+  ════════════════════════════════════════ */
+  function renderAiProjects() {
+    /* Sync AI section visibility toggle */
+    const hidden = !!(C.home && C.home.hideAiSection);
+    const row = document.getElementById('ai-section-visibility-row');
+    const btn = document.getElementById('ai-section-vis-btn');
+    const label = document.getElementById('ai-section-visibility-label');
+    if (row) row.classList.toggle('is-hidden', hidden);
+    if (btn) btn.classList.toggle('on', !hidden);
+    if (label) label.textContent = hidden ? '○ Section hidden from homepage' : '● Section visible on homepage';
+
+    const container = document.getElementById('aiprojects-list');
+    container.innerHTML = '';
+    (C.home.aiProjects || []).forEach((p, i) => {
+      const item = document.createElement('div');
+      item.className = 'repeat-item' + (p.hidden ? ' item-hidden' : '');
+      item.innerHTML = `
+        <div class="repeat-item-header" onclick="toggleRepeat(this)">
+          <span class="repeat-item-label">${esc(p.title) || 'Project ' + (i+1)}${p.hidden ? '<span class="hidden-badge">Hidden</span>' : ''}</span>
+          <div class="repeat-item-controls">
+            <button class="btn-icon" onclick="moveItem('aiProjects',${i},-1,event)">↑</button>
+            <button class="btn-icon" onclick="moveItem('aiProjects',${i},1,event)">↓</button>
+            <button class="btn-hide ${p.hidden ? 'is-hidden' : ''}" title="${p.hidden ? 'Show' : 'Hide'}" onclick="toggleItemHidden('aiProjects',${i},event)">${p.hidden ? '○' : '●'}</button>
+            <button class="btn-icon danger" onclick="removeItem('aiProjects',${i},event)">✕</button>
+          </div>
+        </div>
+        <div class="repeat-item-body">
+          <div class="repeat-body-grid">
+            <div class="field"><label>Tag</label><input type="text" value="${esc(p.tag)}" oninput="updateNestedItem('home','aiProjects',${i},'tag',this.value)" /></div>
+            <div class="field"><label>Title</label><input type="text" value="${esc(p.title)}" oninput="updateNestedItem('home','aiProjects',${i},'title',this.value)" /></div>
+          </div>
+          <div class="field"><label>Description</label>${rteHtml(p.description,"updateNestedItem('home','aiProjects',"+i+",'description',this.innerHTML)")}</div>
+          <div class="repeat-body-grid">
+            <div class="field"><label>Link text</label><input type="text" value="${esc(p.linkText)}" oninput="updateNestedItem('home','aiProjects',${i},'linkText',this.value)" /></div>
+            <div class="field"><label>URL (optional)</label><input type="url" value="${esc(p.url)}" oninput="updateNestedItem('home','aiProjects',${i},'url',this.value)" /></div>
+          </div>
+        </div>
+      `;
+      container.appendChild(item);
+    });
+  }
+
+  function addAiProject() {
+    C.home.aiProjects.push({ tag:'', title:'New Project', description:'', linkText:'View', url:'' });
+    renderAiProjects(); scheduleSave(); showToast('Project added');
+  }
+
+  /* ════════════════════════════════════════
+     RENDER: Blog
+  ════════════════════════════════════════ */
+  function renderBlog() {
+    const container = document.getElementById('blog-list');
+    container.innerHTML = '';
+    (C.home.blog || []).forEach((post, i) => {
+      const item = document.createElement('div');
+      item.className = 'repeat-item';
+      item.innerHTML = `
+        <div class="repeat-item-header" onclick="toggleRepeat(this)">
+          <span class="repeat-item-label">${esc(post.title) || 'Post ' + (i+1)}</span>
+          <div class="repeat-item-controls">
+            <button class="btn-icon" onclick="moveItem('blog',${i},-1,event)">↑</button>
+            <button class="btn-icon" onclick="moveItem('blog',${i},1,event)">↓</button>
+            <button class="btn-icon danger" onclick="removeItem('blog',${i},event)">✕</button>
+          </div>
+        </div>
+        <div class="repeat-item-body">
+          <div class="field"><label>Post title</label><input type="text" value="${esc(post.title)}" oninput="updateNestedItem('home','blog',${i},'title',this.value)" /></div>
+          <div class="repeat-body-grid">
+            <div class="field"><label>Date (e.g. May 2026)</label><input type="text" value="${esc(post.date)}" oninput="updateNestedItem('home','blog',${i},'date',this.value)" /></div>
+            <div class="field"><label>Read time</label><input type="text" value="${esc(post.readTime)}" oninput="updateNestedItem('home','blog',${i},'readTime',this.value)" /></div>
+          </div>
+          <div class="field"><label>Post URL</label><input type="url" value="${esc(post.url)}" oninput="updateNestedItem('home','blog',${i},'url',this.value)" /></div>
+          <div class="field">
+            <label>Cover image URL <span style="font-weight:400;color:var(--text-muted)">(paste a direct image link — jpg, png, webp)</span></label>
+            <div style="display:flex;gap:0.75rem;align-items:center">
+              <input type="url" value="${esc(post.image||'')}" placeholder="https://..." oninput="updateNestedItem('home','blog',${i},'image',this.value);updateBlogThumbPreview(this)" style="flex:1" />
+              <div style="width:76px;height:54px;border-radius:3px;background:var(--bg-alt);border:1px solid var(--border);background-size:cover;background-position:center;flex-shrink:0;${post.image ? 'background-image:url('+esc(post.image)+')' : ''}" data-thumb-preview="${i}"></div>
+            </div>
+          </div>
+        </div>
+      `;
+      container.appendChild(item);
+    });
+  }
+
+  function addBlogPost() {
+    C.home.blog.push({ date:'', title:'New Post', readTime:'', url:'', image:'' });
+    renderBlog(); scheduleSave(); showToast('Post row added');
+  }
+
+  function updateBlogThumbPreview(input) {
+    const wrap = input.closest('.field').querySelector('[data-thumb-preview]');
+    if (!wrap) return;
+    wrap.style.backgroundImage = input.value ? 'url(' + input.value + ')' : '';
+  }
+
+  /* ════════════════════════════════════════
+     RENDER: About bio
+  ════════════════════════════════════════ */
+  function renderBio() {
+    const container = document.getElementById('bio-list');
+    container.innerHTML = '';
+    (C.about.bioParagraphs || []).forEach((item, i) => {
+      const el = document.createElement('div');
+      el.className = 'repeat-item';
+      el.innerHTML = `
+        <div class="repeat-item-header" onclick="toggleRepeat(this)">
+          <span class="repeat-item-label">${item.type === 'heading' ? '— Heading: ' : '¶  '} ${(item.text||'').substring(0,50)}${(item.text||'').length>50?'…':''}</span>
+          <div class="repeat-item-controls">
+            <button class="btn-icon" onclick="moveItem('bioParagraphs',${i},-1,event,true)">↑</button>
+            <button class="btn-icon" onclick="moveItem('bioParagraphs',${i},1,event,true)">↓</button>
+            <button class="btn-icon danger" onclick="removeBioItem(${i},event)">✕</button>
+          </div>
+        </div>
+        <div class="repeat-item-body">
+          <div class="field">
+            <label>Type</label>
+            <div class="type-toggle">
+              <button class="type-btn ${item.type==='paragraph'?'active':''}" onclick="setBioType(${i},'paragraph',this)">Paragraph</button>
+              <button class="type-btn ${item.type==='heading'?'active':''}" onclick="setBioType(${i},'heading',this)">Section heading</button>
+            </div>
+          </div>
+          <div class="field">
+            <label>${item.type==='heading'?'Heading text':'Paragraph text'}</label>
+            ${item.type==='heading'
+              ? `<input type="text" value="${esc(item.text)}" oninput="updateBioItem(${i},'text',this.value)" />`
+              : rteHtml(item.text,"updateBioItem("+i+",'text',this.innerHTML)",true)
+            }
+          </div>
+        </div>
+      `;
+      container.appendChild(el);
+    });
+  }
+
+  function addBioItem(type) {
+    C.about.bioParagraphs.push({ type, text: '' });
+    renderBio(); scheduleSave(); showToast(type === 'heading' ? 'Heading added' : 'Paragraph added');
+  }
+
+  function setBioType(i, type, btn) {
+    C.about.bioParagraphs[i].type = type;
+    renderBio(); scheduleSave();
+  }
+
+  function updateBioItem(i, key, val) { C.about.bioParagraphs[i][key] = val; scheduleSave(); }
+  function removeBioItem(i, e) { e.stopPropagation(); C.about.bioParagraphs.splice(i,1); renderBio(); scheduleSave(); }
+
+  /* ════════════════════════════════════════
+     RENDER: Skills / Tools lists
+  ════════════════════════════════════════ */
+  function renderList(key, containerId) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+    (C.about[key] || []).forEach((item, i) => {
+      const row = document.createElement('div');
+      row.className = 'list-item-row';
+      row.innerHTML = `
+        <input type="text" value="${esc(item)}" oninput="updateListItem('${key}',${i},this.value)" />
+        <button class="btn-remove-item" onclick="removeListItem('${key}',${i})">✕</button>
+      `;
+      container.appendChild(row);
+    });
+  }
+
+  function addListItem(key) {
+    C.about[key].push('');
+    renderList(key, key+'-list'); scheduleSave();
+  }
+
+  function updateListItem(key, i, val) { C.about[key][i] = val; scheduleSave(); }
+  function removeListItem(key, i) { C.about[key].splice(i,1); renderList(key, key+'-list'); scheduleSave(); }
+
+  /* ════════════════════════════════════════
+     RENDER: Sidebar blocks
+  ════════════════════════════════════════ */
+  function renderSidebarBlocks() {
+    const container = document.getElementById('sidebar-blocks-list');
+    container.innerHTML = '';
+    (C.about.sidebarBlocks || []).forEach((block, i) => {
+      const item = document.createElement('div');
+      item.className = 'repeat-item';
+      item.style.marginBottom = '0.5rem';
+      item.innerHTML = `
+        <div class="repeat-item-header" onclick="toggleRepeat(this)">
+          <span class="repeat-item-label">${esc(block.label) || 'Block ' + (i+1)}</span>
+          <div class="repeat-item-controls">
+            <button class="btn-icon danger" onclick="removeSidebarBlock(${i},event)">✕</button>
+          </div>
+        </div>
+        <div class="repeat-item-body">
+          <div class="field"><label>Block label (e.g. "Currently")</label><input type="text" value="${esc(block.label)}" oninput="updateSidebarBlock(${i},'label',this.value)" /></div>
+          <div class="field"><label>Content</label>${rteHtml(block.content,"updateSidebarBlock("+i+",'content',this.innerHTML)")}</div>
+        </div>
+      `;
+      container.appendChild(item);
+    });
+  }
+
+  function addSidebarBlock() { C.about.sidebarBlocks.push({ label:'', content:'' }); renderSidebarBlocks(); scheduleSave(); }
+  function removeSidebarBlock(i,e) { e.stopPropagation(); C.about.sidebarBlocks.splice(i,1); renderSidebarBlocks(); scheduleSave(); }
+  function updateSidebarBlock(i, key, val) { C.about.sidebarBlocks[i][key] = val; scheduleSave(); }
+
+  /* ════════════════════════════════════════
+     RENDER: Case study panels
+  ════════════════════════════════════════ */
+  function renderCaseStudy(csKey) {
+    const cs = C.caseStudies[csKey];
+    if (!cs) return;
+    const container = document.getElementById('cs-' + csKey + '-fields');
+    container.innerHTML = '';
+
+    const secCount = (cs.sections  || []).length;
+    const decCount = (cs.decisions || []).length;
+
+    container.innerHTML = `
+      <div class="cs-panel-tabs">
+
+        <div class="cs-panel-tab-bar">
+          <button class="cs-panel-tab-btn active" onclick="switchCSTab('${csKey}','info',this)">Page Info</button>
+          <button class="cs-panel-tab-btn" onclick="switchCSTab('${csKey}','sections',this)">Sections <span class="cs-tab-badge" id="cs-${csKey}-sec-badge">${secCount}</span></button>
+          <button class="cs-panel-tab-btn" onclick="switchCSTab('${csKey}','decisions',this)">Decisions <span class="cs-tab-badge" id="cs-${csKey}-dec-badge">${decCount}</span></button>
+          <button class="cs-panel-tab-btn" onclick="switchCSTab('${csKey}','reflection',this)">Reflection</button>
+        </div>
+
+        <!-- ── PAGE INFO ── -->
+        <div class="cs-panel-pane active" id="cs-${csKey}-pane-info">
+
+          <div class="cs-visibility-row ${cs.hidden ? 'is-hidden' : ''}" id="cs-${csKey}-visibility-row">
+            <span class="cs-visibility-label">${cs.hidden ? '○ Hidden from live site' : '● Published — visible on homepage'}</span>
+            <div class="toggle-pill">
+              <span class="toggle-pill-label">Visible</span>
+              <button class="toggle-pill-btn ${cs.hidden ? '' : 'on'}" id="cs-${csKey}-vis-btn" onclick="toggleCSHidden('${csKey}')"></button>
+            </div>
+          </div>
+
+          <div class="section-divider">Hero</div>
+          <div class="card">
+            <div class="card-body">
+              <div class="card-body-grid">
+                <div class="field"><label>Title</label><input type="text" value="${esc(cs.title)}" oninput="updateCS('${csKey}','title',this.value)" /></div>
+                <div class="field"><label>Tag 1</label><input type="text" value="${esc(cs.tags[0]||'')}" oninput="updateCSTag('${csKey}',0,this.value)" /></div>
+                <div class="field full"><label>Subtitle</label>${rteHtml(cs.subtitle,"updateCS('${csKey}','subtitle',this.innerHTML)")}</div>
+                <div class="field"><label>Tag 2</label><input type="text" value="${esc(cs.tags[1]||'')}" oninput="updateCSTag('${csKey}',1,this.value)" /></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-divider">Meta cells <span style="font-weight:400;color:var(--text-muted)">(4 cells shown below the title)</span></div>
+          <div class="card"><div class="card-body" id="cs-${csKey}-meta"></div></div>
+
+          <div class="section-divider">Outcomes bar <span style="font-weight:400;color:var(--text-muted)">(4 headline metrics)</span></div>
+          <div class="card"><div class="card-body" id="cs-${csKey}-outcomes"></div></div>
+
+          <div class="danger-zone">
+            <span class="danger-zone-desc">Delete removes this case study's content data. The HTML page stays but renders empty. This cannot be undone.</span>
+            <button class="btn-danger" onclick="deleteCaseStudy('${csKey}')">Delete case study</button>
+          </div>
+        </div>
+
+        <!-- ── SECTIONS ── -->
+        <div class="cs-panel-pane" id="cs-${csKey}-pane-sections">
+          <div id="cs-${csKey}-sections"></div>
+          <button class="btn-add" onclick="addCSSection('${csKey}')">+ Add section</button>
+        </div>
+
+        <!-- ── DECISIONS ── -->
+        <div class="cs-panel-pane" id="cs-${csKey}-pane-decisions">
+          <div id="cs-${csKey}-decisions"></div>
+          <button class="btn-add" onclick="addCSDecision('${csKey}')">+ Add design decision</button>
+        </div>
+
+        <!-- ── REFLECTION ── -->
+        <div class="cs-panel-pane" id="cs-${csKey}-pane-reflection">
+          <div class="cs-visibility-row ${cs.hideReflection ? 'is-hidden' : ''}" style="margin-bottom:1.25rem">
+            <span class="cs-visibility-label">${cs.hideReflection ? '○ Reflection section hidden' : '● Reflection section visible'}</span>
+            <div class="toggle-pill">
+              <span class="toggle-pill-label">Show</span>
+              <button class="toggle-pill-btn ${cs.hideReflection ? '' : 'on'}" onclick="toggleCSHideReflection('${csKey}')"></button>
+            </div>
+          </div>
+          <div class="section-divider">Reflection</div>
+          <div class="card">
+            <div class="card-body">
+              <div class="field"><label>Reflection paragraph</label>${rteHtml(cs.reflection,"updateCS('${csKey}','reflection',this.innerHTML)",true)}</div>
+            </div>
+          </div>
+
+          <div class="section-divider" style="margin-top:1.5rem">Next project link</div>
+          <div class="card">
+            <div class="card-body card-body-grid">
+              <div class="field"><label>Label (visible link text)</label><input type="text" value="${esc(cs.nextProject?.label||'')}" oninput="updateCSNext('${csKey}','label',this.value)" /></div>
+              <div class="field"><label>URL</label><input type="url" value="${esc(cs.nextProject?.url||'')}" oninput="updateCSNext('${csKey}','url',this.value)" /></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    `;
+
+    renderCSMeta(csKey);
+    renderCSOutcomes(csKey);
+    renderCSSections(csKey);
+    renderCSDecisions(csKey);
+  }
+
+  function renderCSMeta(csKey) {
+    const cs = C.caseStudies[csKey];
+    const container = document.getElementById('cs-' + csKey + '-meta');
+    if (!container) return;
+    container.innerHTML = '';
+    (cs.meta || []).forEach((cell, i) => {
+      const row = document.createElement('div');
+      row.className = 'card-body-grid';
+      row.style.marginBottom = '0.75rem';
+      row.innerHTML = `
+        <div class="field"><label>Cell ${i+1} label</label><input type="text" value="${esc(cell.label)}" oninput="updateCSMeta('${csKey}',${i},'label',this.value)" /></div>
+        <div class="field"><label>Cell ${i+1} value</label><textarea class="short" oninput="updateCSMeta('${csKey}',${i},'value',this.value)">${esc(cell.value)}</textarea></div>
+      `;
+      container.appendChild(row);
+    });
+  }
+
+  function renderCSOutcomes(csKey) {
+    const cs = C.caseStudies[csKey];
+    const container = document.getElementById('cs-' + csKey + '-outcomes');
+    if (!container) return;
+    container.innerHTML = '';
+    (cs.outcomes || []).forEach((o, i) => {
+      const row = document.createElement('div');
+      row.className = 'card-body-grid';
+      row.style.marginBottom = '0.75rem';
+      row.innerHTML = `
+        <div class="field"><label>Metric ${i+1} — number</label><input type="text" value="${esc(o.num)}" oninput="updateCSOutcome('${csKey}',${i},'num',this.value)" /></div>
+        <div class="field"><label>Metric ${i+1} — description</label><input type="text" value="${esc(o.desc)}" oninput="updateCSOutcome('${csKey}',${i},'desc',this.value)" /></div>
+      `;
+      container.appendChild(row);
+    });
+  }
+
+  /* ── Block editor renderer ── */
+  function renderBlocksEditor(csKey, listKey, itemIdx, blocks) {
+    return blocks.map((block, bi) => {
+      const badge = `<span class="block-type-badge ${block.type}">${block.type}</span>`;
+      const moveUp = `<button class="btn-icon" title="Move up" onclick="moveCSBlock('${csKey}','${listKey}',${itemIdx},${bi},-1,event)">↑</button>`;
+      const moveDn = `<button class="btn-icon" title="Move down" onclick="moveCSBlock('${csKey}','${listKey}',${itemIdx},${bi},1,event)">↓</button>`;
+      const del    = `<button class="btn-icon danger" title="Delete block" onclick="removeCSBlock('${csKey}','${listKey}',${itemIdx},${bi},event)">✕</button>`;
+
+      let body = '';
+      if (block.type === 'paragraph') {
+        body = `<div class="field"><label>Text</label>${rteHtml(block.text,"updateCSBlock('${csKey}','${listKey}',"+itemIdx+","+bi+",'text',this.innerHTML)")}</div>`;
+      } else if (block.type === 'callout') {
+        body = `<div class="field"><label>Callout text</label>${rteHtml(block.text,"updateCSBlock('${csKey}','${listKey}',"+itemIdx+","+bi+",'text',this.innerHTML)")}</div>`;
+      } else if (block.type === 'list') {
+        const items = (block.items || []).map((item, si) => `
+          <div class="sub-item-row">
+            <input type="text" value="${esc(item)}" oninput="updateCSBlockItem('${csKey}','${listKey}',${itemIdx},${bi},${si},'val',this.value)" />
+            <button class="btn-icon danger" onclick="removeCSBlockItem('${csKey}','${listKey}',${itemIdx},${bi},${si})">✕</button>
+          </div>
+        `).join('');
+        body = `<div class="field"><label>List items</label>${items}</div>
+          <button class="btn-add" style="margin-top:0.25rem" onclick="addCSBlockItem('${csKey}','${listKey}',${itemIdx},${bi})">+ Add item</button>`;
+      } else if (block.type === 'metric') {
+        const items = (block.items || []).map((m, si) => `
+          <div class="sub-item-row">
+            <input type="text" value="${esc(m.num)}" placeholder="e.g. >95%" oninput="updateCSBlockItem('${csKey}','${listKey}',${itemIdx},${bi},${si},'num',this.value)" style="flex:0 0 90px" />
+            <input type="text" value="${esc(m.desc)}" placeholder="Description" oninput="updateCSBlockItem('${csKey}','${listKey}',${itemIdx},${bi},${si},'desc',this.value)" />
+            <button class="btn-icon danger" onclick="removeCSBlockItem('${csKey}','${listKey}',${itemIdx},${bi},${si})">✕</button>
+          </div>
+        `).join('');
+        body = `<div class="field"><label>Metric items</label>${items}</div>
+          <button class="btn-add" style="margin-top:0.25rem" onclick="addCSBlockItem('${csKey}','${listKey}',${itemIdx},${bi})">+ Add metric</button>`;
+      } else if (block.type === 'image') {
+        const checked = block.show ? 'checked' : '';
+        const sizeOpts = ['md','lg','xl','pair'].map(s => `<option value="${s}" ${block.size===s?'selected':''}>${s}</option>`).join('');
+        if (block.size === 'pair') {
+          const alts = block.alts || ['',''];
+          const caps = block.captions || ['',''];
+          body = `
+            <div class="repeat-body-grid">
+              <div class="field"><label>Show image</label><label style="display:flex;align-items:center;gap:0.4rem;margin-top:0.3rem"><input type="checkbox" ${checked} onchange="updateCSBlock('${csKey}','${listKey}',${itemIdx},${bi},'show',this.checked)" /> Visible</label></div>
+              <div class="field"><label>Size</label><select onchange="updateCSBlock('${csKey}','${listKey}',${itemIdx},${bi},'size',this.value)">${sizeOpts}</select></div>
+              <div class="field"><label>Alt 1</label><input type="text" value="${esc(alts[0])}" oninput="updateCSBlockPairField('${csKey}','${listKey}',${itemIdx},${bi},'alts',0,this.value)" /></div>
+              <div class="field"><label>Caption 1</label><input type="text" value="${esc(caps[0])}" oninput="updateCSBlockPairField('${csKey}','${listKey}',${itemIdx},${bi},'captions',0,this.value)" /></div>
+              <div class="field"><label>Alt 2</label><input type="text" value="${esc(alts[1])}" oninput="updateCSBlockPairField('${csKey}','${listKey}',${itemIdx},${bi},'alts',1,this.value)" /></div>
+              <div class="field"><label>Caption 2</label><input type="text" value="${esc(caps[1])}" oninput="updateCSBlockPairField('${csKey}','${listKey}',${itemIdx},${bi},'captions',1,this.value)" /></div>
+            </div>`;
+        } else {
+          body = `
+            <div class="repeat-body-grid">
+              <div class="field"><label>Show image</label><label style="display:flex;align-items:center;gap:0.4rem;margin-top:0.3rem"><input type="checkbox" ${checked} onchange="updateCSBlock('${csKey}','${listKey}',${itemIdx},${bi},'show',this.checked)" /> Visible</label></div>
+              <div class="field"><label>Size</label><select onchange="updateCSBlock('${csKey}','${listKey}',${itemIdx},${bi},'size',this.value)">${sizeOpts}</select></div>
+              <div class="field"><label>Alt text</label><input type="text" value="${esc(block.alt)}" oninput="updateCSBlock('${csKey}','${listKey}',${itemIdx},${bi},'alt',this.value)" /></div>
+              <div class="field"><label>Caption</label><input type="text" value="${esc(block.caption)}" oninput="updateCSBlock('${csKey}','${listKey}',${itemIdx},${bi},'caption',this.value)" /></div>
+            </div>`;
+        }
+      }
+
+      return `
+        <div class="block-row">
+          <div class="block-row-header">
+            ${badge}
+            <span class="block-preview-text">${blockPreview(block)}</span>
+            ${moveUp}${moveDn}${del}
+          </div>
+          <div class="block-row-body">${body}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function renderBlockAddRow(csKey, listKey, itemIdx) {
+    return `
+      <div class="block-add-row">
+        <select id="block-type-sel-${csKey}-${listKey}-${itemIdx}">
+          <option value="paragraph">Paragraph</option>
+          <option value="list">List</option>
+          <option value="callout">Callout / Quote</option>
+          <option value="metric">Metric Row</option>
+          <option value="image">Image</option>
+        </select>
+        <button class="btn-icon" style="width:auto;padding:0 0.75rem;flex-shrink:0" onclick="addCSBlock('${csKey}','${listKey}',${itemIdx},document.getElementById('block-type-sel-${csKey}-${listKey}-${itemIdx}').value)">Add</button>
+      </div>
+    `;
+  }
+
+  function renderCSSections(csKey) {
+    const cs = C.caseStudies[csKey];
+    const container = document.getElementById('cs-' + csKey + '-sections');
+    if (!container) return;
+    container.innerHTML = '';
+    (cs.sections || []).forEach((sec, i) => {
+      /* Migrate old paragraphs format */
+      if (sec.paragraphs && !sec.blocks) {
+        sec.blocks = sec.paragraphs.map(p => ({type:'paragraph', text:p}));
+        delete sec.paragraphs;
+      }
+      const blocks = sec.blocks || [];
+
+      const item = document.createElement('div');
+      item.className = 'repeat-item';
+      item.innerHTML = `
+        <div class="repeat-item-header" onclick="toggleRepeat(this)">
+          <span class="repeat-item-label" style="display:flex;align-items:center;gap:0.4rem"><span class="cs-status-dot ${sectionHasContent(sec) ? 'filled' : ''}"></span>${esc(sec.num)} — ${esc(sec.label) || 'Section'}</span>
+          <div class="repeat-item-controls">
+            <button class="btn-icon" onclick="moveCSItem('${csKey}','sections',${i},-1,event)">↑</button>
+            <button class="btn-icon" onclick="moveCSItem('${csKey}','sections',${i},1,event)">↓</button>
+            <button class="btn-icon danger" onclick="removeCSItem('${csKey}','sections',${i},event)">✕</button>
+          </div>
+        </div>
+        <div class="repeat-item-body">
+          <div class="repeat-body-grid">
+            <div class="field"><label>Section number (e.g. 01)</label><input type="text" value="${esc(sec.num)}" oninput="updateCSItemField('${csKey}','sections',${i},'num',this.value)" /></div>
+            <div class="field"><label>Section label</label><input type="text" value="${esc(sec.label)}" oninput="updateCSItemField('${csKey}','sections',${i},'label',this.value)" /></div>
+          </div>
+          <div class="field"><label>Heading</label><input type="text" value="${esc(sec.heading)}" oninput="updateCSItemField('${csKey}','sections',${i},'heading',this.value)" /></div>
+          <div style="margin-top:0.75rem;margin-bottom:0.25rem;font-size:0.68rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted)">Blocks</div>
+          ${renderBlocksEditor(csKey, 'sections', i, blocks)}
+          ${renderBlockAddRow(csKey, 'sections', i)}
+        </div>
+      `;
+      container.appendChild(item);
+    });
+    updateCSTabBadge(csKey);
+  }
+
+  function renderCSDecisions(csKey) {
+    const cs = C.caseStudies[csKey];
+    const container = document.getElementById('cs-' + csKey + '-decisions');
+    if (!container) return;
+    container.innerHTML = '';
+    (cs.decisions || []).forEach((dec, i) => {
+      /* Migrate old paragraphs format */
+      if (dec.paragraphs && !dec.blocks) {
+        dec.blocks = dec.paragraphs.map(p => ({type:'paragraph', text:p}));
+        delete dec.paragraphs;
+      }
+      const blocks = dec.blocks || [];
+
+      const item = document.createElement('div');
+      item.className = 'repeat-item';
+      item.innerHTML = `
+        <div class="repeat-item-header" onclick="toggleRepeat(this)">
+          <span class="repeat-item-label" style="display:flex;align-items:center;gap:0.4rem"><span class="cs-status-dot ${sectionHasContent(dec) ? 'filled' : ''}"></span>${esc(dec.num)} — ${(esc(dec.title)||'Decision').substring(0,45)}</span>
+          <div class="repeat-item-controls">
+            <button class="btn-icon" onclick="moveCSItem('${csKey}','decisions',${i},-1,event)">↑</button>
+            <button class="btn-icon" onclick="moveCSItem('${csKey}','decisions',${i},1,event)">↓</button>
+            <button class="btn-icon danger" onclick="removeCSItem('${csKey}','decisions',${i},event)">✕</button>
+          </div>
+        </div>
+        <div class="repeat-item-body">
+          <div class="repeat-body-grid">
+            <div class="field"><label>Decision number (e.g. Decision 01)</label><input type="text" value="${esc(dec.num)}" oninput="updateCSItemField('${csKey}','decisions',${i},'num',this.value)" /></div>
+            <div class="field">
+              <label>Nests under section</label>
+              <select onchange="updateCSItemField('${csKey}','decisions',${i},'parentSectionId',this.value)">
+                ${(C.caseStudies[csKey].sections || []).map(s =>
+                  `<option value="${s.id}" ${(dec.parentSectionId || 'cs-decisions') === s.id ? 'selected' : ''}>${esc(s.label || s.id)}</option>`
+                ).join('')}
+              </select>
+            </div>
+            <div class="field" style="grid-column:1/-1"><label>Decision title</label><input type="text" value="${esc(dec.title)}" oninput="updateCSItemField('${csKey}','decisions',${i},'title',this.value)" /></div>
+          </div>
+          <div style="margin-top:0.75rem;margin-bottom:0.25rem;font-size:0.68rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted)">Blocks</div>
+          ${renderBlocksEditor(csKey, 'decisions', i, blocks)}
+          ${renderBlockAddRow(csKey, 'decisions', i)}
+        </div>
+      `;
+      container.appendChild(item);
+    });
+    updateCSTabBadge(csKey);
+  }
+
+  /* ── CS tab switcher ── */
+  function switchCSTab(csKey, tabId, btn) {
+    const container = document.getElementById('cs-' + csKey + '-fields');
+    container.querySelectorAll('.cs-panel-tab-btn').forEach(b => b.classList.remove('active'));
+    container.querySelectorAll('.cs-panel-pane').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('cs-' + csKey + '-pane-' + tabId).classList.add('active');
+  }
+
+  /* ── Update tab count badges ── */
+  function updateCSTabBadge(csKey) {
+    const cs = C.caseStudies[csKey];
+    if (!cs) return;
+    const secBadge = document.getElementById('cs-' + csKey + '-sec-badge');
+    const decBadge = document.getElementById('cs-' + csKey + '-dec-badge');
+    if (secBadge) secBadge.textContent = (cs.sections  || []).length;
+    if (decBadge) decBadge.textContent = (cs.decisions || []).length;
+  }
+
+  /* ── Returns true if a section/decision item has any written content ── */
+  function sectionHasContent(item) {
+    return (item.blocks || []).some(b => {
+      if (b.type === 'paragraph' || b.type === 'callout') return (b.text || '').trim().length > 0;
+      if (b.type === 'list')   return (b.items || []).some(i => i && String(i).trim());
+      if (b.type === 'metric') return (b.items || []).length > 0;
+      if (b.type === 'image')  return true;
+      return false;
+    });
+  }
+
+  /* ── Returns a short readable preview string for a block ── */
+  function blockPreview(block) {
+    if (block.type === 'paragraph' || block.type === 'callout') {
+      const t = (block.text || '').trim();
+      return t ? '“' + t.substring(0, 55) + (t.length > 55 ? '…' : '') + '”' : 'Empty';
+    }
+    if (block.type === 'list') {
+      const n = (block.items || []).filter(i => i && String(i).trim()).length;
+      return n + ' item' + (n !== 1 ? 's' : '');
+    }
+    if (block.type === 'metric') {
+      const n = (block.items || []).length;
+      return n + ' metric' + (n !== 1 ? 's' : '');
+    }
+    if (block.type === 'image') {
+      return block.caption || block.alt || (block.show ? 'Visible placeholder' : 'Hidden');
+    }
+    return '';
+  }
+
+  /* ── CS updaters ── */
+  function updateCS(csKey, field, val) { C.caseStudies[csKey][field] = val; scheduleSave(); }
+  function updateCSTag(csKey, i, val) { C.caseStudies[csKey].tags[i] = val; scheduleSave(); }
+  function updateCSNext(csKey, field, val) { C.caseStudies[csKey].nextProject[field] = val; scheduleSave(); }
+  function updateCSMeta(csKey, i, field, val) { C.caseStudies[csKey].meta[i][field] = val; scheduleSave(); }
+  function updateCSOutcome(csKey, i, field, val) { C.caseStudies[csKey].outcomes[i][field] = val; scheduleSave(); }
+
+  /* Update a field on a section or decision item (num, label, heading, title) */
+  function updateCSItemField(csKey, listKey, itemIdx, field, val) {
+    C.caseStudies[csKey][listKey][itemIdx][field] = val;
+    scheduleSave();
+  }
+
+  /* Update a field within a block */
+  function updateCSBlock(csKey, listKey, itemIdx, blockIdx, field, val) {
+    C.caseStudies[csKey][listKey][itemIdx].blocks[blockIdx][field] = val;
+    scheduleSave();
+  }
+
+  /* Update a pair image array field (alts or captions) at a sub-index */
+  function updateCSBlockPairField(csKey, listKey, itemIdx, blockIdx, field, subIdx, val) {
+    const block = C.caseStudies[csKey][listKey][itemIdx].blocks[blockIdx];
+    if (!block[field]) block[field] = ['', ''];
+    block[field][subIdx] = val;
+    scheduleSave();
+  }
+
+  /* Update a sub-item within a list or metric block */
+  function updateCSBlockItem(csKey, listKey, itemIdx, blockIdx, subIdx, field, val) {
+    const block = C.caseStudies[csKey][listKey][itemIdx].blocks[blockIdx];
+    if (block.type === 'list') {
+      if (!block.items) block.items = [];
+      block.items[subIdx] = val;
+    } else if (block.type === 'metric') {
+      if (!block.items) block.items = [];
+      block.items[subIdx][field] = val;
+    }
+    scheduleSave();
+  }
+
+  /* Add a new block to a section or decision */
+  function addCSBlock(csKey, listKey, itemIdx, type) {
+    const item = C.caseStudies[csKey][listKey][itemIdx];
+    if (!item.blocks) item.blocks = [];
+    let newBlock = { type };
+    if (type === 'paragraph' || type === 'callout') newBlock.text = '';
+    else if (type === 'list') newBlock.items = [''];
+    else if (type === 'metric') newBlock.items = [{ num: '', desc: '' }];
+    else if (type === 'image') newBlock = { type: 'image', show: true, size: 'md', alt: '', caption: '' };
+    item.blocks.push(newBlock);
+    if (listKey === 'sections') renderCSSections(csKey);
+    else renderCSDecisions(csKey);
+    scheduleSave();
+  }
+
+  /* Remove a block from a section or decision */
+  function removeCSBlock(csKey, listKey, itemIdx, blockIdx, e) {
+    e.stopPropagation();
+    C.caseStudies[csKey][listKey][itemIdx].blocks.splice(blockIdx, 1);
+    if (listKey === 'sections') renderCSSections(csKey);
+    else renderCSDecisions(csKey);
+    scheduleSave();
+  }
+
+  /* Move a block up or down within its section or decision */
+  function moveCSBlock(csKey, listKey, itemIdx, blockIdx, dir, e) {
+    e.stopPropagation();
+    const blocks = C.caseStudies[csKey][listKey][itemIdx].blocks;
+    const ni = blockIdx + dir;
+    if (ni < 0 || ni >= blocks.length) return;
+    [blocks[blockIdx], blocks[ni]] = [blocks[ni], blocks[blockIdx]];
+    if (listKey === 'sections') renderCSSections(csKey);
+    else renderCSDecisions(csKey);
+    scheduleSave();
+  }
+
+  /* Add a sub-item to a list or metric block */
+  function addCSBlockItem(csKey, listKey, itemIdx, blockIdx) {
+    const block = C.caseStudies[csKey][listKey][itemIdx].blocks[blockIdx];
+    if (block.type === 'list') {
+      if (!block.items) block.items = [];
+      block.items.push('');
+    } else if (block.type === 'metric') {
+      if (!block.items) block.items = [];
+      block.items.push({ num: '', desc: '' });
+    }
+    if (listKey === 'sections') renderCSSections(csKey);
+    else renderCSDecisions(csKey);
+    scheduleSave();
+  }
+
+  /* Remove a sub-item from a list or metric block */
+  function removeCSBlockItem(csKey, listKey, itemIdx, blockIdx, subIdx) {
+    const block = C.caseStudies[csKey][listKey][itemIdx].blocks[blockIdx];
+    if (block.items) block.items.splice(subIdx, 1);
+    if (listKey === 'sections') renderCSSections(csKey);
+    else renderCSDecisions(csKey);
+    scheduleSave();
+  }
+
+  function addCSSection(csKey) {
+    C.caseStudies[csKey].sections.push({ id:'sec-'+Date.now(), num:'0X', label:'New Section', heading:'', blocks:[{type:'paragraph',text:''}] });
+    renderCSSections(csKey); scheduleSave(); showToast('Section added');
+  }
+  function addCSDecision(csKey) {
+    C.caseStudies[csKey].decisions.push({ id:'dec-'+Date.now(), num:'Decision 0X', title:'New Decision', blocks:[{type:'paragraph',text:''}] });
+    renderCSDecisions(csKey); scheduleSave(); showToast('Decision added');
+  }
+  function moveCSItem(csKey, listKey, i, dir, e) {
+    e.stopPropagation();
+    const arr = C.caseStudies[csKey][listKey];
+    const ni = i + dir;
+    if (ni < 0 || ni >= arr.length) return;
+    [arr[i], arr[ni]] = [arr[ni], arr[i]];
+    if (listKey === 'sections') renderCSSections(csKey);
+    else renderCSDecisions(csKey);
+    scheduleSave();
+  }
+  function removeCSItem(csKey, listKey, i, e) {
+    e.stopPropagation();
+    if (!confirm('Delete this item?')) return;
+    C.caseStudies[csKey][listKey].splice(i,1);
+    if (listKey === 'sections') renderCSSections(csKey);
+    else renderCSDecisions(csKey);
+    scheduleSave();
+  }
+
+  /* ════════════════════════════════════════
+     VISIBILITY TOGGLES
+  ════════════════════════════════════════ */
+
+  /* Toggle visibility of the entire AI Projects section */
+  function toggleAiSectionHidden() {
+    C.home.hideAiSection = !C.home.hideAiSection;
+    const hidden = C.home.hideAiSection;
+    const row = document.getElementById('ai-section-visibility-row');
+    const btn = document.getElementById('ai-section-vis-btn');
+    const label = document.getElementById('ai-section-visibility-label');
+    if (row) row.classList.toggle('is-hidden', hidden);
+    if (btn) btn.classList.toggle('on', !hidden);
+    if (label) label.textContent = hidden ? '○ Section hidden from homepage' : '● Section visible on homepage';
+    scheduleSave();
+    showToast(hidden ? 'AI section hidden from homepage' : 'AI section visible on homepage');
+  }
+
+  /* Toggle hidden on a home list item (projects / experience / aiProjects) */
+  function toggleItemHidden(listKey, i, e) {
+    e.stopPropagation();
+    C.home[listKey][i].hidden = !C.home[listKey][i].hidden;
+    if (listKey === 'projects')    renderProjects();
+    if (listKey === 'experience')  renderExperience();
+    if (listKey === 'aiProjects')  renderAiProjects();
+    scheduleSave();
+    showToast(C.home[listKey][i].hidden ? 'Hidden from live site' : 'Now visible on live site');
+  }
+
+  /* Toggle hidden on a case study */
+  function toggleCSHidden(csKey) {
+    const cs = C.caseStudies[csKey];
+    if (!cs) return;
+    cs.hidden = !cs.hidden;
+    // Re-render just the visibility banner + sidebar without full panel rebuild
+    const row = document.getElementById('cs-' + csKey + '-visibility-row');
+    const btn = document.getElementById('cs-' + csKey + '-vis-btn');
+    if (row) {
+      row.className = 'cs-visibility-row' + (cs.hidden ? ' is-hidden' : '');
+      row.querySelector('.cs-visibility-label').textContent = cs.hidden
+        ? '○ Hidden from live site' : '● Published — visible on homepage';
+    }
+    if (btn) btn.className = 'toggle-pill-btn' + (cs.hidden ? '' : ' on');
+    renderSidebarCS();
+    scheduleSave();
+    showToast(cs.hidden ? 'Case study hidden from homepage' : 'Case study now published');
+  }
+
+  /* Toggle hideReflection on a case study */
+  function toggleCSHideReflection(csKey) {
+    const cs = C.caseStudies[csKey];
+    if (!cs) return;
+    cs.hideReflection = !cs.hideReflection;
+    // Re-render the full reflection pane to update the banner
+    renderCaseStudy(csKey);
+    // Switch back to reflection tab
+    const container = document.getElementById('cs-' + csKey + '-fields');
+    if (container) {
+      container.querySelectorAll('.cs-panel-tab-btn').forEach((b, idx) => {
+        if (idx === 3) b.click(); // Reflection is the 4th tab
+      });
+    }
+    scheduleSave();
+    showToast(cs.hideReflection ? 'Reflection section hidden' : 'Reflection section shown');
+  }
+
+  /* ════════════════════════════════════════
+     CASE STUDY LIFECYCLE
+  ════════════════════════════════════════ */
+
+  /* Delete a case study's data (panel stays but renders empty) */
+  function deleteCaseStudy(csKey) {
+    const cs = C.caseStudies[csKey];
+    const name = cs ? cs.title || csKey : csKey;
+    if (!confirm(`Delete all content data for "${name}"?\n\nThe HTML page will remain but render with no content. This cannot be undone from the admin.`)) return;
+    delete C.caseStudies[csKey];
+    renderSidebarCS();
+    save();
+    showToast('Deleted: ' + name);
+    // Show global panel since the CS panel is now empty
+    showPanel('global', document.querySelector('.sidebar-item'));
+  }
+
+  /* Prompt to add a new case study entry */
+  function promptAddCaseStudy() {
+    const key = prompt('Enter a URL-safe key for the new case study (e.g. "newproject"):');
+    if (!key || !key.trim()) return;
+    const safeKey = key.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
+    if (C.caseStudies[safeKey]) {
+      alert('A case study with key "' + safeKey + '" already exists.');
+      return;
+    }
+    C.caseStudies[safeKey] = {
+      title: safeKey,
+      subtitle: '',
+      tags: ['', ''],
+      hidden: false,
+      hideReflection: false,
+      meta: [
+        { label: 'My Role', value: '' },
+        { label: 'Company', value: '' },
+        { label: 'Team', value: '' },
+        { label: 'Constraints', value: '' }
+      ],
+      outcomes: [
+        { num: '', desc: '' }, { num: '', desc: '' },
+        { num: '', desc: '' }, { num: '', desc: '' }
+      ],
+      sections: [],
+      decisions: [],
+      reflection: '',
+      nextProject: { label: '', url: '' }
+    };
+    // Add a dynamic panel for this key
+    const main = document.querySelector('.main');
+    const pDiv = document.createElement('div');
+    pDiv.className = 'panel';
+    pDiv.id = 'panel-cs-' + safeKey;
+    pDiv.innerHTML = `
+      <div class="panel-header">
+        <div class="panel-title">Case Study — ${safeKey}</div>
+        <div class="panel-desc">Newly added. Create the HTML page at work/${safeKey}.html to publish.</div>
+      </div>
+      <div id="cs-${safeKey}-fields"></div>
+    `;
+    main.appendChild(pDiv);
+    renderSidebarCS();
+    renderCaseStudy(safeKey);
+    save();
+    showToast('Case study "' + safeKey + '" added — now create work/' + safeKey + '.html');
+    // Navigate to it
+    const newBtn = document.querySelector(`#sidebar-cs-items button[data-key="${safeKey}"]`);
+    if (newBtn) showPanel('cs-' + safeKey, newBtn);
+  }
+
+  /* Render sidebar CS items dynamically */
+  function renderSidebarCS() {
+    const container = document.getElementById('sidebar-cs-items');
+    if (!container) return;
+    const keys = Object.keys(C.caseStudies || {});
+    container.innerHTML = keys.map(key => {
+      const cs = C.caseStudies[key];
+      return `
+        <button class="sidebar-item${cs.hidden ? ' is-hidden' : ''}" data-key="${key}"
+          onclick="showPanel('cs-${key}', this)">
+          <span class="sidebar-item-icon">◧</span>
+          ${esc(cs.title || key)}
+          ${cs.hidden ? '<span class="sidebar-hidden-dot"></span>' : ''}
+        </button>
+      `;
+    }).join('');
+  }
+
+  /* ════════════════════════════════════════
+     GENERIC HELPERS
+  ════════════════════════════════════════ */
+  function updateItem(listKey, i, field, val) {
+    C.home[listKey][i][field] = val; scheduleSave();
+  }
+
+  function updateNestedItem(section, listKey, i, field, val) {
+    C[section][listKey][i][field] = val; scheduleSave();
+  }
+
+  function moveItem(listKey, i, dir, e, isAbout) {
+    e.stopPropagation();
+    const arr = isAbout ? C.about[listKey] : C.home[listKey];
+    const ni = i + dir;
+    if (ni < 0 || ni >= arr.length) return;
+    [arr[i], arr[ni]] = [arr[ni], arr[i]];
+    if (isAbout) {
+      if (listKey === 'bioParagraphs') renderBio();
+    } else {
+      if (listKey === 'projects') renderProjects();
+      if (listKey === 'experience') renderExperience();
+      if (listKey === 'aiProjects') renderAiProjects();
+      if (listKey === 'blog') renderBlog();
+    }
+    scheduleSave();
+  }
+
+  function removeItem(listKey, i, e) {
+    e.stopPropagation();
+    if (!confirm('Delete this item?')) return;
+    C.home[listKey].splice(i, 1);
+    if (listKey === 'projects') renderProjects();
+    if (listKey === 'experience') renderExperience();
+    if (listKey === 'aiProjects') renderAiProjects();
+    if (listKey === 'blog') renderBlog();
+    scheduleSave();
+  }
+
+  function toggleRepeat(header) {
+    header.nextElementSibling.classList.toggle('collapsed');
+  }
+
+  /* ════════════════════════════════════════
+     RICH TEXT EDITOR HELPERS
+  ════════════════════════════════════════ */
+  const RTE_TOOLBAR = `
+    <div class="rte-toolbar" onmousedown="event.preventDefault()">
+      <button type="button" class="rte-btn" onclick="rteCmd(this,'bold')" title="Bold"><b>B</b></button>
+      <button type="button" class="rte-btn" onclick="rteCmd(this,'italic')" title="Italic"><em>I</em></button>
+      <span class="rte-sep"></span>
+      <button type="button" class="rte-btn" onclick="rteCmd(this,'insertUnorderedList')" title="Bullet list">• List</button>
+      <button type="button" class="rte-btn" onclick="rteCmd(this,'insertOrderedList')" title="1. List">1. List</button>
+      <span class="rte-sep"></span>
+      <button type="button" class="rte-btn" onclick="rteInsertBr(this)" title="Line break">↵ BR</button>
+    </div>`;
+
+  function rteHtml(value, oninputExpr, tall) {
+    return `<div class="rte-wrap">${RTE_TOOLBAR}<div class="rte-editor${tall ? ' tall' : ''}" contenteditable="true" oninput="${oninputExpr}">${value || ''}</div></div>`;
+  }
+
+  function rteCmd(btn, cmd) {
+    const ed = btn.closest('.rte-wrap').querySelector('.rte-editor');
+    ed.focus();
+    document.execCommand(cmd, false, null);
+    ed.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+
+  function rteInsertBr(btn) {
+    const ed = btn.closest('.rte-wrap').querySelector('.rte-editor');
+    ed.focus();
+    document.execCommand('insertHTML', false, '<br>');
+    ed.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+
+  function esc(str) {
+    if (str === undefined || str === null) return '';
+    return String(str).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  /* ════════════════════════════════════════
+     VERSIONS
+  ════════════════════════════════════════ */
+  const VERSIONS_KEY = 'portfolio_versions_v1';
+
+  function saveVersion() {
+    const name = document.getElementById('versionNameInput').value.trim() || 'Snapshot';
+    const versions = JSON.parse(localStorage.getItem(VERSIONS_KEY) || '[]');
+    versions.unshift({ id: Date.now(), name, date: new Date().toLocaleString(), content: deepClone(C) });
+    if (versions.length > 20) versions.pop();
+    localStorage.setItem(VERSIONS_KEY, JSON.stringify(versions));
+    document.getElementById('versionNameInput').value = '';
+    renderVersionsList();
+    showToast('Version saved: ' + name);
+  }
+
+  function renderVersionsList() {
+    const container = document.getElementById('versions-list');
+    if (!container) return;
+    const versions = JSON.parse(localStorage.getItem(VERSIONS_KEY) || '[]');
+    if (!versions.length) {
+      container.innerHTML = '<p style="color:var(--text-muted);font-size:0.82rem;padding:0.5rem 0">No saved versions yet.</p>';
+      return;
+    }
+    container.innerHTML = versions.map((v, i) => `
+      <div class="repeat-item" style="margin-bottom:0.5rem">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0.6rem 0.75rem;gap:0.5rem">
+          <div>
+            <div style="font-weight:500;font-size:0.85rem">${esc(v.name)}</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);margin-top:0.1rem">${esc(v.date)}</div>
+          </div>
+          <div style="display:flex;gap:0.4rem;flex-shrink:0">
+            <button class="btn-icon" title="Restore" onclick="restoreVersion(${i})" style="background:var(--accent);color:#fff;padding:0.25rem 0.6rem;font-size:0.75rem;border-radius:4px">Restore</button>
+            <button class="btn-icon danger" title="Delete" onclick="deleteVersion(${i})">✕</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function restoreVersion(i) {
+    if (!confirm('Restore this version? Your current unsaved changes will be overwritten.')) return;
+    const versions = JSON.parse(localStorage.getItem(VERSIONS_KEY) || '[]');
+    C = deepClone(versions[i].content);
+    save();
+    renderAllPanels();
+    showToast('Restored: ' + versions[i].name);
+  }
+
+  function deleteVersion(i) {
+    if (!confirm('Delete this version?')) return;
+    const versions = JSON.parse(localStorage.getItem(VERSIONS_KEY) || '[]');
+    const name = versions[i].name;
+    versions.splice(i, 1);
+    localStorage.setItem(VERSIONS_KEY, JSON.stringify(versions));
+    renderVersionsList();
+    showToast('Deleted: ' + name);
+  }
+
+  /* ════════════════════════════════════════
+     RENDER ALL
+  ════════════════════════════════════════ */
+  function renderAllPanels() {
+    renderStats();
+    renderProjects();
+    renderExperience();
+    renderAiProjects();
+    renderBlog();
+    renderBio();
+    renderList('skills', 'skills-list');
+    renderList('tools', 'tools-list');
+    renderSidebarBlocks();
+    renderSidebarCS();
+    Object.keys(C.caseStudies || {}).forEach(renderCaseStudy);
+    renderVersionsList();
+  }
+
+  /* ════════════════════════════════════════
+     PREVIEW
+  ════════════════════════════════════════ */
+  function previewSite() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(C));
+    window.open('index.html', '_blank');
+  }
+
+  /* ════════════════════════════════════════
+     EXPORT MODAL
+  ════════════════════════════════════════ */
+  function buildExportString() {
+    const json = JSON.stringify(C, null, 2);
+    return `/**
+ * PORTFOLIO CONTENT — Single Source of Truth
+ * Generated by admin.html on ${new Date().toLocaleDateString()}
+ * Edit via: open admin.html in your browser
+ */
+
+window.CONTENT = ${json};
+`;
+  }
+
+  function openExportModal() {
+    document.getElementById('exportCode').textContent = buildExportString().substring(0, 800) + '\n\n… (full file — click Download to get complete file)';
+    document.getElementById('exportModal').classList.add('open');
+  }
+
+  function closeExportModal() {
+    document.getElementById('exportModal').classList.remove('open');
+  }
+
+  function copyExport() {
+    navigator.clipboard.writeText(buildExportString()).then(() => {
+      showToast('Copied to clipboard');
+      closeExportModal();
+    });
+  }
+
+  function downloadExport() {
+    const blob = new Blob([buildExportString()], { type: 'application/javascript' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = 'content.js';
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('content.js downloaded — replace the file in your portfolio folder');
+    closeExportModal();
+  }
+
+  // Close modal on overlay click
+  document.getElementById('exportModal').addEventListener('click', function(e) {
+    if (e.target === this) closeExportModal();
+  });
+
+  /* ── Start ── */
+  init();
+  </script>
+</body>
+</html>
