@@ -5,6 +5,22 @@
 
 
 /* ============================================================
+   RESUME URL — read from content/localStorage and apply to
+   all [data-track="resume-view"] elements on every page
+   ============================================================ */
+(function applyResumeUrl() {
+  const stored = localStorage.getItem('portfolio_content_v1');
+  const C = stored ? JSON.parse(stored) : (typeof window.CONTENT !== 'undefined' ? window.CONTENT : null);
+  if (!C) return;
+  const url = (C.global || {}).resumeUrl;
+  if (!url) return;
+  document.querySelectorAll('[data-track="resume-view"]').forEach(el => {
+    el.href = url;
+  });
+})();
+
+
+/* ============================================================
    NAV: Scroll state + mobile toggle
    ============================================================ */
 
