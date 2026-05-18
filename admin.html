@@ -1016,6 +1016,7 @@
         <span id="saveText">All changes saved</span>
       </div>
       <button class="btn-topbar btn-preview" onclick="previewSite()">Preview site ↗</button>
+      <button class="btn-topbar" onclick="openImportModal()" style="background:transparent;border:1px solid rgba(255,255,255,0.18);color:rgba(255,255,255,0.75)">Import content.js</button>
       <button class="btn-topbar btn-export" onclick="openExportModal()">Export content.js</button>
       <button class="btn-topbar" onclick="logout()" style="background:transparent;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.55)" title="Sign out">Sign out</button>
     </div>
@@ -1384,6 +1385,29 @@
       <div class="modal-footer">
         <button class="btn-modal btn-modal-sec" onclick="copyExport()">Copy to clipboard</button>
         <button class="btn-modal btn-modal-pri" onclick="downloadExport()">Download content.js</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- IMPORT MODAL -->
+  <div class="modal-overlay" id="importModal">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title">Import content.js</span>
+        <button class="modal-close" onclick="closeImportModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p>Select a <strong>content.js</strong> file you previously exported. All fields in the admin panel will be updated to match the imported file.</p>
+        <p style="color:var(--danger);font-size:0.78rem;" id="importError" hidden></p>
+        <label for="importFileInput" style="display:block;cursor:pointer;border:2px dashed var(--border);border-radius:var(--radius);padding:2rem;text-align:center;transition:border-color var(--ease)" id="importDropZone">
+          <div style="font-size:1.5rem;margin-bottom:0.5rem">📂</div>
+          <span id="importFileLabel" style="font-size:0.82rem;color:var(--text-sec)">Click to choose a file or drag &amp; drop here</span>
+          <input type="file" id="importFileInput" accept=".js,application/javascript,text/javascript" style="display:none" />
+        </label>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-modal btn-modal-sec" onclick="closeImportModal()">Cancel</button>
+        <button class="btn-modal btn-modal-pri" id="importConfirmBtn" disabled onclick="confirmImport()">Import</button>
       </div>
     </div>
   </div>
@@ -2719,6 +2743,87 @@ window.CONTENT = ${json};
   // Close modal on overlay click
   document.getElementById('exportModal').addEventListener('click', function(e) {
     if (e.target === this) closeExportModal();
+  });
+
+  /* ════════════════════════════════════════
+     IMPORT MODAL
+  ════════════════════════════════════════ */
+  let _importParsed = null;
+
+  function openImportModal() {
+    _importParsed = null;
+    document.getElementById('importFileInput').value = '';
+    document.getElementById('importFileLabel').textContent = 'Click to choose a file or drag & drop here';
+    document.getElementById('importConfirmBtn').disabled = true;
+    document.getElementById('importError').hidden = true;
+    document.getElementById('importModal').classList.add('open');
+  }
+
+  function closeImportModal() {
+    document.getElementById('importModal').classList.remove('open');
+  }
+
+  function _readImportFile(file) {
+    if (!file) return;
+    const err = document.getElementById('importError');
+    err.hidden = true;
+    if (!file.name.endsWith('.js')) {
+      err.textContent = 'Please select a .js file.';
+      err.hidden = false;
+      return;
+    }
+    document.getElementById('importFileLabel').textContent = file.name;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        // Execute the JS in a sandboxed scope to extract window.CONTENT
+        const sandbox = {};
+        const fn = new Function('window', e.target.result);
+        fn(sandbox);
+        if (!sandbox.CONTENT || typeof sandbox.CONTENT !== 'object') {
+          throw new Error('No valid window.CONTENT found in file.');
+        }
+        _importParsed = sandbox.CONTENT;
+        document.getElementById('importConfirmBtn').disabled = false;
+        err.hidden = true;
+      } catch(ex) {
+        err.textContent = 'Could not parse file: ' + ex.message;
+        err.hidden = false;
+        document.getElementById('importConfirmBtn').disabled = true;
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  document.getElementById('importFileInput').addEventListener('change', function() {
+    _readImportFile(this.files[0]);
+  });
+
+  // Drag-and-drop support on the drop zone label
+  (function() {
+    const zone = document.getElementById('importDropZone');
+    zone.addEventListener('dragover', function(e) { e.preventDefault(); zone.style.borderColor = 'var(--accent-mid)'; });
+    zone.addEventListener('dragleave', function()  { zone.style.borderColor = 'var(--border)'; });
+    zone.addEventListener('drop', function(e) {
+      e.preventDefault();
+      zone.style.borderColor = 'var(--border)';
+      _readImportFile(e.dataTransfer.files[0]);
+    });
+  })();
+
+  function confirmImport() {
+    if (!_importParsed) return;
+    // Deep-merge: replace top-level keys from imported content into C
+    Object.assign(C, JSON.parse(JSON.stringify(_importParsed)));
+    localStorage.setItem('portfolio_content_v1', JSON.stringify(C));
+    closeImportModal();
+    // Re-initialise the entire admin UI with the new data
+    init();
+    showToast('content.js imported — all fields updated');
+  }
+
+  document.getElementById('importModal').addEventListener('click', function(e) {
+    if (e.target === this) closeImportModal();
   });
 
   /* ── Start ── */
