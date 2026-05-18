@@ -2002,9 +2002,9 @@
 
       let body = '';
       if (block.type === 'paragraph') {
-        body = `<div class="field"><label>Text</label>${rteHtml(block.text,"updateCSBlock('${csKey}','${listKey}',"+itemIdx+","+bi+",'text',this.innerHTML)")}</div>`;
+        body = `<div class="field"><label>Text</label>${rteHtml(block.text,"updateCSBlock('${csKey}','${listKey}',"+itemIdx+","+bi+",'text',this.innerHTML)",false,"data-cs='${csKey}' data-list='${listKey}' data-item='"+itemIdx+"' data-block='"+bi+"' data-field='text'")}</div>`;
       } else if (block.type === 'callout') {
-        body = `<div class="field"><label>Callout text</label>${rteHtml(block.text,"updateCSBlock('${csKey}','${listKey}',"+itemIdx+","+bi+",'text',this.innerHTML)")}</div>`;
+        body = `<div class="field"><label>Callout text</label>${rteHtml(block.text,"updateCSBlock('${csKey}','${listKey}',"+itemIdx+","+bi+",'text',this.innerHTML)",false,"data-cs='${csKey}' data-list='${listKey}' data-item='"+itemIdx+"' data-block='"+bi+"' data-field='text'")}</div>`;
       } else if (block.type === 'list') {
         const items = (block.items || []).map((item, si) => `
           <div class="sub-item-row">
@@ -2260,14 +2260,11 @@
     const item = C.caseStudies[csKey][listKey][itemIdx];
     if (!item.blocks) item.blocks = [];
 
-    // Flush any typed content from visible RTEs in this section before touching the model
+    // Flush any typed content from all visible CS RTEs into C before touching the model
+    flushCSRTEs(csKey);
+
     const areaId = 'blocks-area-' + csKey + '-' + listKey + '-' + itemIdx;
     const area = document.getElementById(areaId);
-    if (area) {
-      area.querySelectorAll('.rte-editor').forEach(function(ed) {
-        ed.dispatchEvent(new Event('input', { bubbles: true }));
-      });
-    }
 
     let newBlock = { type };
     if (type === 'paragraph' || type === 'callout') newBlock.text = '';
@@ -2292,21 +2289,25 @@
     scheduleSave();
   }
 
-  /* Flush all visible RTE editors in a section/decision to the data model before re-render */
-  function flushSectionRTEs(csKey, listKey, itemIdx) {
-    var areaId = 'blocks-area-' + csKey + '-' + listKey + '-' + itemIdx;
-    var area = document.getElementById(areaId);
-    if (area) {
-      area.querySelectorAll('.rte-editor').forEach(function(ed) {
-        ed.dispatchEvent(new Event('input', { bubbles: true }));
-      });
-    }
+  /* Flush all CS block RTE editors for a given csKey directly from DOM into C.
+     Reads innerHTML without relying on synthetic event dispatch — guaranteed to work. */
+  function flushCSRTEs(csKey) {
+    document.querySelectorAll('.rte-editor[data-cs]').forEach(function(ed) {
+      if (ed.dataset.cs !== String(csKey)) return;
+      var listKey  = ed.dataset.list;
+      var itemIdx  = +ed.dataset.item;
+      var blockIdx = +ed.dataset.block;
+      var field    = ed.dataset.field || 'text';
+      try {
+        C.caseStudies[csKey][listKey][itemIdx].blocks[blockIdx][field] = ed.innerHTML;
+      } catch(e) { /* block may have been deleted already — safe to ignore */ }
+    });
   }
 
   /* Remove a block from a section or decision */
   function removeCSBlock(csKey, listKey, itemIdx, blockIdx, e) {
     e.stopPropagation();
-    flushSectionRTEs(csKey, listKey, itemIdx);
+    flushCSRTEs(csKey);
     C.caseStudies[csKey][listKey][itemIdx].blocks.splice(blockIdx, 1);
     if (listKey === 'sections') renderCSSections(csKey);
     else renderCSDecisions(csKey);
@@ -2316,7 +2317,7 @@
   /* Move a block up or down within its section or decision */
   function moveCSBlock(csKey, listKey, itemIdx, blockIdx, dir, e) {
     e.stopPropagation();
-    flushSectionRTEs(csKey, listKey, itemIdx);
+    flushCSRTEs(csKey);
     const blocks = C.caseStudies[csKey][listKey][itemIdx].blocks;
     const ni = blockIdx + dir;
     if (ni < 0 || ni >= blocks.length) return;
@@ -2328,7 +2329,7 @@
 
   /* Add a sub-item to a list or metric block */
   function addCSBlockItem(csKey, listKey, itemIdx, blockIdx) {
-    flushSectionRTEs(csKey, listKey, itemIdx);
+    flushCSRTEs(csKey);
     const block = C.caseStudies[csKey][listKey][itemIdx].blocks[blockIdx];
     if (block.type === 'list') {
       if (!block.items) block.items = [];
@@ -2344,7 +2345,7 @@
 
   /* Remove a sub-item from a list or metric block */
   function removeCSBlockItem(csKey, listKey, itemIdx, blockIdx, subIdx) {
-    flushSectionRTEs(csKey, listKey, itemIdx);
+    flushCSRTEs(csKey);
     const block = C.caseStudies[csKey][listKey][itemIdx].blocks[blockIdx];
     if (block.items) block.items.splice(subIdx, 1);
     if (listKey === 'sections') renderCSSections(csKey);
@@ -2353,15 +2354,18 @@
   }
 
   function addCSSection(csKey) {
+    flushCSRTEs(csKey);
     C.caseStudies[csKey].sections.push({ id:'sec-'+Date.now(), num:'0X', label:'New Section', heading:'', blocks:[{type:'paragraph',text:''}] });
     renderCSSections(csKey); scheduleSave(); showToast('Section added');
   }
   function addCSDecision(csKey) {
+    flushCSRTEs(csKey);
     C.caseStudies[csKey].decisions.push({ id:'dec-'+Date.now(), num:'Decision 0X', title:'New Decision', blocks:[{type:'paragraph',text:''}] });
     renderCSDecisions(csKey); scheduleSave(); showToast('Decision added');
   }
   function moveCSItem(csKey, listKey, i, dir, e) {
     e.stopPropagation();
+    flushCSRTEs(csKey);
     const arr = C.caseStudies[csKey][listKey];
     const ni = i + dir;
     if (ni < 0 || ni >= arr.length) return;
@@ -2372,6 +2376,7 @@
   }
   function removeCSItem(csKey, listKey, i, e) {
     e.stopPropagation();
+    flushCSRTEs(csKey);
     if (!confirm('Delete this item?')) return;
     C.caseStudies[csKey][listKey].splice(i,1);
     if (listKey === 'sections') renderCSSections(csKey);
@@ -2589,8 +2594,9 @@
       <button type="button" class="rte-btn" onclick="rteInsertBr(this)" title="Line break">↵ BR</button>
     </div>`;
 
-  function rteHtml(value, oninputExpr, tall) {
-    return `<div class="rte-wrap">${RTE_TOOLBAR}<div class="rte-editor${tall ? ' tall' : ''}" contenteditable="true" oninput="${oninputExpr}">${value || ''}</div></div>`;
+  function rteHtml(value, oninputExpr, tall, dataAttrs) {
+    const da = dataAttrs ? ' ' + dataAttrs : '';
+    return `<div class="rte-wrap">${RTE_TOOLBAR}<div class="rte-editor${tall ? ' tall' : ''}" contenteditable="true" oninput="${oninputExpr}"${da}>${value || ''}</div></div>`;
   }
 
   function rteCmd(btn, cmd) {
