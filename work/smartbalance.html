@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartBalance — Anubhav Pandey</title>
+
+  <meta name="description" content="Designing UX for ISCC Mass Balance certification bookkeeping. A ledger-abstraction problem for sustainable raw material traders." />
+  <link rel="canonical" href="https://anubhavpandey.com/work/smartbalance.html" />
+  <meta property="og:title"       content="SmartBalance — ISCC Mass Balance Bookkeeping" />
+  <meta property="og:description" content="Turning a compliance ledger into a product surface non-accountants can actually use." />
+  <meta property="og:url"         content="https://anubhavpandey.com/work/smartbalance.html" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "CreativeWork",
+    "name": "SmartBalance — ISCC Mass Balance Bookkeeping",
+    "description": "UX case study: designing compliance ledger tooling for sustainable raw material traders.",
+    "author": { "@type": "Person", "name": "Anubhav Pandey" },
+    "url": "https://anubhavpandey.com/work/smartbalance.html"
+  }
+  </script>
+
+  <!-- GA4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+  </script>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles/main.css" />
+
+  <style>
+    /* ============================================================
+       CASE STUDY PAGE — Layout Styles
+       ============================================================ */
+
+    /* Reading progress bar */
+    .progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 2px;
+      background: var(--accent-mid);
+      width: 0%;
+      z-index: 300;
+      transition: width 0.1s linear;
+    }
+
+    /* ── Hero ── */
+    .cs-page-hero {
+      padding-top: calc(var(--nav-h) + var(--sp-16));
+      padding-bottom: var(--sp-16);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .cs-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-bottom: var(--sp-10);
+      transition: color var(--ease);
+    }
+    .cs-back:hover { color: var(--text); }
+
+    .cs-header-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: var(--sp-8);
+      margin-bottom: var(--sp-6);
+    }
+
+    .cs-tags {
+      display: flex;
+      gap: var(--sp-2);
+      flex-shrink: 0;
+      padding-top: 0.5rem;
+    }
+
+    .cs-tag {
+      font-size: 0.67rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent-mid);
+      background: var(--accent-tint);
+      padding: 0.2rem 0.6rem;
+      border-radius: 2px;
+    }
+
+    .cs-page-title {
+      font-size: clamp(2.4rem, 5vw, 4rem);
+      font-weight: 500;
+      letter-spacing: -0.025em;
+      line-height: 1.05;
+      max-width: 700px;
+    }
+
+    .cs-page-subtitle {
+      font-size: 1rem;
+      color: var(--text-sec);
+      line-height: 1.75;
+      max-width: 620px;
+      margin: var(--sp-6) 0 var(--sp-10);
+    }
+
+    /* Meta strip */
+    .cs-meta-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      margin-top: var(--sp-10);
+    }
+
+    .cs-meta-cell {
+      background: var(--bg);
+      padding: var(--sp-6) var(--sp-6);
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .cs-meta-cell .label {
+      font-size: 0.68rem;
+    }
+
+    .cs-meta-cell-value {
+      font-size: 0.875rem;
+      color: var(--text);
+      font-weight: 400;
+      line-height: 1.4;
+    }
+
+    /* ── Outcomes bar ── */
+    .cs-outcomes-bar {
+      background: var(--accent);
+      padding: var(--sp-10) 0;
+    }
+
+    .cs-outcomes-inner {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: rgba(255,255,255,0.08);
+    }
+
+    .cs-outcome-cell {
+      padding: var(--sp-8) var(--sp-8);
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .cs-outcome-num {
+      font-family: var(--font-serif);
+      font-size: 2.2rem;
+      font-weight: 500;
+      color: #ffffff;
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+
+    .cs-outcome-desc {
+      font-size: 0.76rem;
+      color: rgba(255,255,255,0.58);
+      line-height: 1.5;
+      max-width: 130px;
+    }
+
+    /* ── Two-column body ── */
+    .cs-layout {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: var(--sp-16);
+      padding: var(--sp-16) 0 var(--sp-24);
+      align-items: start;
+    }
+
+    /* ── Sticky TOC ── */
+    .cs-toc {
+      position: sticky;
+      top: calc(var(--nav-h) + var(--sp-8));
+    }
+
+    .cs-toc-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: var(--sp-6);
+      display: block;
+    }
+
+    .cs-toc-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .cs-toc-item {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-4);
+      padding: 0.45rem 0;
+      border-left: 1px solid var(--border);
+      padding-left: var(--sp-4);
+      transition: border-color var(--ease);
+    }
+
+    .cs-toc-item a {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      transition: color var(--ease);
+      line-height: 1.3;
+    }
+
+    .cs-toc-item:hover a,
+    .cs-toc-item.active a {
+      color: var(--text);
+    }
+
+    .cs-toc-item.active {
+      border-left-color: var(--accent-mid);
+    }
+
+    .cs-toc-num {
+      font-size: 0.62rem;
+      color: var(--text-muted);
+      flex-shrink: 0;
+      width: 16px;
+    }
+
+    .cs-toc-sub {
+      padding-left: calc(var(--sp-4) + 16px + var(--sp-4));
+      border-left: none;
+      padding-top: 0.25rem;
+      padding-bottom: 0.25rem;
+    }
+
+    .cs-toc-sub a {
+      font-size: 0.73rem;
+    }
+
+    /* ── Content column ── */
+    .cs-content {
+      min-width: 0;
+      max-width: 680px;
+    }
+
+    /* Section */
+    .cs-sec {
+      padding: var(--sp-12) 0;
+      border-bottom: 1px solid var(--border);
+      scroll-margin-top: calc(var(--nav-h) + var(--sp-8));
+    }
+
+    .cs-sec:last-child {
+      border-bottom: none;
+    }
+
+    .cs-sec-label {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-4);
+      margin-bottom: var(--sp-6);
+    }
+
+    .cs-sec-num {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      color: var(--accent-mid);
+      font-family: var(--font-sans);
+    }
+
+    .cs-sec h2 {
+      font-size: 1.55rem;
+      margin-bottom: var(--sp-6);
+      line-height: 1.2;
+    }
+
+    .cs-sec p {
+      font-size: 0.95rem;
+      line-height: 1.85;
+      color: var(--text-sec);
+      margin-bottom: var(--sp-6);
+    }
+
+    .cs-sec p:last-child { margin-bottom: 0; }
+
+    /* Inline metric pull */
+    .metric-row {
+      display: flex;
+      gap: var(--sp-10);
+      padding: var(--sp-8) 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      margin: var(--sp-8) 0;
+      flex-wrap: wrap;
+    }
+
+    .metric-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .metric-num {
+      font-family: var(--font-serif);
+      font-size: 2rem;
+      font-weight: 500;
+      color: var(--accent);
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+
+    .metric-desc {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      max-width: 120px;
+      line-height: 1.4;
+    }
+
+    /* Image areas — sized variants */
+    .cs-img {
+      background: var(--bg-alt);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin: var(--sp-10) 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: var(--sp-2);
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      text-align: center;
+      padding: var(--sp-4);
+      width: 100%;
+    }
+
+    .cs-img--md  { height: 320px; max-width: 100%; }
+    .cs-img--lg  { height: 480px; max-width: 100%; }
+    .cs-img--xl  {
+      height: 560px;
+      max-width: 100%;
+      margin-left: calc(-1 * var(--sp-12));
+      margin-right: calc(-1 * var(--sp-12));
+      width: calc(100% + 2 * var(--sp-12));
+      border-radius: 0;
+      border-left: none;
+      border-right: none;
+    }
+
+    .cs-img-icon {
+      font-size: 1.4rem;
+      opacity: 0.35;
+    }
+
+    /* Callout block */
+    .cs-callout {
+      background: var(--accent-tint);
+      border-left: 3px solid var(--accent-mid);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: var(--sp-6) var(--sp-8);
+      margin: var(--sp-8) 0;
+    }
+
+    .cs-callout p {
+      font-size: 1rem;
+      color: var(--text);
+      font-weight: 400;
+      margin: 0;
+      line-height: 1.7;
+      max-width: none;
+    }
+
+    /* Two-up image grid */
+    .cs-img-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--sp-4);
+      margin: var(--sp-8) 0;
+    }
+
+    .cs-img-pair .cs-img {
+      margin: 0;
+      height: 260px;
+    }
+
+    .cs-list { list-style: disc; padding-left: 1.5rem; margin: 0.5rem 0 var(--sp-6); }
+    .cs-list li { font-size: 0.95rem; line-height: 1.85; color: var(--text-sec); margin-bottom: 0.3rem; }
+
+    /* Sub-decision section (inside Design Decisions) */
+    .cs-decision {
+      margin-top: var(--sp-12);
+      padding-top: var(--sp-10);
+      border-top: 1px dashed var(--border);
+      scroll-margin-top: calc(var(--nav-h) + var(--sp-8));
+    }
+
+    .cs-decision-header {
+      display: flex;
+      align-items: baseline;
+      gap: var(--sp-4);
+      margin-bottom: var(--sp-6);
+    }
+
+    .cs-decision-num {
+      font-family: var(--font-sans);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      color: var(--accent-soft);
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    .cs-decision h3 {
+      font-size: 1.2rem;
+      font-weight: 500;
+      letter-spacing: -0.015em;
+    }
+
+    .cs-decision p {
+      font-size: 0.93rem;
+      line-height: 1.85;
+      color: var(--text-sec);
+      margin-bottom: var(--sp-4);
+    }
+
+    /* Reflection quote style */
+    .cs-reflection-text {
+      font-family: var(--font-serif);
+      font-size: 1.05rem;
+      font-style: italic;
+      color: var(--text-sec);
+      line-height: 1.75;
+      max-width: 580px;
+      border-left: 2px solid var(--border);
+      padding-left: var(--sp-6);
+      margin: var(--sp-6) 0;
+    }
+
+    /* ── Next project strip ── */
+    .cs-next {
+      border-top: 1px solid var(--border);
+      padding: var(--sp-10) 0;
+    }
+
+    .cs-next-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--sp-8);
+    }
+
+    .cs-next-label { font-size: 0.72rem; color: var(--text-muted); }
+
+    .cs-next-link {
+      font-family: var(--font-serif);
+      font-size: 1.2rem;
+      font-weight: 500;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: var(--sp-4);
+      transition: color var(--ease);
+    }
+
+    .cs-next-link:hover { color: var(--accent-mid); }
+
+    .cs-next-arrow {
+      font-size: 1.4rem;
+      transition: transform var(--ease);
+    }
+
+    .cs-next-link:hover .cs-next-arrow {
+      transform: translateX(4px);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .cs-meta-strip {
+        grid-template-columns: 1fr 1fr;
+      }
+      .cs-outcomes-inner {
+        grid-template-columns: 1fr 1fr;
+      }
+      .cs-layout {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+      .cs-toc {
+        display: none;
+      }
+      .cs-img--xl {
+        margin-left: 0;
+        margin-right: 0;
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+      }
+    }
+
+    @media (max-width: 560px) {
+      .cs-meta-strip {
+        grid-template-columns: 1fr;
+      }
+      .cs-outcomes-inner {
+        grid-template-columns: 1fr 1fr;
+      }
+      .cs-outcome-num {
+        font-size: 1.7rem;
+      }
+      .cs-img-pair {
+        grid-template-columns: 1fr;
+      }
+      .cs-header-row {
+        flex-direction: column;
+      }
+      .cs-next-inner {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Reading progress bar -->
+  <div class="progress-bar" id="progressBar" role="progressbar" aria-label="Reading progress"></div>
+
+  <!-- NAVIGATION -->
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="nav__inner">
+      <a href="../index.html" class="nav__logo">Anubhav Pandey</a>
+      <ul class="nav__links" role="list">
+        <li><a href="../index.html#work" class="active">Work</a></li>
+        <li><a href="../about.html">About</a></li>
+        <li><a href="../index.html#writing">Writing</a></li>
+      </ul>
+      <div class="nav__actions">
+        <a href="../assets/anubhav-pandey-resume.pdf" target="_blank" rel="noopener" class="nav__btn-ghost" data-track="resume-view" data-track-source="nav">View Resume</a>
+        <button type="button" class="nav__btn-primary js-contact-open" data-track="contact" data-track-source="nav">Get in touch</button>
+      </div>
+      <button class="nav__toggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <main>
+
+    <!-- ══════════════════════════════════════
+         HERO
+    ══════════════════════════════════════ -->
+    <header class="cs-page-hero" data-section="cs-hero">
+      <div class="container">
+
+        <a href="../index.html#work" class="cs-back">← All Work</a>
+
+        <div class="cs-header-row">
+          <h1 class="cs-page-title" id="cs-page-title">SmartBalance</h1>
+          <div class="cs-tags" id="cs-tags">
+            <span class="cs-tag">Compliance Tooling</span>
+            <span class="cs-tag">Domain-Intensive</span>
+          </div>
+        </div>
+
+        <p class="cs-page-subtitle" id="cs-page-subtitle">
+          Designing UX for ISCC Mass Balance certification bookkeeping — turning
+          a compliance ledger into a product surface that non-accountants can
+          operate without making certification errors.
+        </p>
+
+        <!-- Meta strip -->
+        <div class="cs-meta-strip" id="cs-meta-strip" role="list">
+          <div class="cs-meta-cell" role="listitem">
+            <span class="label">My Role</span>
+            <span class="cs-meta-cell-value">UX Product Manager<br/>Sole designer on the team</span>
+          </div>
+          <div class="cs-meta-cell" role="listitem">
+            <span class="label">Company</span>
+            <span class="cs-meta-cell-value">Carboledger<br/>Enterprise B2B SaaS, sustainability compliance</span>
+          </div>
+          <div class="cs-meta-cell" role="listitem">
+            <span class="label">Team</span>
+            <span class="cs-meta-cell-value">4 people total<br/>1 designer (me), 2 engineers, 1 founder</span>
+          </div>
+          <div class="cs-meta-cell" role="listitem">
+            <span class="label">Constraints</span>
+            <span class="cs-meta-cell-value">ISCC certification rules<br/>GDPR · SOC II</span>
+          </div>
+        </div>
+
+      </div>
+    </header>
+
+
+    <!-- ══════════════════════════════════════
+         OUTCOMES BAR
+    ══════════════════════════════════════ -->
+    <div class="cs-outcomes-bar" role="region" aria-label="Key outcomes">
+      <div class="container">
+        <div class="cs-outcomes-inner" id="cs-outcomes-inner">
+          <div class="cs-outcome-cell">
+            <span class="cs-outcome-num">1,400+</span>
+            <span class="cs-outcome-desc">Products tracked in a single workflow</span>
+          </div>
+          <div class="cs-outcome-cell">
+            <span class="cs-outcome-num">14k+</span>
+            <span class="cs-outcome-desc">Structured data fields managed with reduced errors</span>
+          </div>
+          <div class="cs-outcome-cell">
+            <span class="cs-outcome-num">&lt;1 hr</span>
+            <span class="cs-outcome-desc">Expert analysis time, down from half a day</span>
+          </div>
+          <div class="cs-outcome-cell">
+            <span class="cs-outcome-num">~80%</span>
+            <span class="cs-outcome-desc">Adoption rate across enterprise users</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ══════════════════════════════════════
+         TWO-COLUMN BODY: TOC + CONTENT
+    ══════════════════════════════════════ -->
+    <div class="container">
+      <div class="cs-layout">
+
+        <!-- ── Sticky TOC ── -->
+        <aside class="cs-toc" aria-label="Table of contents">
+          <span class="cs-toc-label">Contents</span>
+          <nav>
+            <ul class="cs-toc-list" id="cs-toc-list" role="list"></ul>
+          </nav>
+        </aside>
+
+        <!-- ── Content ── -->
+        <div class="cs-content">
+
+          <!-- Sections and decisions rendered dynamically from content data -->
+          <div id="cs-sections-container"></div>
+
+          <!-- REFLECTION -->
+          <section class="cs-sec" id="cs-reflection" data-section="cs-reflection">
+            <div class="cs-sec-label">
+              <span class="cs-sec-num">06</span>
+              <span class="label">Reflection</span>
+            </div>
+            <h2>What I would do differently</h2>
+
+            <p class="cs-reflection-text" id="cs-reflection-text">
+              [Placeholder — One honest paragraph. What did you miss? What took longer than it
+              should have? What would you change if you started again?]
+            </p>
+          </section>
+
+        </div>
+        <!-- end .cs-content -->
+
+      </div>
+      <!-- end .cs-layout -->
+    </div>
+
+
+    <!-- ══════════════════════════════════════
+         NEXT PROJECT
+    ══════════════════════════════════════ -->
+    <div class="cs-next">
+      <div class="container">
+        <div class="cs-next-inner">
+          <span class="cs-next-label">Next Project</span>
+          <a
+            href="greenskills.html"
+            class="cs-next-link"
+            id="cs-next-link"
+            data-track="case-study"
+            data-track-name="greenskills"
+          >
+            GreenSkills — AI Agent for Sustainability Training
+            <span class="cs-next-arrow">→</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+
+  <!-- FOOTER -->
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <h2 class="footer__brand-name">Anubhav Pandey</h2>
+          <p class="footer__brand-desc">Product Designer. Designing clarity into systems that resist it. Open to founding designer and senior product design roles.</p>
+        </div>
+        <nav aria-label="Footer navigation">
+          <span class="footer__col-label">Navigation</span>
+          <ul class="footer__links" role="list">
+            <li><a href="../index.html#work">Work</a></li>
+            <li><a href="../about.html">About</a></li>
+            <li><a href="../index.html#writing">Writing</a></li>
+          </ul>
+        </nav>
+        <div>
+          <span class="footer__col-label">Contact</span>
+          <ul class="footer__links" role="list">
+            <li><a href="mailto:pandeyanubhav229@gmail.com"
+              data-track="contact" data-track-name="email">pandeyanubhav229@gmail.com</a></li>
+            <li><a href="https://www.linkedin.com/in/anubhavp2000/"
+              target="_blank" rel="noopener"
+              data-track="contact" data-track-name="linkedin">LinkedIn</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <p class="footer__copy">© 2026 Anubhav Pandey.</p>
+        <div class="footer__socials">
+          <a href="https://www.linkedin.com/in/anubhavp2000/" target="_blank" rel="noopener">LinkedIn</a>
+          <a href="https://dribbble.com/anubhavp" target="_blank" rel="noopener">Dribbble</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+
+  <!-- ══════════════════════════════════════
+       PAGE-SPECIFIC SCRIPTS
+  ══════════════════════════════════════ -->
+  <!-- Content renderer -->
+  <script src="../content.js"></script>
+  <script>
+  (function renderCaseStudy() {
+    const stored = localStorage.getItem('portfolio_content_v1');
+    const C = stored ? JSON.parse(stored) : window.CONTENT;
+    if (!C) return;
+
+    const cs = (C.caseStudies || {}).smartbalance;
+    if (!cs) return;
+
+    /* ── Hero: title, subtitle, tags ── */
+    const titleEl = document.getElementById('cs-page-title');
+    if (titleEl) titleEl.textContent = cs.title;
+
+    const subEl = document.getElementById('cs-page-subtitle');
+    if (subEl) subEl.textContent = cs.subtitle;
+
+    const tagsEl = document.getElementById('cs-tags');
+    if (tagsEl && cs.tags) {
+      tagsEl.innerHTML = cs.tags.map(t => `<span class="cs-tag">${t}</span>`).join('');
+    }
+
+    /* ── Meta strip ── */
+    const metaEl = document.getElementById('cs-meta-strip');
+    if (metaEl && cs.meta) {
+      metaEl.innerHTML = cs.meta.map(m => `
+        <div class="cs-meta-cell" role="listitem">
+          <span class="label">${m.label}</span>
+          <span class="cs-meta-cell-value">${m.value.replace(/\n/g, '<br/>')}</span>
+        </div>
+      `).join('');
+    }
+
+    /* ── Outcomes bar ── */
+    const outcomesEl = document.getElementById('cs-outcomes-inner');
+    if (outcomesEl && cs.outcomes) {
+      outcomesEl.innerHTML = cs.outcomes.map(o => `
+        <div class="cs-outcome-cell">
+          <span class="cs-outcome-num">${o.num}</span>
+          <span class="cs-outcome-desc">${o.desc}</span>
+        </div>
+      `).join('');
+    }
+
+    /* ── Block renderer ── */
+    function renderBlock(block) {
+      switch(block.type) {
+        case 'paragraph':
+          return `<p>${block.text || ''}</p>`;
+        case 'list':
+          return `<ul class="cs-list">${(block.items||[]).map(i=>`<li>${i}</li>`).join('')}</ul>`;
+        case 'callout':
+          return `<div class="cs-callout"><p>${block.text || ''}</p></div>`;
+        case 'metric':
+          return `<div class="metric-row">${(block.items||[]).map(m=>`<div class="metric-item"><span class="metric-num">${m.num}</span><span class="metric-desc">${m.desc}</span></div>`).join('')}</div>`;
+        case 'image':
+          if (!block.show) return '';
+          if (block.size === 'pair') {
+            const alts = block.alts || ['',''];
+            const caps = block.captions || ['',''];
+            return `<div class="cs-img-pair"><div class="cs-img" role="img" aria-label="${alts[0]}"><span class="cs-img-icon">⬛</span><span>${caps[0]||alts[0]}</span></div><div class="cs-img" role="img" aria-label="${alts[1]}"><span class="cs-img-icon">⬛</span><span>${caps[1]||alts[1]}</span></div></div>`;
+          }
+          return `<div class="cs-img cs-img--${block.size||'md'}" role="img" aria-label="${block.alt||''}"><span class="cs-img-icon">⬛</span><span>${block.caption||block.alt||''}</span><span style="font-size:0.65rem;opacity:0.6;">Replace with actual image</span></div>`;
+        default:
+          return '';
+      }
+    }
+
+    /* ── Decision renderer ── */
+    function renderDecision(dec) {
+      const dBlocks = dec.blocks || (dec.paragraphs ? dec.paragraphs.map(p => ({type:'paragraph', text:p})) : []);
+      return `
+        <div class="cs-decision" id="${dec.id}" data-section="${dec.id}">
+          <div class="cs-decision-header">
+            <span class="cs-decision-num">${dec.num || ''}</span>
+            <h3>${dec.title || ''}</h3>
+          </div>
+          <div>${dBlocks.map(renderBlock).join('')}</div>
+        </div>
+      `;
+    }
+
+    /* ── Sections + decisions nested by parentSectionId ── */
+    const sectionsContainer = document.getElementById('cs-sections-container');
+    if (sectionsContainer) {
+      let sectionsHtml = '';
+      (cs.sections || []).forEach(sec => {
+        const blocks = sec.blocks || (sec.paragraphs ? sec.paragraphs.map(p => ({type:'paragraph', text:p})) : []);
+        const sectionDecisions = (cs.decisions || []).filter(dec =>
+          (dec.parentSectionId || 'cs-decisions') === sec.id
+        );
+        sectionsHtml += `
+          <section class="cs-sec" id="${sec.id}" data-section="${sec.id}">
+            <div class="cs-sec-label">
+              <span class="cs-sec-num">${sec.num || ''}</span>
+              <span class="label">${sec.label || ''}</span>
+            </div>
+            <h2>${sec.heading || ''}</h2>
+            <div>${blocks.map(renderBlock).join('')}</div>
+            ${sectionDecisions.map(renderDecision).join('')}
+          </section>
+        `;
+      });
+      sectionsContainer.innerHTML = sectionsHtml;
+    }
+
+    /* ── TOC: sections + nested decision sub-items ── */
+    const tocList = document.getElementById('cs-toc-list');
+    if (tocList) {
+      const sections = cs.sections || [];
+      let tocHtml = '';
+      sections.forEach((sec, i) => {
+        tocHtml += `
+          <li class="cs-toc-item" data-target="${sec.id}">
+            <span class="cs-toc-num">${String(i + 1).padStart(2, '0')}</span>
+            <a href="#${sec.id}">${sec.label || ''}</a>
+          </li>
+        `;
+        (cs.decisions || [])
+          .filter(dec => (dec.parentSectionId || 'cs-decisions') === sec.id)
+          .forEach(dec => {
+            const shortLabel = (dec.title || '').split(/[—–]/)[0].trim();
+            tocHtml += `
+              <li class="cs-toc-item cs-toc-sub" data-target="${dec.id}">
+                <a href="#${dec.id}">${shortLabel || dec.title}</a>
+              </li>
+            `;
+          });
+      });
+      if (!cs.hideReflection) {
+        tocHtml += `
+          <li class="cs-toc-item" data-target="cs-reflection">
+            <span class="cs-toc-num">${String(sections.length + 1).padStart(2, '0')}</span>
+            <a href="#cs-reflection">Reflection</a>
+          </li>
+        `;
+      }
+      tocList.innerHTML = tocHtml;
+    }
+
+    /* ── Reflection ── */
+    const reflEl = document.getElementById('cs-reflection-text');
+    if (reflEl && cs.reflection) reflEl.textContent = cs.reflection;
+    const reflSection = document.getElementById('cs-reflection');
+    if (reflSection && cs.hideReflection) reflSection.style.display = 'none';
+
+    /* ── Next project ── */
+    const nextEl = document.getElementById('cs-next-link');
+    if (nextEl && cs.nextProject) {
+      nextEl.href = cs.nextProject.url;
+      nextEl.innerHTML = `${cs.nextProject.label} <span class="cs-next-arrow">→</span>`;
+    }
+  })();
+  </script>
+
+  <script src="../scripts/main.js" defer></script>
+  <script>
+    /* Reading progress bar */
+    (function() {
+      const bar = document.getElementById('progressBar');
+      if (!bar) return;
+      window.addEventListener('scroll', () => {
+        const scrolled = window.scrollY;
+        const total    = document.documentElement.scrollHeight - window.innerHeight;
+        bar.style.width = Math.min(100, (scrolled / total) * 100) + '%';
+      }, { passive: true });
+    })();
+
+    /* TOC active state — highlights current section as user scrolls */
+    (function() {
+      const items    = document.querySelectorAll('.cs-toc-item[data-target]');
+      const sections = [];
+
+      items.forEach(item => {
+        const id  = item.dataset.target;
+        const el  = document.getElementById(id);
+        if (el) sections.push({ id, el, item });
+      });
+
+      function onScroll() {
+        const scrollY   = window.scrollY;
+        const navH      = parseInt(getComputedStyle(document.documentElement)
+                            .getPropertyValue('--nav-h')) + 32;
+        let current = sections[0];
+
+        sections.forEach(s => {
+          if (s.el.getBoundingClientRect().top + scrollY - navH <= scrollY) {
+            current = s;
+          }
+        });
+
+        items.forEach(i => i.classList.remove('active'));
+        if (current) current.item.classList.add('active');
+      }
+
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    })();
+  </script>
+  <script src="../scripts/contact-modal.js" defer></script>
+
+</body>
+</html>

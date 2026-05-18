@@ -1,0 +1,11 @@
+# Admin panel — keep off public repo
+admin.html
+login.html
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/

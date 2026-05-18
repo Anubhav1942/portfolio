@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About — Anubhav Pandey, Product Designer</title>
+
+  <!-- SEO -->
+  <meta name="description" content="I'm Anubhav — a product designer who uses design as a thinking tool. Founding designer at Carboledger. Open to B2B SaaS, AI, and compliance product roles." />
+  <link rel="canonical" href="https://anubhavpandey.com/about.html" />
+
+  <!-- Open Graph -->
+  <meta property="og:title"       content="About — Anubhav Pandey" />
+  <meta property="og:description" content="Founding designer at Carboledger. I design systems that make complex, regulated products usable." />
+  <meta property="og:url"         content="https://anubhavpandey.com/about.html" />
+
+  <!-- GA4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+  </script>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles/main.css" />
+
+  <!-- About page specific styles -->
+  <style>
+    .about-hero {
+      padding-top: calc(var(--nav-h) + var(--sp-20));
+      padding-bottom: var(--sp-16);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .about-hero .label {
+      margin-bottom: var(--sp-6);
+      display: block;
+    }
+
+    .about-hero h1 {
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      margin-bottom: var(--sp-8);
+      max-width: 680px;
+    }
+
+    .about-body {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: var(--sp-20);
+      padding: var(--sp-16) 0;
+    }
+
+    .about-narrative p {
+      font-size: 1rem;
+      line-height: 1.85;
+      color: var(--text-sec);
+      margin-bottom: var(--sp-8);
+    }
+
+    .about-narrative p:last-child {
+      margin-bottom: 0;
+    }
+
+    .about-narrative h2 {
+      font-size: 1.3rem;
+      margin: var(--sp-12) 0 var(--sp-6);
+      color: var(--text);
+    }
+
+    .about-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-10);
+      padding-top: 0.2rem;
+    }
+
+    .sidebar-block {
+      border-top: 1px solid var(--border);
+      padding-top: var(--sp-6);
+    }
+
+    .sidebar-block .label {
+      display: block;
+      margin-bottom: var(--sp-4);
+    }
+
+    .sidebar-block p {
+      font-size: 0.845rem;
+      line-height: 1.65;
+      color: var(--text-sec);
+    }
+
+    .skills-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-2);
+    }
+
+    .skills-list li {
+      font-size: 0.83rem;
+      color: var(--text-sec);
+      display: flex;
+      align-items: center;
+      gap: var(--sp-2);
+    }
+
+    .skills-list li::before {
+      content: '';
+      width: 4px;
+      height: 4px;
+      background: var(--accent-soft);
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .about-cta {
+      padding: var(--sp-16) 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .about-cta h2 {
+      font-size: 1.8rem;
+      margin-bottom: var(--sp-4);
+      max-width: 520px;
+    }
+
+    .about-cta p {
+      color: var(--text-sec);
+      margin-bottom: var(--sp-8);
+      max-width: 480px;
+    }
+
+    .about-cta-buttons {
+      display: flex;
+      gap: var(--sp-6);
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 860px) {
+      .about-body {
+        grid-template-columns: 1fr;
+      }
+      .about-sidebar {
+        border-top: 1px solid var(--border);
+        padding-top: var(--sp-8);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- NAVIGATION -->
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="nav__inner">
+      <a href="/" class="nav__logo">Anubhav Pandey</a>
+      <ul class="nav__links" role="list">
+        <li><a href="index.html#work">Work</a></li>
+        <li><a href="about.html" class="active">About</a></li>
+        <li><a href="index.html#writing">Writing</a></li>
+      </ul>
+      <div class="nav__actions">
+        <a href="assets/anubhav-pandey-resume.pdf" target="_blank" rel="noopener" class="nav__btn-ghost" data-track="resume-view" data-track-source="nav">View Resume</a>
+        <button type="button" class="nav__btn-primary js-contact-open" data-track="contact" data-track-source="nav">Get in touch</button>
+      </div>
+      <button class="nav__toggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <main>
+
+    <!-- ABOUT HERO -->
+    <section class="about-hero" data-section="about-hero">
+      <div class="container">
+        <span class="label">About</span>
+        <h1 id="about-heading">
+          I design systems that make<br />
+          <em>complex, regulated</em> products<br />
+          usable by non-experts.
+        </h1>
+      </div>
+    </section>
+
+    <!-- ABOUT BODY -->
+    <section data-section="about-body">
+      <div class="container">
+        <div class="about-body">
+
+          <!-- Narrative -->
+          <div class="about-narrative" id="about-narrative">
+
+            <p>
+              I am a product designer who thinks in systems. My strongest work happens
+              at the intersection of domain complexity and user clarity — where the product
+              has to handle expert-level logic while being operated by people who are not
+              experts in that domain.
+            </p>
+
+            <p>
+              For the past [X] years, I have been the first and only designer at
+              Carboledger — an early-stage B2B SaaS platform for sustainability compliance
+              and carbon data management. I joined when the product had no defined UX
+              direction. I left that ambiguity with 11 interconnected platform modules,
+              structured supplier response workflows, a role-based access model that
+              encoded regulatory accountability into the product experience, and a
+              contribution analysis tool that cut expert analysis time from half a day
+              to under an hour.
+            </p>
+
+            <p>
+              What that environment actually meant: 4-person team. No design manager.
+              No design system inherited from a previous team. Requirements that arrived
+              as compliance framework references and vague stakeholder notes.
+              Every major UX decision — what to build, how it should work, what trade-offs
+              to make against regulatory constraints — was mine to own. That is what
+              "founding designer" means in practice.
+            </p>
+
+            <h2>How I work</h2>
+
+            <p>
+              I learn by wrestling with real complexity, not by waiting for well-formed
+              requirements. I read domain documentation before I open Figma. I write
+              decision logs — what alternatives I ruled out and why — before I ask
+              engineers to build anything. I treat session recordings and user conversations
+              as primary data, not decoration.
+            </p>
+
+            <p>
+              My strongest design decisions have come from noticing what is broken in
+              the structure of a problem, not just in its surface. The alias system at
+              Carboledger looked like a naming problem. It was four problems: cognitive
+              recall, record-keeping consistency, data searchability, and supplier power
+              dynamics — all requiring different solutions held simultaneously in one
+              data model.
+            </p>
+
+            <p>
+              I also build. I use Cursor, Vercel v0, and AI tools to prototype and
+              test ideas without waiting for engineering cycles. That has consistently
+              helped me make better, faster decisions about what is worth building at all.
+            </p>
+
+            <h2>What I am looking for</h2>
+
+            <p>
+              [Placeholder — Describe the type of company and role you want.
+              Example: "I am looking for founding designer or senior product design roles
+              at early-stage B2B SaaS companies — particularly in AI, compliance, supply chain,
+              or regulated domains. I want to be the person who defines the product's
+              design direction, not someone who inherits it."]
+            </p>
+
+          </div>
+
+          <!-- Sidebar -->
+          <aside class="about-sidebar">
+
+            <div class="sidebar-block">
+              <span class="label">Strengths</span>
+              <ul class="skills-list" id="about-skills-list" role="list">
+                <li>Enterprise workflow design</li>
+                <li>Information architecture</li>
+                <li>Decision-support UX</li>
+                <li>Role-based access design</li>
+                <li>Platform coherence across modules</li>
+                <li>Domain absorption — compliance, ESG, supply chain</li>
+                <li>PRD and specification writing</li>
+                <li>GDPR-compliant user research</li>
+              </ul>
+            </div>
+
+            <div class="sidebar-block">
+              <span class="label">Tools</span>
+              <ul class="skills-list" id="about-tools-list" role="list">
+                <li>Figma</li>
+                <li>Cursor / Vercel v0</li>
+                <li>SQL</li>
+                <li>Google Analytics / Clarity</li>
+                <li>Zipy (session recording)</li>
+                <li>Webflow</li>
+              </ul>
+            </div>
+
+            <div id="about-sidebar-extra">
+              <div class="sidebar-block">
+                <span class="label">Currently</span>
+                <p>[Placeholder — Add current status, e.g. "Open to new roles" or "Currently at Carboledger, exploring next chapter."]</p>
+              </div>
+              <div class="sidebar-block">
+                <span class="label">Location</span>
+                <p>[Your location — e.g. Bangalore, India. Open to remote.]</p>
+              </div>
+            </div>
+
+          </aside>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="about-cta" data-section="about-cta">
+      <div class="container">
+        <h2 id="about-cta-heading">Let's work together.</h2>
+        <p id="about-cta-para">
+          If you are building something hard in a regulated or complex domain and
+          need a designer who can own the UX direction — I would like to talk.
+        </p>
+        <div class="about-cta-buttons">
+          <button
+            type="button"
+            class="btn-primary js-contact-open"
+            data-track="contact"
+            data-track-name="email-about"
+          >Get in touch</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <h2 class="footer__brand-name">Anubhav Pandey</h2>
+          <p class="footer__brand-desc">Product Designer. Designing clarity into systems that resist it. Open to founding designer and senior product design roles.</p>
+        </div>
+        <nav aria-label="Footer navigation">
+          <span class="footer__col-label">Navigation</span>
+          <ul class="footer__links" role="list">
+            <li><a href="index.html#work">Work</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="index.html#writing">Writing</a></li>
+          </ul>
+        </nav>
+        <div>
+          <span class="footer__col-label">Contact</span>
+          <ul class="footer__links" role="list">
+            <li><a href="mailto:pandeyanubhav229@gmail.com" data-track="contact" data-track-name="email">pandeyanubhav229@gmail.com</a></li>
+            <li><a href="https://www.linkedin.com/in/anubhavp2000/" target="_blank" rel="noopener" data-track="contact" data-track-name="linkedin">LinkedIn</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <p class="footer__copy">© 2026 Anubhav Pandey. All rights reserved.</p>
+        <div class="footer__socials">
+          <a href="https://www.linkedin.com/in/anubhavp2000/" target="_blank" rel="noopener">LinkedIn</a>
+          <a href="https://dribbble.com/anubhavp" target="_blank" rel="noopener">Dribbble</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Content renderer -->
+  <script src="content.js"></script>
+  <script>
+  (function renderAbout() {
+    const stored = localStorage.getItem('portfolio_content_v1');
+    const C = stored ? JSON.parse(stored) : window.CONTENT;
+    if (!C) return;
+
+    const a = C.about || {};
+
+    /* ── Hero heading ── */
+    const headingEl = document.getElementById('about-heading');
+    if (headingEl && a.heroHeadingLines) {
+      headingEl.innerHTML = a.heroHeadingLines.map((line, i) =>
+        i === a.heroHeadingLines.length - 1
+          ? `<em>${line}</em>`
+          : line + '<br />'
+      ).join('');
+    }
+
+    /* ── Narrative bio ── */
+    const narrativeEl = document.getElementById('about-narrative');
+    if (narrativeEl && a.bioParagraphs) {
+      narrativeEl.innerHTML = a.bioParagraphs.map(item =>
+        item.type === 'heading'
+          ? `<h2>${item.text}</h2>`
+          : `<p>${item.text}</p>`
+      ).join('');
+    }
+
+    /* ── Skills list ── */
+    const skillsEl = document.getElementById('about-skills-list');
+    if (skillsEl && a.skills) {
+      skillsEl.innerHTML = a.skills.map(s => `<li>${s}</li>`).join('');
+    }
+
+    /* ── Tools list ── */
+    const toolsEl = document.getElementById('about-tools-list');
+    if (toolsEl && a.tools) {
+      toolsEl.innerHTML = a.tools.map(t => `<li>${t}</li>`).join('');
+    }
+
+    /* ── Dynamic sidebar blocks (Currently, Location, etc.) ── */
+    const sidebarExtraEl = document.getElementById('about-sidebar-extra');
+    if (sidebarExtraEl && a.sidebarBlocks) {
+      sidebarExtraEl.innerHTML = a.sidebarBlocks.map(b => `
+        <div class="sidebar-block">
+          <span class="label">${b.label}</span>
+          <p>${b.content}</p>
+        </div>
+      `).join('');
+    }
+
+    /* ── CTA ── */
+    const ctaH = document.getElementById('about-cta-heading');
+    if (ctaH) ctaH.textContent = a.ctaHeading || '';
+
+    const ctaP = document.getElementById('about-cta-para');
+    if (ctaP) ctaP.textContent = a.ctaParagraph || '';
+
+  })();
+  </script>
+
+  <script src="scripts/main.js" defer></script>
+  <script src="scripts/contact-modal.js" defer></script>
+</body>
+</html>
