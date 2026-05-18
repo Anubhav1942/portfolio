@@ -1776,7 +1776,7 @@
             <label>${item.type==='heading'?'Heading text':'Paragraph text'}</label>
             ${item.type==='heading'
               ? `<input type="text" value="${esc(item.text)}" oninput="updateBioItem(${i},'text',this.value)" />`
-              : rteHtml(item.text,"updateBioItem("+i+",'text',this.innerHTML)",true)
+              : rteHtml(item.text,"updateBioItem("+i+",'text',this.innerHTML)",true,"data-bio-idx='"+i+"' data-bio-field='text'")
             }
           </div>
         </div>
@@ -1786,17 +1786,19 @@
   }
 
   function addBioItem(type) {
+    flushBioRTEs();
     C.about.bioParagraphs.push({ type, text: '' });
     renderBio(); scheduleSave(); showToast(type === 'heading' ? 'Heading added' : 'Paragraph added');
   }
 
   function setBioType(i, type, btn) {
+    flushBioRTEs();
     C.about.bioParagraphs[i].type = type;
     renderBio(); scheduleSave();
   }
 
   function updateBioItem(i, key, val) { C.about.bioParagraphs[i][key] = val; scheduleSave(); }
-  function removeBioItem(i, e) { e.stopPropagation(); C.about.bioParagraphs.splice(i,1); renderBio(); scheduleSave(); }
+  function removeBioItem(i, e) { e.stopPropagation(); flushBioRTEs(); C.about.bioParagraphs.splice(i,1); renderBio(); scheduleSave(); }
 
   /* ════════════════════════════════════════
      RENDER: Skills / Tools lists
@@ -1842,15 +1844,15 @@
         </div>
         <div class="repeat-item-body">
           <div class="field"><label>Block label (e.g. "Currently")</label><input type="text" value="${esc(block.label)}" oninput="updateSidebarBlock(${i},'label',this.value)" /></div>
-          <div class="field"><label>Content</label>${rteHtml(block.content,"updateSidebarBlock("+i+",'content',this.innerHTML)")}</div>
+          <div class="field"><label>Content</label>${rteHtml(block.content,"updateSidebarBlock("+i+",'content',this.innerHTML)",false,"data-sidebar-idx='"+i+"' data-sidebar-field='content'")}</div>
         </div>
       `;
       container.appendChild(item);
     });
   }
 
-  function addSidebarBlock() { C.about.sidebarBlocks.push({ label:'', content:'' }); renderSidebarBlocks(); scheduleSave(); }
-  function removeSidebarBlock(i,e) { e.stopPropagation(); C.about.sidebarBlocks.splice(i,1); renderSidebarBlocks(); scheduleSave(); }
+  function addSidebarBlock() { flushSidebarRTEs(); C.about.sidebarBlocks.push({ label:'', content:'' }); renderSidebarBlocks(); scheduleSave(); }
+  function removeSidebarBlock(i,e) { e.stopPropagation(); flushSidebarRTEs(); C.about.sidebarBlocks.splice(i,1); renderSidebarBlocks(); scheduleSave(); }
   function updateSidebarBlock(i, key, val) { C.about.sidebarBlocks[i][key] = val; scheduleSave(); }
 
   /* ════════════════════════════════════════
@@ -2304,6 +2306,24 @@
     });
   }
 
+  /* Flush about bio paragraph RTE editors into C before any renderBio() call */
+  function flushBioRTEs() {
+    document.querySelectorAll('.rte-editor[data-bio-idx]').forEach(function(ed) {
+      var idx   = +ed.dataset.bioIdx;
+      var field = ed.dataset.bioField || 'text';
+      try { C.about.bioParagraphs[idx][field] = ed.innerHTML; } catch(e) {}
+    });
+  }
+
+  /* Flush about sidebar block RTE editors into C before any renderSidebarBlocks() call */
+  function flushSidebarRTEs() {
+    document.querySelectorAll('.rte-editor[data-sidebar-idx]').forEach(function(ed) {
+      var idx   = +ed.dataset.sidebarIdx;
+      var field = ed.dataset.sidebarField || 'content';
+      try { C.about.sidebarBlocks[idx][field] = ed.innerHTML; } catch(e) {}
+    });
+  }
+
   /* Remove a block from a section or decision */
   function removeCSBlock(csKey, listKey, itemIdx, blockIdx, e) {
     e.stopPropagation();
@@ -2555,7 +2575,7 @@
     if (ni < 0 || ni >= arr.length) return;
     [arr[i], arr[ni]] = [arr[ni], arr[i]];
     if (isAbout) {
-      if (listKey === 'bioParagraphs') renderBio();
+      if (listKey === 'bioParagraphs') { flushBioRTEs(); renderBio(); }
     } else {
       if (listKey === 'projects') renderProjects();
       if (listKey === 'experience') renderExperience();
