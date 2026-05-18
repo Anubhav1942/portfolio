@@ -1967,8 +1967,10 @@
   }
 
   /* ── Block editor renderer ── */
-  function renderBlocksEditor(csKey, listKey, itemIdx, blocks) {
+  function renderBlocksEditor(csKey, listKey, itemIdx, blocks, startIdx) {
+    startIdx = startIdx || 0;
     return blocks.map((block, bi) => {
+      bi = startIdx + bi;
       const badge = `<span class="block-type-badge ${block.type}">${block.type}</span>`;
       const moveUp = `<button class="btn-icon" title="Move up" onclick="moveCSBlock('${csKey}','${listKey}',${itemIdx},${bi},-1,event)">↑</button>`;
       const moveDn = `<button class="btn-icon" title="Move down" onclick="moveCSBlock('${csKey}','${listKey}',${itemIdx},${bi},1,event)">↓</button>`;
@@ -2083,7 +2085,7 @@
           </div>
           <div class="field"><label>Heading</label><input type="text" value="${esc(sec.heading)}" oninput="updateCSItemField('${csKey}','sections',${i},'heading',this.value)" /></div>
           <div style="margin-top:0.75rem;margin-bottom:0.25rem;font-size:0.68rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted)">Blocks</div>
-          ${renderBlocksEditor(csKey, 'sections', i, blocks)}
+          <div id="blocks-area-${csKey}-sections-${i}">${renderBlocksEditor(csKey, 'sections', i, blocks)}</div>
           ${renderBlockAddRow(csKey, 'sections', i)}
         </div>
       `;
@@ -2130,7 +2132,7 @@
             <div class="field" style="grid-column:1/-1"><label>Decision title</label><input type="text" value="${esc(dec.title)}" oninput="updateCSItemField('${csKey}','decisions',${i},'title',this.value)" /></div>
           </div>
           <div style="margin-top:0.75rem;margin-bottom:0.25rem;font-size:0.68rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted)">Blocks</div>
-          ${renderBlocksEditor(csKey, 'decisions', i, blocks)}
+          <div id="blocks-area-${csKey}-decisions-${i}">${renderBlocksEditor(csKey, 'decisions', i, blocks)}</div>
           ${renderBlockAddRow(csKey, 'decisions', i)}
         </div>
       `;
@@ -2229,18 +2231,40 @@
     scheduleSave();
   }
 
-  /* Add a new block to a section or decision */
+  /* Add a new block to a section or decision — injects into DOM without full re-render */
   function addCSBlock(csKey, listKey, itemIdx, type) {
     const item = C.caseStudies[csKey][listKey][itemIdx];
     if (!item.blocks) item.blocks = [];
+
+    // Flush any typed content from visible RTEs in this section before touching the model
+    const areaId = 'blocks-area-' + csKey + '-' + listKey + '-' + itemIdx;
+    const area = document.getElementById(areaId);
+    if (area) {
+      area.querySelectorAll('.rte-editor').forEach(function(ed) {
+        ed.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+    }
+
     let newBlock = { type };
     if (type === 'paragraph' || type === 'callout') newBlock.text = '';
     else if (type === 'list') newBlock.items = [''];
     else if (type === 'metric') newBlock.items = [{ num: '', desc: '' }];
     else if (type === 'image') newBlock = { type: 'image', show: true, size: 'md', alt: '', caption: '' };
+
+    const newIdx = item.blocks.length;
     item.blocks.push(newBlock);
-    if (listKey === 'sections') renderCSSections(csKey);
-    else renderCSDecisions(csKey);
+
+    if (area) {
+      // Inject just the new block — existing blocks stay in the DOM untouched
+      const tmp = document.createElement('div');
+      tmp.innerHTML = renderBlocksEditor(csKey, listKey, itemIdx, [newBlock], newIdx);
+      while (tmp.firstChild) area.appendChild(tmp.firstChild);
+    } else {
+      // Fallback: full re-render if the area div isn't found
+      if (listKey === 'sections') renderCSSections(csKey);
+      else renderCSDecisions(csKey);
+    }
+
     scheduleSave();
   }
 
