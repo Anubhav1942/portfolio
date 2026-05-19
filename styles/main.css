@@ -844,6 +844,7 @@ p {
 }
 
 .exp__desc {
+  font-family: var(--font-sans);
   font-size: 0.82rem;
   color: var(--text-on-dark-muted);
   line-height: 1.65;
