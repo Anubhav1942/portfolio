@@ -674,9 +674,10 @@
             <span class="sk sk-cs__sec-h2-2"></span>
             <span class="sk sk-cs__para-1"></span><span class="sk sk-cs__para-2"></span><span class="sk sk-cs__para-3"></span>
           </div>
-          <div id="cs-sections-container"></div>
+          <div class="content-target">
+            <div id="cs-sections-container"></div>
 
-          <!-- REFLECTION -->
+            <!-- REFLECTION -->
           <section class="cs-sec" id="cs-reflection" data-section="cs-reflection">
             <div class="cs-sec-label">
               <span class="cs-sec-num">06</span>
@@ -689,6 +690,7 @@
               should have? What would you change if you started again?]
             </p>
           </section>
+          </div>
 
         </div>
         <!-- end .cs-content -->
@@ -770,6 +772,7 @@
   <script src="../firebase-config.js"></script>
   <script>
   window.loadContent().then(function(C) {
+    document.body.classList.add('content-loaded');
     if (!C) return;
     if (C.global && C.global.gaId) window.__injectGA(C.global.gaId);
 
@@ -918,7 +921,6 @@
       nextEl.href = cs.nextProject.url;
       nextEl.innerHTML = `${cs.nextProject.label} <span class="cs-next-arrow">→</span>`;
     }
-    document.body.classList.add('content-loaded');
   }).catch(function() { document.body.classList.add('content-loaded'); });
   setTimeout(function() { document.body.classList.add('content-loaded'); }, 4000);
   </script>
