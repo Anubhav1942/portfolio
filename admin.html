@@ -998,6 +998,61 @@
     .rte-editor:focus { box-shadow: inset 0 0 0 2px rgba(44,106,79,0.2); }
     .rte-editor ul, .rte-editor ol { padding-left: 1.2rem; margin: 0.2em 0; }
     .rte-editor li { margin-bottom: 0.1em; }
+
+    /* ── Panel tabs ── */
+    .panel-tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 1.5rem;
+      overflow-x: auto;
+    }
+    .panel-tab {
+      padding: 0.6rem 1.1rem;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-sec);
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-family: inherit;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: color var(--ease), border-color var(--ease);
+      white-space: nowrap;
+    }
+    .panel-tab:hover { color: var(--text); }
+    .panel-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .panel-tab-content { display: none; }
+    .panel-tab-content.active { display: block; }
+
+    /* ── Settings form ── */
+    .settings-section { margin-bottom: 1.5rem; }
+    .settings-section-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .preview-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.75rem;
+      color: var(--text-sec);
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.3rem 0.7rem;
+      cursor: pointer;
+      font-family: inherit;
+      transition: color var(--ease), border-color var(--ease);
+    }
+    .preview-btn:hover { color: var(--accent); border-color: var(--accent); }
   </style>
 </head>
 
@@ -1028,41 +1083,12 @@
     <nav class="sidebar">
 
       <div class="sidebar-group">
-        <span class="sidebar-group-label">Settings</span>
-        <button class="sidebar-item active" onclick="showPanel('global', this)">
-          <span class="sidebar-item-icon">⚙</span> Global Settings
+        <span class="sidebar-group-label">Pages</span>
+        <button class="sidebar-item active" onclick="showPanel('home', this)">
+          <span class="sidebar-item-icon">◉</span> Home
         </button>
-      </div>
-
-      <div class="sidebar-group">
-        <span class="sidebar-group-label">Home Page</span>
-        <button class="sidebar-item" onclick="showPanel('hero', this)">
-          <span class="sidebar-item-icon">◉</span> Hero
-        </button>
-        <button class="sidebar-item" onclick="showPanel('projects', this)">
-          <span class="sidebar-item-icon">◫</span> Projects
-        </button>
-        <button class="sidebar-item" onclick="showPanel('experience', this)">
-          <span class="sidebar-item-icon">◑</span> Experience
-        </button>
-        <button class="sidebar-item" onclick="showPanel('aiprojects', this)">
-          <span class="sidebar-item-icon">◈</span> AI Projects
-        </button>
-        <button class="sidebar-item" onclick="showPanel('blog', this)">
-          <span class="sidebar-item-icon">◻</span> Blog
-        </button>
-      </div>
-
-      <div class="sidebar-group">
-        <span class="sidebar-group-label">About Page</span>
-        <button class="sidebar-item" onclick="showPanel('about-bio', this)">
-          <span class="sidebar-item-icon">◷</span> Bio
-        </button>
-        <button class="sidebar-item" onclick="showPanel('about-sidebar', this)">
-          <span class="sidebar-item-icon">◱</span> Sidebar & Skills
-        </button>
-        <button class="sidebar-item" onclick="showPanel('about-cta', this)">
-          <span class="sidebar-item-icon">◲</span> CTA
+        <button class="sidebar-item" onclick="showPanel('about', this)">
+          <span class="sidebar-item-icon">◷</span> About
         </button>
       </div>
 
@@ -1073,8 +1099,18 @@
       </div>
 
       <div class="sidebar-group">
-        <div class="sidebar-group-label">Versions</div>
-        <button class="sidebar-item" onclick="showPanel('versions',this)">
+        <span class="sidebar-group-label">Settings</span>
+        <button class="sidebar-item" onclick="showPanel('settings-profile', this)">
+          <span class="sidebar-item-icon">◎</span> Profile & Links
+        </button>
+        <button class="sidebar-item" onclick="showPanel('settings-site', this)">
+          <span class="sidebar-item-icon">◈</span> Domain & Analytics
+        </button>
+      </div>
+
+      <div class="sidebar-group">
+        <span class="sidebar-group-label">History</span>
+        <button class="sidebar-item" onclick="showPanel('versions', this)">
           <span class="sidebar-item-icon">⏱</span> Saved Versions
         </button>
       </div>
@@ -1084,229 +1120,205 @@
     <!-- MAIN -->
     <main class="main">
 
-      <!-- ── GLOBAL ── -->
-      <div class="panel active" id="panel-global">
+      <!-- ── HOME (tabbed) ── -->
+      <div class="panel active" id="panel-home">
         <div class="panel-header">
-          <div class="panel-title">Global Settings</div>
-          <div class="panel-desc">These values appear on every page — name, contact, resume link, analytics ID.</div>
+          <div class="panel-title">Home Page</div>
+          <div class="panel-desc">Everything visible on the homepage — hero, projects, experience, AI work, and blog.</div>
         </div>
-        <div class="card">
-          <div class="card-body card-body-grid">
-            <div class="field"><label>Your Name</label><input type="text" data-path="global.name" /></div>
-            <div class="field"><label>Tagline</label><input type="text" data-path="global.tagline" /></div>
-            <div class="field"><label>Email</label><input type="email" data-path="global.email" /></div>
-            <div class="field"><label>LinkedIn URL</label><input type="url" data-path="global.linkedin" /></div>
-            <div class="field"><label>Dribbble URL</label><input type="url" data-path="global.dribbble" /></div>
-            <div class="field"><label>Resume URL</label><input type="text" data-path="global.resumeUrl" /><span class="field-hint">Google Drive or local path — e.g. https://drive.google.com/file/d/…/view</span></div>
-            <div class="field"><label>Google Analytics ID</label><input type="text" data-path="global.gaId" /><span class="field-hint">Replace G-5D0X4RLR71 with your real GA4 ID</span></div>
-            <div class="field full"><label>Footer description</label>
-              <div class="rte-wrap">
-                <div class="rte-toolbar" onmousedown="event.preventDefault()">
-                  <button type="button" class="rte-btn" onclick="rteCmd(this,'bold')" title="Bold"><b>B</b></button>
-                  <button type="button" class="rte-btn" onclick="rteCmd(this,'italic')" title="Italic"><em>I</em></button>
-                  <span class="rte-sep"></span>
-                  <button type="button" class="rte-btn" onclick="rteCmd(this,'insertUnorderedList')" title="Bullet list">• List</button>
-                  <button type="button" class="rte-btn" onclick="rteCmd(this,'insertOrderedList')" title="1. List">1. List</button>
-                  <span class="rte-sep"></span>
-                  <button type="button" class="rte-btn" onclick="rteInsertBr(this)" title="Line break">↵ BR</button>
+        <div class="panel-tabs" id="home-tabs">
+          <button class="panel-tab active" onclick="switchTab('home','hero',this)">Hero</button>
+          <button class="panel-tab" onclick="switchTab('home','projects',this)">Projects</button>
+          <button class="panel-tab" onclick="switchTab('home','experience',this)">Experience</button>
+          <button class="panel-tab" onclick="switchTab('home','aiprojects',this)">AI Projects</button>
+          <button class="panel-tab" onclick="switchTab('home','blog',this)">Blog</button>
+        </div>
+
+        <!-- Hero tab -->
+        <div class="panel-tab-content active" id="home-tab-hero">
+          <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+              <div class="card-header-left"><span class="card-header-title">Heading &amp; Subtitle</span></div>
+              <span class="card-toggle">▾</span>
+            </div>
+            <div class="card-body">
+              <div class="field"><label>Label (small text above heading)</label><input type="text" data-path="home.hero.label" /></div>
+              <div class="field"><label>Heading — Line 1</label><input type="text" data-path="home.hero.headingLines.0" /></div>
+              <div class="field"><label>Heading — Line 2</label><input type="text" data-path="home.hero.headingLines.1" /></div>
+              <div class="field"><label>Heading — Line 3 (italic green)</label><input type="text" data-path="home.hero.headingLines.2" /></div>
+              <div class="field"><label>Subtitle paragraph</label>
+                <div class="rte-wrap">
+                  <div class="rte-toolbar" onmousedown="event.preventDefault()">
+                    <button type="button" class="rte-btn" onclick="rteCmd(this,'bold')" title="Bold"><b>B</b></button>
+                    <button type="button" class="rte-btn" onclick="rteCmd(this,'italic')" title="Italic"><em>I</em></button>
+                    <span class="rte-sep"></span>
+                    <button type="button" class="rte-btn" onclick="rteCmd(this,'insertUnorderedList')" title="Bullet list">• List</button>
+                    <button type="button" class="rte-btn" onclick="rteCmd(this,'insertOrderedList')" title="1. List">1. List</button>
+                    <span class="rte-sep"></span>
+                    <button type="button" class="rte-btn" onclick="rteInsertBr(this)" title="Line break">↵ BR</button>
+                  </div>
+                  <div class="rte-editor" contenteditable="true" data-path="home.hero.subtitle"></div>
                 </div>
-                <div class="rte-editor" contenteditable="true" data-path="global.footerDesc"></div>
+              </div>
+              <div class="field card-body-grid">
+                <div><label>CTA 1 button label</label><input type="text" data-path="home.hero.cta1Label" /></div>
+                <div><label>CTA 2 button label</label><input type="text" data-path="home.hero.cta2Label" /></div>
               </div>
             </div>
-            <div class="field full"><label>Copyright line</label><input type="text" data-path="global.copyright" /></div>
           </div>
+
+          <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+              <div class="card-header-left"><span class="card-header-title">Stats strip</span></div>
+              <span class="card-toggle">▾</span>
+            </div>
+            <div class="card-body">
+              <div class="field-hint" style="margin-bottom:0.5rem">Up to 6 stats. Each has a large value and a small label. Duplicatable.</div>
+              <div id="stats-list"></div>
+              <button class="btn-add" onclick="addStat()">+ Add stat</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Projects tab -->
+        <div class="panel-tab-content" id="home-tab-projects">
+          <div class="panel-header" style="margin-top:0.5rem">
+            <div class="panel-title">Projects Grid</div>
+            <div class="panel-desc">4 project cards on the home page. Duplicatable — add new projects. Changing order here updates the display order.</div>
+          </div>
+          <div id="projects-list"></div>
+          <button class="btn-add" onclick="addProject()">+ Add project</button>
+        </div>
+
+        <!-- Experience tab -->
+        <div class="panel-tab-content" id="home-tab-experience">
+          <div class="panel-header" style="margin-top:0.5rem">
+            <div class="panel-title">Experience Strip</div>
+            <div class="panel-desc">Dark section listing where you have worked. Duplicatable — add new companies.</div>
+          </div>
+          <div id="experience-list"></div>
+          <button class="btn-add" onclick="addExperience()">+ Add company</button>
+        </div>
+
+        <!-- AI Projects tab -->
+        <div class="panel-tab-content" id="home-tab-aiprojects">
+          <div class="panel-header" style="margin-top:0.5rem">
+            <div class="panel-title">AI &amp; Independent Projects</div>
+            <div class="panel-desc">Living section — add new projects as you build them. Each card has a tag, title, description, and optional link.</div>
+          </div>
+          <div class="cs-visibility-row" id="ai-section-visibility-row">
+            <span class="cs-visibility-label" id="ai-section-visibility-label">● Section visible on homepage</span>
+            <div class="toggle-pill">
+              <span class="toggle-pill-label">Visible</span>
+              <button class="toggle-pill-btn on" id="ai-section-vis-btn" onclick="toggleAiSectionHidden()"></button>
+            </div>
+          </div>
+          <div id="aiprojects-list"></div>
+          <button class="btn-add" onclick="addAiProject()">+ Add project</button>
+        </div>
+
+        <!-- Blog tab -->
+        <div class="panel-tab-content" id="home-tab-blog">
+          <div class="panel-header" style="margin-top:0.5rem">
+            <div class="panel-title">Blog Posts</div>
+            <div class="panel-desc">Post metadata shown on the home page. Add a row for each published post. The actual post content is in its own HTML file.</div>
+          </div>
+          <div id="blog-list"></div>
+          <button class="btn-add" onclick="addBlogPost()">+ Add post</button>
         </div>
       </div>
 
-      <!-- ── HERO ── -->
-      <div class="panel" id="panel-hero">
+      <!-- ── ABOUT (tabbed) ── -->
+      <div class="panel" id="panel-about">
         <div class="panel-header">
-          <div class="panel-title">Hero Section</div>
-          <div class="panel-desc">The first thing visitors see. Each heading line is separate. The last line gets italic green styling automatically.</div>
+          <div class="panel-title">About Page</div>
+          <div class="panel-desc">Bio content, sidebar skills, and the call-to-action section.</div>
+        </div>
+        <div class="panel-tabs" id="about-tabs">
+          <button class="panel-tab active" onclick="switchTab('about','bio',this)">Bio</button>
+          <button class="panel-tab" onclick="switchTab('about','sidebar',this)">Sidebar &amp; Skills</button>
+          <button class="panel-tab" onclick="switchTab('about','cta',this)">CTA</button>
         </div>
 
-        <div class="card">
-          <div class="card-header" onclick="toggleCard(this)">
-            <div class="card-header-left"><span class="card-header-title">Heading & Subtitle</span></div>
-            <span class="card-toggle">▾</span>
+        <!-- Bio tab -->
+        <div class="panel-tab-content active" id="about-tab-bio">
+          <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+              <div class="card-header-left"><span class="card-header-title">Hero heading</span></div>
+              <span class="card-toggle">▾</span>
+            </div>
+            <div class="card-body">
+              <div class="field-hint" style="margin-bottom:0.5rem">Three-line h1 at the top of the About page. The last line gets italic green styling automatically.</div>
+              <div class="field"><label>Line 1</label><input type="text" data-path="about.heroHeadingLines.0" /></div>
+              <div class="field"><label>Line 2</label><input type="text" data-path="about.heroHeadingLines.1" /></div>
+              <div class="field"><label>Line 3 (italic green)</label><input type="text" data-path="about.heroHeadingLines.2" /></div>
+            </div>
           </div>
-          <div class="card-body">
-            <div class="field"><label>Label (small text above heading)</label><input type="text" data-path="home.hero.label" /></div>
-            <div class="field"><label>Heading — Line 1</label><input type="text" data-path="home.hero.headingLines.0" /></div>
-            <div class="field"><label>Heading — Line 2</label><input type="text" data-path="home.hero.headingLines.1" /></div>
-            <div class="field"><label>Heading — Line 3 (italic green)</label><input type="text" data-path="home.hero.headingLines.2" /></div>
-            <div class="field"><label>Subtitle paragraph</label>
-              <div class="rte-wrap">
-                <div class="rte-toolbar" onmousedown="event.preventDefault()">
-                  <button type="button" class="rte-btn" onclick="rteCmd(this,'bold')" title="Bold"><b>B</b></button>
-                  <button type="button" class="rte-btn" onclick="rteCmd(this,'italic')" title="Italic"><em>I</em></button>
-                  <span class="rte-sep"></span>
-                  <button type="button" class="rte-btn" onclick="rteCmd(this,'insertUnorderedList')" title="Bullet list">• List</button>
-                  <button type="button" class="rte-btn" onclick="rteCmd(this,'insertOrderedList')" title="1. List">1. List</button>
-                  <span class="rte-sep"></span>
-                  <button type="button" class="rte-btn" onclick="rteInsertBr(this)" title="Line break">↵ BR</button>
+
+          <div class="section-divider">Bio paragraphs</div>
+          <div id="bio-list"></div>
+          <div style="display:flex;gap:0.5rem;margin-top:0.25rem;">
+            <button class="btn-add" style="flex:1" onclick="addBioItem('paragraph')">+ Add paragraph</button>
+            <button class="btn-add" style="flex:1" onclick="addBioItem('heading')">+ Add heading</button>
+          </div>
+        </div>
+
+        <!-- Sidebar & Skills tab -->
+        <div class="panel-tab-content" id="about-tab-sidebar">
+          <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+              <div class="card-header-left"><span class="card-header-title">Skills</span></div>
+              <span class="card-toggle">▾</span>
+            </div>
+            <div class="card-body">
+              <div class="list-editor" id="skills-list"></div>
+              <button class="btn-add" onclick="addListItem('skills')">+ Add skill</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+              <div class="card-header-left"><span class="card-header-title">Tools</span></div>
+              <span class="card-toggle">▾</span>
+            </div>
+            <div class="card-body">
+              <div class="list-editor" id="tools-list"></div>
+              <button class="btn-add" onclick="addListItem('tools')">+ Add tool</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+              <div class="card-header-left"><span class="card-header-title">Sidebar blocks</span></div>
+              <span class="card-toggle">▾</span>
+            </div>
+            <div class="card-body">
+              <div class="field-hint" style="margin-bottom:0.5rem">Custom blocks like "Currently", "Location", "Reading". Duplicatable.</div>
+              <div id="sidebar-blocks-list"></div>
+              <button class="btn-add" onclick="addSidebarBlock()">+ Add block</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- CTA tab -->
+        <div class="panel-tab-content" id="about-tab-cta">
+          <div class="card">
+            <div class="card-body">
+              <div class="field"><label>CTA heading</label><input type="text" data-path="about.ctaHeading" /></div>
+              <div class="field"><label>CTA paragraph</label>
+                <div class="rte-wrap">
+                  <div class="rte-toolbar" onmousedown="event.preventDefault()">
+                    <button type="button" class="rte-btn" onclick="rteCmd(this,'bold')" title="Bold"><b>B</b></button>
+                    <button type="button" class="rte-btn" onclick="rteCmd(this,'italic')" title="Italic"><em>I</em></button>
+                    <span class="rte-sep"></span>
+                    <button type="button" class="rte-btn" onclick="rteCmd(this,'insertUnorderedList')" title="Bullet list">• List</button>
+                    <button type="button" class="rte-btn" onclick="rteCmd(this,'insertOrderedList')" title="1. List">1. List</button>
+                    <span class="rte-sep"></span>
+                    <button type="button" class="rte-btn" onclick="rteInsertBr(this)" title="Line break">↵ BR</button>
+                  </div>
+                  <div class="rte-editor" contenteditable="true" data-path="about.ctaParagraph"></div>
                 </div>
-                <div class="rte-editor" contenteditable="true" data-path="home.hero.subtitle"></div>
               </div>
+              <div class="field"><label>Button label</label><input type="text" data-path="about.ctaButtonLabel" /></div>
             </div>
-            <div class="field card-body-grid">
-              <div><label>CTA 1 button label</label><input type="text" data-path="home.hero.cta1Label" /></div>
-              <div><label>CTA 2 button label</label><input type="text" data-path="home.hero.cta2Label" /></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-header" onclick="toggleCard(this)">
-            <div class="card-header-left"><span class="card-header-title">Stats strip</span></div>
-            <span class="card-toggle">▾</span>
-          </div>
-          <div class="card-body">
-            <div class="field-hint" style="margin-bottom:0.5rem">Up to 6 stats. Each has a large value and a small label. Duplicatable.</div>
-            <div id="stats-list"></div>
-            <button class="btn-add" onclick="addStat()">+ Add stat</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── PROJECTS ── -->
-      <div class="panel" id="panel-projects">
-        <div class="panel-header">
-          <div class="panel-title">Projects Grid</div>
-          <div class="panel-desc">4 project cards on the home page. Duplicatable — add new projects. Changing order here updates the display order.</div>
-        </div>
-        <div id="projects-list"></div>
-        <button class="btn-add" onclick="addProject()">+ Add project</button>
-      </div>
-
-      <!-- ── EXPERIENCE ── -->
-      <div class="panel" id="panel-experience">
-        <div class="panel-header">
-          <div class="panel-title">Experience Strip</div>
-          <div class="panel-desc">Dark section listing where you have worked. Duplicatable — add new companies.</div>
-        </div>
-        <div id="experience-list"></div>
-        <button class="btn-add" onclick="addExperience()">+ Add company</button>
-      </div>
-
-      <!-- ── AI PROJECTS ── -->
-      <div class="panel" id="panel-aiprojects">
-        <div class="panel-header">
-          <div class="panel-title">AI &amp; Independent Projects</div>
-          <div class="panel-desc">Living section — add new projects as you build them. Each card has a tag, title, description, and optional link.</div>
-        </div>
-        <div class="cs-visibility-row" id="ai-section-visibility-row">
-          <span class="cs-visibility-label" id="ai-section-visibility-label">● Section visible on homepage</span>
-          <div class="toggle-pill">
-            <span class="toggle-pill-label">Visible</span>
-            <button class="toggle-pill-btn on" id="ai-section-vis-btn" onclick="toggleAiSectionHidden()"></button>
-          </div>
-        </div>
-        <div id="aiprojects-list"></div>
-        <button class="btn-add" onclick="addAiProject()">+ Add project</button>
-      </div>
-
-      <!-- ── BLOG ── -->
-      <div class="panel" id="panel-blog">
-        <div class="panel-header">
-          <div class="panel-title">Blog Posts</div>
-          <div class="panel-desc">Post metadata shown on the home page. Add a row for each published post. The actual post content is in its own HTML file.</div>
-        </div>
-        <div id="blog-list"></div>
-        <button class="btn-add" onclick="addBlogPost()">+ Add post</button>
-      </div>
-
-      <!-- ── ABOUT BIO ── -->
-      <div class="panel" id="panel-about-bio">
-        <div class="panel-header">
-          <div class="panel-title">About — Bio</div>
-          <div class="panel-desc">Hero heading, then bio paragraphs and section headings.</div>
-        </div>
-
-        <div class="card">
-          <div class="card-header" onclick="toggleCard(this)">
-            <div class="card-header-left"><span class="card-header-title">Hero heading</span></div>
-            <span class="card-toggle">▾</span>
-          </div>
-          <div class="card-body">
-            <div class="field-hint" style="margin-bottom:0.5rem">Three-line h1 at the top of the About page. The last line gets italic green styling automatically.</div>
-            <div class="field"><label>Line 1</label><input type="text" data-path="about.heroHeadingLines.0" /></div>
-            <div class="field"><label>Line 2</label><input type="text" data-path="about.heroHeadingLines.1" /></div>
-            <div class="field"><label>Line 3 (italic green)</label><input type="text" data-path="about.heroHeadingLines.2" /></div>
-          </div>
-        </div>
-
-        <div class="section-divider">Bio paragraphs</div>
-        <div id="bio-list"></div>
-        <div style="display:flex;gap:0.5rem;margin-top:0.25rem;">
-          <button class="btn-add" style="flex:1" onclick="addBioItem('paragraph')">+ Add paragraph</button>
-          <button class="btn-add" style="flex:1" onclick="addBioItem('heading')">+ Add heading</button>
-        </div>
-      </div>
-
-      <!-- ── ABOUT SIDEBAR ── -->
-      <div class="panel" id="panel-about-sidebar">
-        <div class="panel-header">
-          <div class="panel-title">About — Sidebar &amp; Skills</div>
-          <div class="panel-desc">Skills list, tools list, and custom sidebar blocks (Currently, Location, etc.).</div>
-        </div>
-        <div class="card">
-          <div class="card-header" onclick="toggleCard(this)">
-            <div class="card-header-left"><span class="card-header-title">Skills</span></div>
-            <span class="card-toggle">▾</span>
-          </div>
-          <div class="card-body">
-            <div class="list-editor" id="skills-list"></div>
-            <button class="btn-add" onclick="addListItem('skills')">+ Add skill</button>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-header" onclick="toggleCard(this)">
-            <div class="card-header-left"><span class="card-header-title">Tools</span></div>
-            <span class="card-toggle">▾</span>
-          </div>
-          <div class="card-body">
-            <div class="list-editor" id="tools-list"></div>
-            <button class="btn-add" onclick="addListItem('tools')">+ Add tool</button>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-header" onclick="toggleCard(this)">
-            <div class="card-header-left"><span class="card-header-title">Sidebar blocks</span></div>
-            <span class="card-toggle">▾</span>
-          </div>
-          <div class="card-body">
-            <div class="field-hint" style="margin-bottom:0.5rem">Custom blocks like "Currently", "Location", "Reading". Duplicatable.</div>
-            <div id="sidebar-blocks-list"></div>
-            <button class="btn-add" onclick="addSidebarBlock()">+ Add block</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── ABOUT CTA ── -->
-      <div class="panel" id="panel-about-cta">
-        <div class="panel-header">
-          <div class="panel-title">About — Call to Action</div>
-          <div class="panel-desc">The "Let's work together" section at the bottom of the About page.</div>
-        </div>
-        <div class="card">
-          <div class="card-body">
-            <div class="field"><label>CTA heading</label><input type="text" data-path="about.ctaHeading" /></div>
-            <div class="field"><label>CTA paragraph</label>
-              <div class="rte-wrap">
-                <div class="rte-toolbar" onmousedown="event.preventDefault()">
-                  <button type="button" class="rte-btn" onclick="rteCmd(this,'bold')" title="Bold"><b>B</b></button>
-                  <button type="button" class="rte-btn" onclick="rteCmd(this,'italic')" title="Italic"><em>I</em></button>
-                  <span class="rte-sep"></span>
-                  <button type="button" class="rte-btn" onclick="rteCmd(this,'insertUnorderedList')" title="Bullet list">• List</button>
-                  <button type="button" class="rte-btn" onclick="rteCmd(this,'insertOrderedList')" title="1. List">1. List</button>
-                  <span class="rte-sep"></span>
-                  <button type="button" class="rte-btn" onclick="rteInsertBr(this)" title="Line break">↵ BR</button>
-                </div>
-                <div class="rte-editor" contenteditable="true" data-path="about.ctaParagraph"></div>
-              </div>
-            </div>
-            <div class="field"><label>Button label</label><input type="text" data-path="about.ctaButtonLabel" /></div>
           </div>
         </div>
       </div>
@@ -1345,6 +1357,53 @@
           <div class="panel-desc">Hero, outcomes, sections.</div>
         </div>
         <div id="cs-santhe-fields"></div>
+      </div>
+
+      <!-- ── SETTINGS: PROFILE & LINKS ── -->
+      <div class="panel" id="panel-settings-profile">
+        <div class="panel-header">
+          <div class="panel-title">Profile &amp; Links</div>
+          <div class="panel-desc">Your name, tagline, contact links, resume URL, footer text, and copyright line.</div>
+        </div>
+        <div class="card">
+          <div class="card-body card-body-grid">
+            <div class="field"><label>Your Name</label><input type="text" data-path="global.name" /></div>
+            <div class="field"><label>Tagline</label><input type="text" data-path="global.tagline" /></div>
+            <div class="field"><label>Email</label><input type="email" data-path="global.email" /></div>
+            <div class="field"><label>LinkedIn URL</label><input type="url" data-path="global.linkedin" /></div>
+            <div class="field"><label>Dribbble URL</label><input type="url" data-path="global.dribbble" /></div>
+            <div class="field"><label>Resume URL</label><input type="text" data-path="global.resumeUrl" /><span class="field-hint">Google Drive or local path — e.g. https://drive.google.com/file/d/…/view</span></div>
+            <div class="field full"><label>Footer description</label>
+              <div class="rte-wrap">
+                <div class="rte-toolbar" onmousedown="event.preventDefault()">
+                  <button type="button" class="rte-btn" onclick="rteCmd(this,'bold')" title="Bold"><b>B</b></button>
+                  <button type="button" class="rte-btn" onclick="rteCmd(this,'italic')" title="Italic"><em>I</em></button>
+                  <span class="rte-sep"></span>
+                  <button type="button" class="rte-btn" onclick="rteCmd(this,'insertUnorderedList')" title="Bullet list">• List</button>
+                  <button type="button" class="rte-btn" onclick="rteCmd(this,'insertOrderedList')" title="1. List">1. List</button>
+                  <span class="rte-sep"></span>
+                  <button type="button" class="rte-btn" onclick="rteInsertBr(this)" title="Line break">↵ BR</button>
+                </div>
+                <div class="rte-editor" contenteditable="true" data-path="global.footerDesc"></div>
+              </div>
+            </div>
+            <div class="field full"><label>Copyright line</label><input type="text" data-path="global.copyright" /></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SETTINGS: DOMAIN & ANALYTICS ── -->
+      <div class="panel" id="panel-settings-site">
+        <div class="panel-header">
+          <div class="panel-title">Domain &amp; Analytics</div>
+          <div class="panel-desc">Custom domain and Google Analytics tracking ID.</div>
+        </div>
+        <div class="card">
+          <div class="card-body card-body-grid">
+            <div class="field"><label>Custom Domain</label><input type="text" data-path="global.customDomain" placeholder="e.g. anubhavp.in" /></div>
+            <div class="field"><label>Google Analytics ID</label><input type="text" data-path="global.gaId" placeholder="G-XXXXXXXXXX" /><span class="field-hint">Replace G-5D0X4RLR71 with your real GA4 ID</span></div>
+          </div>
+        </div>
       </div>
 
       <!-- ── VERSIONS ── -->
@@ -1487,6 +1546,16 @@
     document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
     document.getElementById('panel-' + id).classList.add('active');
     if (btn) btn.classList.add('active');
+  }
+
+  /* ── Tab switcher within a panel ── */
+  function switchTab(panelId, tabId, btn) {
+    btn.closest('.panel-tabs').querySelectorAll('.panel-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    const panel = btn.closest('.panel');
+    panel.querySelectorAll('.panel-tab-content').forEach(c => c.classList.remove('active'));
+    const target = panel.querySelector('#' + panelId + '-tab-' + tabId);
+    if (target) target.classList.add('active');
   }
 
   /* ── Card collapse ── */
@@ -2512,8 +2581,8 @@
     renderSidebarCS();
     save();
     showToast('Deleted: ' + name);
-    // Show global panel since the CS panel is now empty
-    showPanel('global', document.querySelector('.sidebar-item'));
+    // Show home panel since the CS panel is now empty
+    showPanel('home', document.querySelector('.sidebar-item'));
   }
 
   /* Prompt to add a new case study entry */
@@ -2599,12 +2668,18 @@
 
   function moveItem(listKey, i, dir, e, isAbout) {
     e.stopPropagation();
+    // Flush RTEs BEFORE swapping so DOM indices still match C indices
+    if (isAbout) {
+      if (listKey === 'bioParagraphs') flushBioRTEs();
+      else if (listKey === 'sidebarBlocks') flushSidebarRTEs();
+    }
     const arr = isAbout ? C.about[listKey] : C.home[listKey];
     const ni = i + dir;
     if (ni < 0 || ni >= arr.length) return;
     [arr[i], arr[ni]] = [arr[ni], arr[i]];
     if (isAbout) {
-      if (listKey === 'bioParagraphs') { flushBioRTEs(); renderBio(); }
+      if (listKey === 'bioParagraphs') renderBio();
+      else if (listKey === 'sidebarBlocks') renderSidebarBlocks();
     } else {
       if (listKey === 'projects') renderProjects();
       if (listKey === 'experience') renderExperience();
