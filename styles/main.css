@@ -844,14 +844,14 @@ p {
 }
 
 .exp__desc {
-  font-size: 0.9375rem;
-  color: var(--text-on-dark);
-  line-height: 1.75;
+  font-size: 0.82rem;
+  color: var(--text-on-dark-muted);
+  line-height: 1.65;
 }
 
 /* RTE in admin embeds inline style="color:..." on child elements — !important overrides them */
 .exp__desc * {
-  color: var(--text-on-dark) !important;
+  color: var(--text-on-dark-muted) !important;
   font-size: inherit;
   line-height: inherit;
 }
