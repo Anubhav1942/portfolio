@@ -19,13 +19,20 @@
   <meta property="og:url"         content="https://anubhavp.in/about.html" />
   <meta property="og:image"       content="https://anubhavp.in/assets/og-image.png" />
 
-  <!-- GA4 -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-5D0X4RLR71"></script>
+  <!-- Google Analytics: injected dynamically after content loads -->
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){ dataLayer.push(arguments); }
-    gtag('js', new Date());
-    gtag('config', 'G-5D0X4RLR71');
+    window.__injectGA = function(id) {
+      if (!id || window.__gaInjected) return;
+      window.__gaInjected = true;
+      var s = document.createElement('script');
+      s.async = true;
+      s.src = 'https://www.googletagmanager.com/gtag/js?id=' + id;
+      document.head.appendChild(s);
+      gtag('js', new Date());
+      gtag('config', id, { page_title: document.title, page_location: window.location.href });
+    };
   </script>
 
   <!-- Fonts -->
@@ -165,14 +172,16 @@
   <!-- NAVIGATION -->
   <nav class="nav" role="navigation" aria-label="Main navigation">
     <div class="nav__inner">
-      <a href="https://anubhav1942.github.io/portfolio/" class="nav__logo">Anubhav Pandey</a>
+      <a href="https://anubhav1942.github.io/portfolio/" class="nav__logo" aria-label="Anubhav Pandey — Home">Anubhav Pandey</a>
       <ul class="nav__links" role="list">
         <li><a href="index.html#work">Work</a></li>
         <li><a href="https://anubhav1942.github.io/portfolio/about.html" class="active">About</a></li>
         <li><a href="index.html#writing">Blogs</a></li>
+        <li><a href="assets/anubhav-pandey-resume.pdf" target="_blank" rel="noopener" data-track="resume-view" data-track-source="nav">View Resume</a></li>
       </ul>
+
       <div class="nav__actions">
-        <a href="assets/anubhav-pandey-resume.pdf" target="_blank" rel="noopener" class="nav__btn-ghost" data-track="resume-view" data-track-source="nav">View Resume</a>
+        <a href="login.html?mode=signup" class="nav__create-link">Create your own portfolio <span aria-hidden="true">→</span></a>
         <button type="button" class="nav__btn-primary js-contact-open" data-track="contact" data-track-source="nav">Get in touch</button>
       </div>
       <button class="nav__toggle" aria-label="Toggle menu" aria-expanded="false">
@@ -186,18 +195,48 @@
     <!-- ABOUT HERO -->
     <section class="about-hero" data-section="about-hero">
       <div class="container">
-        <span class="label">About</span>
-        <h1 id="about-heading">
-          I design systems that make<br />
-          <em>complex, regulated</em> products<br />
-          usable by non-experts.
-        </h1>
+        <!-- ── Skeleton ── -->
+        <div class="sk-wrap" aria-hidden="true">
+          <span class="sk sk-about__label"></span>
+          <span class="sk sk-about__h1-1"></span>
+          <span class="sk sk-about__h1-2"></span>
+          <span class="sk sk-about__h1-3"></span>
+        </div>
+        <!-- ── Real content ── -->
+        <div class="content-target">
+          <span class="label">About</span>
+          <h1 id="about-heading">
+            I design systems that make<br />
+            <em>complex, regulated</em> products<br />
+            usable by non-experts.
+          </h1>
+        </div>
       </div>
     </section>
 
     <!-- ABOUT BODY -->
     <section data-section="about-body">
       <div class="container">
+        <!-- ── Skeleton ── -->
+        <div class="sk-wrap" aria-hidden="true">
+          <div class="sk-about__body">
+            <div class="sk-about__narrative">
+              <span class="sk sk-about__p-wide"></span><span class="sk sk-about__p-wide"></span><span class="sk sk-about__p-mid"></span><span class="sk sk-about__p-short"></span>
+              <span class="sk sk-about__para-gap" style="height:1rem"></span>
+              <span class="sk sk-about__p-wide"></span><span class="sk sk-about__p-wide"></span><span class="sk sk-about__p-mid"></span>
+              <span class="sk sk-about__h2"></span>
+              <span class="sk sk-about__p-wide"></span><span class="sk sk-about__p-mid"></span><span class="sk sk-about__p-short"></span>
+              <span class="sk sk-about__h2"></span>
+              <span class="sk sk-about__p-wide"></span><span class="sk sk-about__p-mid"></span>
+            </div>
+            <div class="sk-about__sidebar">
+              <div class="sk-about__sb-block"><span class="sk sk-about__sb-label"></span><span class="sk sk-about__sb-item"></span><span class="sk sk-about__sb-item"></span><span class="sk sk-about__sb-item-s"></span><span class="sk sk-about__sb-item"></span><span class="sk sk-about__sb-item-s"></span></div>
+              <div class="sk-about__sb-block"><span class="sk sk-about__sb-label"></span><span class="sk sk-about__sb-item"></span><span class="sk sk-about__sb-item-s"></span><span class="sk sk-about__sb-item"></span></div>
+              <div class="sk-about__sb-block"><span class="sk sk-about__sb-label"></span><span class="sk sk-about__sb-item"></span><span class="sk sk-about__sb-item-s"></span></div>
+            </div>
+          </div>
+        </div>
+        <div class="content-target">
         <div class="about-body">
 
           <!-- Narrative -->
@@ -310,24 +349,35 @@
           </aside>
 
         </div>
-      </div>
+        </div><!-- /.content-target -->
+        </div><!-- /.container -->
     </section>
 
     <!-- CTA -->
     <section class="about-cta" data-section="about-cta">
       <div class="container">
-        <h2 id="about-cta-heading">Let's work together.</h2>
-        <p id="about-cta-para">
-          If you are building something hard in a regulated or complex domain and
-          need a designer who can own the UX direction — I would like to talk.
-        </p>
-        <div class="about-cta-buttons">
-          <button
-            type="button"
-            class="btn-primary js-contact-open"
-            data-track="contact"
-            data-track-name="email-about"
-          >Get in touch</button>
+        <!-- ── Skeleton ── -->
+        <div class="sk-wrap" aria-hidden="true">
+          <span class="sk sk-about__cta-h2"></span>
+          <span class="sk sk-about__cta-p-1"></span>
+          <span class="sk sk-about__cta-p-2"></span>
+          <span class="sk sk-about__cta-btn"></span>
+        </div>
+        <!-- ── Real content ── -->
+        <div class="content-target">
+          <h2 id="about-cta-heading">Let's work together.</h2>
+          <p id="about-cta-para">
+            If you are building something hard in a regulated or complex domain and
+            need a designer who can own the UX direction — I would like to talk.
+          </p>
+          <div class="about-cta-buttons">
+            <button
+              type="button"
+              class="btn-primary js-contact-open"
+              data-track="contact"
+              data-track-name="email-about"
+            >Get in touch</button>
+          </div>
         </div>
       </div>
     </section>
@@ -375,7 +425,11 @@
   <script src="firebase-config.js"></script>
   <script>
   window.loadContent().then(function(C) {
+    document.body.classList.add('content-loaded');
     if (!C) return;
+
+    const g = C.global || {};
+    if (g.gaId) window.__injectGA(g.gaId);
 
     const a = C.about || {};
 
@@ -429,7 +483,10 @@
     const ctaP = document.getElementById('about-cta-para');
     if (ctaP) ctaP.textContent = a.ctaParagraph || '';
 
+  }).catch(function() {
+    document.body.classList.add('content-loaded');
   });
+  setTimeout(function() { document.body.classList.add('content-loaded'); }, 4000);
   </script>
 
   <script src="scripts/main.js" defer></script>

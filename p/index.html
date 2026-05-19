@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portfolio</title>
+  <meta name="description" content="Portfolio" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- Inherits the main site stylesheet -->
+  <link rel="stylesheet" href="../styles/main.css" />
+
+  <style>
+    /* ── Portfolio-specific overrides / additions ── */
+    .not-found {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 60vh;
+      text-align: center;
+      gap: 1rem;
+      font-family: 'Inter', sans-serif;
+      color: #6A6A66;
+    }
+    .not-found h1 { font-size: 1.5rem; color: #111; font-weight: 600; }
+    .not-found p  { font-size: 0.9rem; max-width: 360px; line-height: 1.6; }
+    .not-found a  { color: #1C3D2B; text-decoration: underline; }
+
+    .loading-screen {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 80vh;
+    }
+    .loading-spinner {
+      width: 28px; height: 28px;
+      border: 2px solid #E0DDD7;
+      border-top-color: #1C3D2B;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<div id="app">
+  <div class="loading-screen"><div class="loading-spinner"></div></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="../firebase-config.js"></script>
+
+<script>
+/* ═══════════════════════════════════════
+   PUBLIC PORTFOLIO RENDERER
+   Reads slug from URL path (/p/{slug})
+   then loads the owner's content from Firestore.
+═══════════════════════════════════════ */
+
+(async function () {
+  // Extract slug from URL path: /p/{slug}
+  var pathParts = window.location.pathname.split('/').filter(Boolean);
+  // pathParts: ['p', 'jane-smith'] or ['p']
+  var slug = pathParts[1] || null;
+
+  if (!slug) {
+    renderNotFound('No portfolio slug found in URL.');
+    return;
+  }
+
+  // Resolve slug → uid
+  var uid = null;
+  try {
+    var slugDoc = await window.fbDb.collection('slugs').doc(slug).get();
+    if (slugDoc.exists) {
+      uid = slugDoc.data().uid;
+    }
+  } catch (e) { /* proceed to not-found */ }
+
+  if (!uid) {
+    renderNotFound('Portfolio "' + slug + '" not found.');
+    return;
+  }
+
+  // Load content
+  var C = null;
+  try {
+    var contentDoc = await window.fbDb
+      .collection('users').doc(uid)
+      .collection('portfolio').doc('content')
+      .get();
+    if (contentDoc.exists && contentDoc.data().data) {
+      C = JSON.parse(contentDoc.data().data);
+    }
+  } catch (e) { /* proceed to not-found */ }
+
+  if (!C) {
+    renderNotFound('This portfolio has no published content yet.');
+    return;
+  }
+
+  // Check published flag
+  if (C._meta && C._meta.published === false) {
+    renderNotFound('This portfolio is not published yet.');
+    return;
+  }
+
+  renderPortfolio(C, slug);
+})();
+
+/* ── Not-found state ── */
+function renderNotFound(msg) {
+  document.getElementById('app').innerHTML =
+    '<div class="not-found">'
+    + '<h1>Portfolio not found</h1>'
+    + '<p>' + msg + '</p>'
+    + '<p><a href="/">Back to home</a></p>'
+    + '</div>';
+}
+
+/* ── Portfolio renderer ── */
+function renderPortfolio(C, slug) {
+  var g    = C.global  || {};
+  var home = C.home    || {};
+  var hero = home.hero  || {};
+  var ab   = C.about   || {};
+
+  // Update page title and meta
+  if (g.name) document.title = g.name + ' — Portfolio';
+
+  // Inject GA if configured
+  if (g.gaId) {
+    var s1 = document.createElement('script');
+    s1.async = true;
+    s1.src = 'https://www.googletagmanager.com/gtag/js?id=' + g.gaId;
+    document.head.appendChild(s1);
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', g.gaId);
+  }
+
+  // Build heading HTML
+  var headingLines = hero.headingLines || [];
+  var headingHTML = headingLines.map(function (line, i) {
+    return i === headingLines.length - 1
+      ? '<em>' + esc(line) + '</em>'
+      : esc(line) + '<br />';
+  }).join('');
+
+  // Stats HTML
+  var statsHTML = (hero.stats || []).filter(function (s) { return s.value; }).map(function (s) {
+    return '<div role="listitem"><span class="hero__stat-value">' + esc(s.value) + '</span>'
+      + '<span class="hero__stat-label">' + esc(s.label) + '</span></div>';
+  }).join('');
+
+  // Projects HTML — using exact class names from main.css
+  var projectsHTML = (home.projects || []).filter(function (p) { return p.name; }).map(function (p, i) {
+    return '<article class="project-card">'
+      + '<div class="project-card__top">'
+      + '<span class="project-card__num">' + esc(p.number || String(i+1).padStart(2,'0')) + '</span>'
+      + '<span class="project-card__tag">' + esc(p.tag || '') + '</span>'
+      + '</div>'
+      + '<h3 class="project-card__name">' + esc(p.name) + '</h3>'
+      + (p.subtitle ? '<p class="project-card__subtitle">' + esc(p.subtitle) + '</p>' : '')
+      + (p.description ? '<p class="project-card__desc">' + esc(p.description) + '</p>' : '')
+      + (p.metric ? '<p class="project-card__metric">' + esc(p.metric) + '</p>' : '')
+      + (p.url ? '<a href="' + esc(p.url) + '" class="project-card__cta">Read case study &rarr;</a>' : '')
+      + '</article>';
+  }).join('');
+
+  // Experience HTML — matching exp__list / exp__item structure from main.css
+  var expItems = (home.experience || []).filter(function (e) { return e.company || e.role; }).map(function (e) {
+    var roleWithPeriod = [e.role, e.period].filter(Boolean).join(' · ');
+    return '<li class="exp__item" role="listitem">'
+      + '<div>'
+      + '<span class="exp__company">' + esc(e.company || '') + '</span>'
+      + (roleWithPeriod ? '<span class="exp__role">' + esc(roleWithPeriod) + '</span>' : '')
+      + '</div>'
+      + (e.description ? '<div class="exp__desc">' + esc(e.description) + '</div>' : '')
+      + (e.metric ? '<span class="exp__metric">' + esc(e.metric).replace(/\\n/g,'<br />') + '</span>' : '')
+      + '</li>';
+  }).join('');
+
+  // About bio HTML
+  var bioHTML = (ab.bioParagraphs || []).filter(function (b) { return b.text && b.text.trim(); }).map(function (b) {
+    if (b.type === 'heading') return '<h3 style="font-size:1rem;font-weight:600;margin:1.5rem 0 0.5rem">' + esc(b.text) + '</h3>';
+    return '<p style="margin-bottom:1rem;line-height:1.75;color:var(--text-body,#4d4d49)">' + esc(b.text) + '</p>';
+  }).join('');
+
+  // Skills + Tools HTML
+  var skillsHTML = (ab.skills || []).filter(Boolean).map(function (s) {
+    return '<span style="display:inline-block;padding:0.25rem 0.65rem;border:1px solid var(--border,#E0DDD7);border-radius:4px;font-size:0.8rem;margin:0.2rem">' + esc(s) + '</span>';
+  }).join('');
+  var toolsHTML = (ab.tools || []).filter(Boolean).map(function (t) {
+    return '<span style="display:inline-block;padding:0.25rem 0.65rem;border:1px solid var(--border,#E0DDD7);border-radius:4px;font-size:0.8rem;margin:0.2rem">' + esc(t) + '</span>';
+  }).join('');
+
+  var html = ''
+    // Nav — matches the main site nav structure exactly
+    + '<header class="nav" role="banner">'
+    + '<div class="nav__inner">'
+    + '<a href="#" class="nav__logo">' + esc(g.name || 'Portfolio') + '</a>'
+    + '<nav class="nav__links">'
+    + '<a href="#work">Work</a>'
+    + '<a href="#about">About</a>'
+    + (g.email ? '<a href="mailto:' + esc(g.email) + '">Contact</a>' : '')
+    + (g.resumeUrl ? '<a href="' + esc(g.resumeUrl) + '" target="_blank" rel="noopener">View Resume</a>' : '')
+    + '</nav>'
+    + '</div>'
+    + '</header>'
+
+    + '<main>'
+
+    // Hero — section > .container > .hero__inner (the .container provides margin:0 auto centering)
+    + '<section class="hero" aria-label="Introduction">'
+    + '<div class="container">'
+    + '<div class="hero__inner">'
+    + (g.tagline ? '<div class="hero__label">' + esc(g.tagline) + '</div>' : '')
+    + (headingHTML ? '<h1 class="hero__heading">' + headingHTML + '</h1>' : '')
+    + (hero.subtitle ? '<p class="hero__sub">' + esc(hero.subtitle) + '</p>' : '')
+    + (statsHTML ? '<div class="hero__stats" role="list">' + statsHTML + '</div>' : '')
+    + '<div class="hero__ctas">'
+    + '<a href="#work" class="btn-primary">' + esc(hero.cta1Label || 'View Work') + '</a>'
+    + (g.resumeUrl ? '<a href="' + esc(g.resumeUrl) + '" class="btn-ghost" target="_blank" rel="noopener">' + esc(hero.cta2Label || 'View Resume') + '</a>' : '')
+    + '</div>'
+    + '</div>'
+    + '</div>'
+    + '</section>'
+
+    // Work — section.section > .container > section-header + projects-grid
+    + (projectsHTML ? '<section class="section" id="work" aria-label="Selected Work">'
+    + '<div class="container">'
+    + '<div class="section-header"><span class="section-title">Selected Work</span></div>'
+    + '<div class="projects-grid">' + projectsHTML + '</div>'
+    + '</div>'
+    + '</section>' : '')
+
+    // Experience — section.section.section--dark > .container > section-header + exp__list
+    + (expItems ? '<section class="section section--dark" aria-label="Experience">'
+    + '<div class="container">'
+    + '<div class="section-header"><span class="section-title">Where I Have Worked</span></div>'
+    + '<ul class="exp__list" role="list">' + expItems + '</ul>'
+    + '</div>'
+    + '</section>' : '')
+
+    // About — section.section > .container
+    + '<section class="section" id="about" aria-label="About">'
+    + '<div class="container">'
+    + '<div class="section-header"><span class="section-title">About</span></div>'
+    + (bioHTML ? '<div style="max-width:680px;margin-bottom:2rem">' + bioHTML + '</div>' : '')
+    + (skillsHTML ? '<div style="margin-bottom:1.5rem"><p style="font-size:0.75rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-muted,#9A9A96);margin-bottom:0.5rem">Skills</p><div style="display:flex;flex-wrap:wrap;gap:0.25rem">' + skillsHTML + '</div></div>' : '')
+    + (toolsHTML ? '<div><p style="font-size:0.75rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-muted,#9A9A96);margin-bottom:0.5rem">Tools</p><div style="display:flex;flex-wrap:wrap;gap:0.25rem">' + toolsHTML + '</div></div>' : '')
+    + '</div>'
+    + '</section>'
+    + '</main>'
+
+    // Footer — footer.footer > .container > .footer__grid
+    + '<footer class="footer">'
+    + '<div class="container">'
+    + '<div class="footer__grid">'
+    + '<div class="footer__brand">'
+    + '<h2 class="footer__brand-name">' + esc(g.name || '') + '</h2>'
+    + '<p class="footer__brand-desc">' + esc(g.footerDesc || '') + '</p>'
+    + '</div>'
+    + '<div>'
+    + '<span class="footer__col-label">Contact</span>'
+    + '<ul class="footer__links" role="list">'
+    + (g.email    ? '<li><a href="mailto:' + esc(g.email) + '">' + esc(g.email) + '</a></li>' : '')
+    + (g.linkedin ? '<li><a href="' + esc(g.linkedin) + '" target="_blank" rel="noopener">LinkedIn</a></li>' : '')
+    + (g.dribbble ? '<li><a href="' + esc(g.dribbble) + '" target="_blank" rel="noopener">Dribbble</a></li>' : '')
+    + '</ul>'
+    + '</div>'
+    + '</div>'
+    + '<div class="footer__bottom">'
+    + (g.copyright ? '<p class="footer__copy">' + esc(g.copyright) + '</p>' : '')
+    + '</div>'
+    + '</div>'
+    + '</footer>';
+
+  document.getElementById('app').innerHTML = html;
+  document.body.classList.add('content-loaded');
+}
+
+function esc(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>

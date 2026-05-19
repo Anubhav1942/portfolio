@@ -29,13 +29,20 @@
   }
   </script>
 
-  <!-- GA4 -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-5D0X4RLR71"></script>
+  <!-- Google Analytics: injected dynamically after content loads -->
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){ dataLayer.push(arguments); }
-    gtag('js', new Date());
-    gtag('config', 'G-5D0X4RLR71');
+    window.__injectGA = function(id) {
+      if (!id || window.__gaInjected) return;
+      window.__gaInjected = true;
+      var s = document.createElement('script');
+      s.async = true;
+      s.src = 'https://www.googletagmanager.com/gtag/js?id=' + id;
+      document.head.appendChild(s);
+      gtag('js', new Date());
+      gtag('config', id, { page_title: document.title, page_location: window.location.href });
+    };
   </script>
 
   <!-- Fonts -->
@@ -491,14 +498,17 @@
 
   <nav class="nav" role="navigation" aria-label="Main navigation">
     <div class="nav__inner">
-      <a href="https://anubhav1942.github.io/portfolio/" class="nav__logo">Anubhav Pandey</a>
+      <a href="https://anubhav1942.github.io/portfolio/" class="nav__logo" aria-label="Anubhav Pandey — Home">Anubhav Pandey</a>
+
       <ul class="nav__links" role="list">
         <li><a href="../index.html#work" class="active">Work</a></li>
         <li><a href="https://anubhav1942.github.io/portfolio/about.html">About</a></li>
         <li><a href="../index.html#writing">Blogs</a></li>
+        <li><a href="../assets/anubhav-pandey-resume.pdf" target="_blank" rel="noopener" data-track="resume-view" data-track-source="nav">View Resume</a></li>
       </ul>
+
       <div class="nav__actions">
-        <a href="../assets/anubhav-pandey-resume.pdf" target="_blank" rel="noopener" class="nav__btn-ghost" data-track="resume-view" data-track-source="nav">View Resume</a>
+        <a href="../login.html?mode=signup" class="nav__create-link">Create your own portfolio <span aria-hidden="true">→</span></a>
         <button type="button" class="nav__btn-primary js-contact-open" data-track="contact" data-track-source="nav">Get in touch</button>
       </div>
       <button class="nav__toggle" aria-label="Toggle menu" aria-expanded="false">
@@ -514,36 +524,38 @@
 
         <a href="../index.html#work" class="cs-back">← All Work</a>
 
-        <div class="cs-header-row">
-          <h1 class="cs-page-title" id="cs-page-title">GreenSkills</h1>
-          <div class="cs-tags" id="cs-tags">
-            <span class="cs-tag">AI Product</span>
-            <span class="cs-tag">B2B SaaS</span>
+        <div class="sk-wrap" aria-hidden="true">
+          <span class="sk sk-cs__title"></span>
+          <div class="sk-cs__tags"><span class="sk sk-cs__tag"></span><span class="sk sk-cs__tag"></span></div>
+          <span class="sk sk-cs__sub-1"></span><span class="sk sk-cs__sub-2"></span><span class="sk sk-cs__sub-3"></span>
+          <div class="sk-cs__meta">
+            <div class="sk-cs__meta-cell"><span class="sk sk-cs__meta-label"></span><span class="sk sk-cs__meta-val-1"></span><span class="sk sk-cs__meta-val-2"></span></div>
+            <div class="sk-cs__meta-cell"><span class="sk sk-cs__meta-label"></span><span class="sk sk-cs__meta-val-1"></span><span class="sk sk-cs__meta-val-2"></span></div>
+            <div class="sk-cs__meta-cell"><span class="sk sk-cs__meta-label"></span><span class="sk sk-cs__meta-val-1"></span><span class="sk sk-cs__meta-val-2"></span></div>
+            <div class="sk-cs__meta-cell"><span class="sk sk-cs__meta-label"></span><span class="sk sk-cs__meta-val-1"></span><span class="sk sk-cs__meta-val-2"></span></div>
           </div>
         </div>
 
-        <p class="cs-page-subtitle" id="cs-page-subtitle">
-          Designing human oversight into an AI agent platform for sustainability
-          skill-mapping and compliance training — where agent transparency and
-          reviewer control are the core UX problems.
-        </p>
+        <div class="content-target">
+          <div class="cs-header-row">
+            <h1 class="cs-page-title" id="cs-page-title">GreenSkills</h1>
+            <div class="cs-tags" id="cs-tags">
+              <span class="cs-tag">AI Product</span>
+              <span class="cs-tag">B2B SaaS</span>
+            </div>
+          </div>
 
-        <div class="cs-meta-strip" id="cs-meta-strip" role="list">
-          <div class="cs-meta-cell" role="listitem">
-            <span class="label">My Role</span>
-            <span class="cs-meta-cell-value">UX Product Manager<br/>Sole designer on the team</span>
-          </div>
-          <div class="cs-meta-cell" role="listitem">
-            <span class="label">Company</span>
-            <span class="cs-meta-cell-value">Carboledger<br/>Enterprise B2B SaaS, sustainability compliance</span>
-          </div>
-          <div class="cs-meta-cell" role="listitem">
-            <span class="label">Team</span>
-            <span class="cs-meta-cell-value">4 people total<br/>1 designer (me), 2 engineers, 1 founder</span>
-          </div>
-          <div class="cs-meta-cell" role="listitem">
-            <span class="label">Constraints</span>
-            <span class="cs-meta-cell-value">Regulatory accuracy<br/>GDPR · SOC II</span>
+          <p class="cs-page-subtitle" id="cs-page-subtitle">
+            Designing human oversight into an AI agent platform for sustainability
+            skill-mapping and compliance training — where agent transparency and
+            reviewer control are the core UX problems.
+          </p>
+
+          <div class="cs-meta-strip" id="cs-meta-strip" role="list">
+            <div class="cs-meta-cell" role="listitem"><span class="label">My Role</span><span class="cs-meta-cell-value">UX Product Manager<br/>Sole designer on the team</span></div>
+            <div class="cs-meta-cell" role="listitem"><span class="label">Company</span><span class="cs-meta-cell-value">Carboledger<br/>Enterprise B2B SaaS, sustainability compliance</span></div>
+            <div class="cs-meta-cell" role="listitem"><span class="label">Team</span><span class="cs-meta-cell-value">4 people total<br/>1 designer (me), 2 engineers, 1 founder</span></div>
+            <div class="cs-meta-cell" role="listitem"><span class="label">Constraints</span><span class="cs-meta-cell-value">Regulatory accuracy<br/>GDPR · SOC II</span></div>
           </div>
         </div>
 
@@ -552,23 +564,17 @@
 
     <div class="cs-outcomes-bar" role="region" aria-label="Key outcomes">
       <div class="container">
-        <div class="cs-outcomes-inner" id="cs-outcomes-inner">
-          <div class="cs-outcome-cell">
-            <span class="cs-outcome-num">20+</span>
-            <span class="cs-outcome-desc">Compliance validation fields managed per workflow</span>
-          </div>
-          <div class="cs-outcome-cell">
-            <span class="cs-outcome-num">~50%</span>
-            <span class="cs-outcome-desc">POC-to-deal conversion across enterprise demos</span>
-          </div>
-          <div class="cs-outcome-cell">
-            <span class="cs-outcome-num">~80%</span>
-            <span class="cs-outcome-desc">Adoption rate among enterprise users</span>
-          </div>
-          <div class="cs-outcome-cell">
-            <span class="cs-outcome-num">2 wks</span>
-            <span class="cs-outcome-desc">Delivery cycle, improved by 33% from prior baseline</span>
-          </div>
+        <div class="sk-wrap sk-cs-outcomes" aria-hidden="true">
+          <div class="sk-cs-outcomes__cell"><span class="sk sk--dark sk-cs-outcomes__num"></span><span class="sk sk--dark sk-cs-outcomes__desc-1"></span><span class="sk sk--dark sk-cs-outcomes__desc-2"></span></div>
+          <div class="sk-cs-outcomes__cell"><span class="sk sk--dark sk-cs-outcomes__num"></span><span class="sk sk--dark sk-cs-outcomes__desc-1"></span><span class="sk sk--dark sk-cs-outcomes__desc-2"></span></div>
+          <div class="sk-cs-outcomes__cell"><span class="sk sk--dark sk-cs-outcomes__num"></span><span class="sk sk--dark sk-cs-outcomes__desc-1"></span><span class="sk sk--dark sk-cs-outcomes__desc-2"></span></div>
+          <div class="sk-cs-outcomes__cell"><span class="sk sk--dark sk-cs-outcomes__num"></span><span class="sk sk--dark sk-cs-outcomes__desc-1"></span><span class="sk sk--dark sk-cs-outcomes__desc-2"></span></div>
+        </div>
+        <div class="content-target cs-outcomes-inner" id="cs-outcomes-inner">
+          <div class="cs-outcome-cell"><span class="cs-outcome-num">20+</span><span class="cs-outcome-desc">Compliance validation fields managed per workflow</span></div>
+          <div class="cs-outcome-cell"><span class="cs-outcome-num">~50%</span><span class="cs-outcome-desc">POC-to-deal conversion across enterprise demos</span></div>
+          <div class="cs-outcome-cell"><span class="cs-outcome-num">~80%</span><span class="cs-outcome-desc">Adoption rate among enterprise users</span></div>
+          <div class="cs-outcome-cell"><span class="cs-outcome-num">2 wks</span><span class="cs-outcome-desc">Delivery cycle, improved by 33% from prior baseline</span></div>
         </div>
       </div>
     </div>
@@ -584,7 +590,14 @@
         </aside>
 
         <div class="cs-content">
-
+          <div class="sk-wrap sk-cs-content" aria-hidden="true">
+            <span class="sk sk-cs__sec-label"></span>
+            <span class="sk sk-cs__sec-h2"></span>
+            <span class="sk sk-cs__para-1"></span><span class="sk sk-cs__para-2"></span><span class="sk sk-cs__para-3"></span><span class="sk sk-cs__para-4"></span>
+            <span class="sk sk-cs__para-gap"></span>
+            <span class="sk sk-cs__sec-h2-2"></span>
+            <span class="sk sk-cs__para-1"></span><span class="sk sk-cs__para-2"></span><span class="sk sk-cs__para-3"></span>
+          </div>
           <div id="cs-sections-container"></div>
 
           <section class="cs-sec" id="cs-reflection" data-section="cs-reflection">
@@ -668,6 +681,7 @@
   <script>
   window.loadContent().then(function(C) {
     if (!C) return;
+    if (C.global && C.global.gaId) window.__injectGA(C.global.gaId);
 
     const cs = (C.caseStudies || {}).greenskills;
     if (!cs) return;
@@ -806,7 +820,9 @@
       nextEl.href = cs.nextProject.url;
       nextEl.innerHTML = `${cs.nextProject.label} <span class="cs-next-arrow">→</span>`;
     }
-  });
+    document.body.classList.add('content-loaded');
+  }).catch(function() { document.body.classList.add('content-loaded'); });
+  setTimeout(function() { document.body.classList.add('content-loaded'); }, 4000);
   </script>
 
   <script src="../scripts/main.js" defer></script>
