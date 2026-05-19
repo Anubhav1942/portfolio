@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Block admin and login pages from indexing
+Disallow: /admin.html
+Disallow: /login.html
+
+Sitemap: https://anubhavp.in/sitemap.xml

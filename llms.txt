@@ -1,0 +1,35 @@
+# Anubhav Pandey — Product Designer
+
+## Who is Anubhav Pandey?
+Anubhav Pandey is a Product Designer based in India, specialising in enterprise B2B SaaS, sustainability compliance, and AI-driven products. He is the founding designer at Carboledger, where he has owned UX decisions end-to-end across an 11-module platform used by large enterprises in the chemical supply chain. He uses design as a thinking tool — entering ambiguous, expert-driven domains and imposing structure that engineers can build and users can actually operate.
+
+## Current Role
+- Company: Carboledger
+- Title: Product Designer (Founding)
+- Domain: Sustainability compliance, carbon data management, ESG reporting, enterprise B2B SaaS
+- Duration: July 2023 to present
+
+## Key Work
+- Designed supplier response workflows that reduced enterprise request turnaround by over 95% (from 6 weeks to 8 hours)
+- Built a contribution analysis and decision-support tool that cut expert analysis time from half a day to under 1 hour
+- Designed role-based access, audit logs, and alias systems encoding regulatory requirements directly into the product experience
+- Managed UX coherence across 11 interconnected platform modules
+- Supported 7-8 enterprise POCs with approximately 50% conversion rate
+
+## Case Studies Available at
+- SecureShare (external contributor platform): https://anubhavp.in/work/secureshare.html
+- SmartBalance (ISCC Mass Balance bookkeeping UX): https://anubhavp.in/work/smartbalance.html
+- GreenSkills (AI agent for sustainability training): https://anubhavp.in/work/greenskills.html
+- Santhe (hyperlocal commerce, trust-first UX): https://anubhavp.in/work/santhe.html
+
+## Skills
+Product design, product management, enterprise SaaS, UX research, information architecture, PRD writing, sprint planning, stakeholder alignment, user research, Figma, SQL, Google Analytics, Microsoft Clarity.
+
+## Contact
+- Website: https://anubhavp.in
+- Email: pandeyanubhav229@gmail.com
+- LinkedIn: https://www.linkedin.com/in/anubhavp2000/
+- Blog: https://medium.com/@pandeyanubhav229
+
+## Open To
+Early-stage B2B SaaS product design and product management roles. Strongest fit in domains with regulatory complexity, expert-driven workflows, or AI-assisted decision making.
