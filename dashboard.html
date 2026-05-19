@@ -1,0 +1,1306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Portfolio — Dashboard</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --sidebar-w:  220px;
+      --topbar-h:   52px;
+      --bg:         #F5F4F0;
+      --card:       #FFFFFF;
+      --sidebar:    #141413;
+      --text:       #111110;
+      --text-sec:   #6A6A66;
+      --text-muted: #9A9A96;
+      --accent:     #1C3D2B;
+      --accent-mid: #2D6A4F;
+      --accent-soft:#52B788;
+      --border:     #E0DDD7;
+      --danger:     #C0392B;
+      --success:    #27AE60;
+      --radius:     6px;
+      --ease:       0.18s ease;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      font-size: 14px;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Topbar ── */
+    .topbar {
+      height: var(--topbar-h);
+      background: var(--sidebar);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.25rem;
+      flex-shrink: 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .topbar-brand { display: flex; align-items: center; gap: 0.6rem; }
+    .topbar-dot   { width: 8px; height: 8px; background: var(--accent-soft); border-radius: 50%; }
+    .topbar-title { font-size: 0.85rem; font-weight: 500; color: #fff; letter-spacing: -0.01em; }
+    .topbar-sub   { font-size: 0.72rem; color: rgba(255,255,255,0.35); margin-left: 0.4rem; }
+    .topbar-actions { display: flex; align-items: center; gap: 0.6rem; }
+    .save-badge {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.4);
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .save-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent-soft); }
+    .save-badge.saving .save-dot { background: #F39C12; animation: pulse 1s infinite; }
+    .save-badge.error  .save-dot { background: var(--danger); }
+    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+
+    .btn-topbar {
+      font-size: 0.75rem;
+      font-weight: 500;
+      font-family: inherit;
+      padding: 0.35rem 0.75rem;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      transition: opacity var(--ease);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .btn-topbar:hover { opacity: 0.8; }
+    .btn-preview { background: var(--accent-soft); color: var(--accent); }
+    .btn-secondary { background: transparent; border: 1px solid rgba(255,255,255,0.18); color: rgba(255,255,255,0.7); }
+
+    /* ── Layout ── */
+    .dashboard-body {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--sidebar);
+      display: flex;
+      flex-direction: column;
+      padding: 1rem 0;
+      flex-shrink: 0;
+      border-right: 1px solid rgba(255,255,255,0.05);
+      overflow-y: auto;
+    }
+    .sidebar-section-label {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.25);
+      padding: 0.75rem 1rem 0.3rem;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.5rem 1rem;
+      font-size: 0.82rem;
+      font-weight: 400;
+      font-family: inherit;
+      color: rgba(255,255,255,0.55);
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-align: left;
+      width: 100%;
+      border-left: 2px solid transparent;
+      transition: color var(--ease), border-color var(--ease), background var(--ease);
+    }
+    .nav-item:hover  { color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.04); }
+    .nav-item.active { color: #fff; border-left-color: var(--accent-soft); background: rgba(255,255,255,0.06); font-weight: 500; }
+    .nav-item .nav-icon { font-size: 0.85rem; opacity: 0.7; }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 1rem;
+      border-top: 1px solid rgba(255,255,255,0.07);
+    }
+    .portfolio-url-box {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius);
+      padding: 0.6rem 0.75rem;
+      font-size: 0.72rem;
+    }
+    .portfolio-url-box .url-label {
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 0.25rem;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .portfolio-url-box .url-value {
+      color: var(--accent-soft);
+      word-break: break-all;
+      line-height: 1.4;
+    }
+    .copy-url-btn {
+      margin-top: 0.4rem;
+      font-size: 0.68rem;
+      color: rgba(255,255,255,0.4);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      padding: 0;
+    }
+    .copy-url-btn:hover { color: rgba(255,255,255,0.7); }
+
+    /* ── Content panel ── */
+    .content-panel {
+      flex: 1;
+      overflow-y: auto;
+      padding: 2rem 2.5rem;
+    }
+
+    .panel-section { display: none; }
+    .panel-section.active { display: block; }
+
+    .section-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 1.75rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-title { font-size: 1rem; font-weight: 600; color: var(--text); }
+    .section-desc  { font-size: 0.78rem; color: var(--text-sec); margin-top: 0.2rem; line-height: 1.5; }
+
+    /* ── Card ── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) * 1.5);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .card-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 1rem;
+      padding-bottom: 0.6rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── Fields ── */
+    .field { margin-bottom: 1rem; }
+    .field:last-child { margin-bottom: 0; }
+    .field label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-sec);
+      margin-bottom: 0.35rem;
+    }
+    .field input, .field textarea, .field select {
+      width: 100%;
+      padding: 0.55rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.85rem;
+      font-family: inherit;
+      color: var(--text);
+      background: var(--bg);
+      outline: none;
+      transition: border-color var(--ease), box-shadow var(--ease);
+      resize: vertical;
+    }
+    .field input:focus, .field textarea:focus, .field select:focus {
+      border-color: var(--accent-mid);
+      box-shadow: 0 0 0 3px rgba(44,106,79,0.1);
+    }
+    .field textarea { min-height: 80px; }
+    .field-hint { font-size: 0.71rem; color: var(--text-muted); margin-top: 0.3rem; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+
+    /* ── Repeatable item ── */
+    .repeat-list { display: flex; flex-direction: column; gap: 0.75rem; }
+    .repeat-item {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--card);
+    }
+    .repeat-item-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.65rem 1rem;
+      cursor: pointer;
+      user-select: none;
+      border-bottom: 1px solid transparent;
+      transition: border-color var(--ease);
+    }
+    .repeat-item-header.open { border-bottom-color: var(--border); }
+    .repeat-item-label {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text);
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .repeat-item-label.placeholder { color: var(--text-muted); font-style: italic; }
+    .repeat-item-actions { display: flex; gap: 0.4rem; flex-shrink: 0; margin-left: 0.75rem; }
+    .btn-icon {
+      width: 26px; height: 26px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: none;
+      cursor: pointer;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      transition: color var(--ease), border-color var(--ease), background var(--ease);
+    }
+    .btn-icon:hover { color: var(--text); border-color: var(--text-muted); }
+    .btn-icon.danger:hover { color: var(--danger); border-color: var(--danger); background: #fdf0f0; }
+
+    .repeat-item-body {
+      display: none;
+      padding: 1rem;
+    }
+    .repeat-item-body.open { display: block; }
+
+    .btn-add {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.78rem;
+      font-weight: 500;
+      font-family: inherit;
+      color: var(--accent-mid);
+      background: none;
+      border: 1px dashed var(--accent-soft);
+      border-radius: var(--radius);
+      cursor: pointer;
+      width: 100%;
+      justify-content: center;
+      margin-top: 0.75rem;
+      transition: background var(--ease), border-color var(--ease);
+    }
+    .btn-add:hover { background: rgba(82,183,136,0.08); border-style: solid; }
+
+    /* ── Stats ── */
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+
+    /* ── Toggle ── */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 0;
+    }
+    .toggle-row + .toggle-row { border-top: 1px solid var(--border); }
+    .toggle-info .toggle-label { font-size: 0.82rem; font-weight: 500; color: var(--text); }
+    .toggle-info .toggle-desc  { font-size: 0.75rem; color: var(--text-sec); margin-top: 0.15rem; }
+    .toggle {
+      position: relative;
+      width: 36px; height: 20px;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+    .toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .toggle-slider {
+      position: absolute; inset: 0;
+      background: var(--border);
+      border-radius: 20px;
+      transition: background var(--ease);
+    }
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      width: 14px; height: 14px;
+      left: 3px; top: 3px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform var(--ease);
+    }
+    .toggle input:checked + .toggle-slider { background: var(--accent-soft); }
+    .toggle input:checked + .toggle-slider::before { transform: translateX(16px); }
+
+    /* ── Published banner ── */
+    .publish-banner {
+      background: rgba(39,174,96,0.08);
+      border: 1px solid rgba(39,174,96,0.25);
+      border-radius: var(--radius);
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+      font-size: 0.8rem;
+      color: var(--success);
+    }
+    .publish-banner a { color: var(--accent-mid); text-decoration: underline; text-underline-offset: 2px; }
+    .publish-banner.hidden { display: none; }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: var(--text);
+      color: #fff;
+      padding: 0.6rem 1rem;
+      border-radius: var(--radius);
+      font-size: 0.8rem;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.2s, transform 0.2s;
+      pointer-events: none;
+      z-index: 999;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    /* ── Loading overlay ── */
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .loading-overlay.hidden { display: none; }
+    .loading-spinner {
+      width: 24px; height: 24px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { font-size: 0.82rem; color: var(--text-sec); }
+
+    /* ── Empty state ── */
+    .empty-state {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
+    }
+    .empty-state p { margin-bottom: 0.25rem; }
+
+    /* ── Slug preview ── */
+    .slug-preview {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: var(--bg);
+      font-size: 0.85rem;
+    }
+    .slug-prefix {
+      padding: 0.55rem 0.65rem;
+      background: var(--border);
+      color: var(--text-muted);
+      white-space: nowrap;
+      flex-shrink: 0;
+      font-size: 0.78rem;
+    }
+    .slug-preview input {
+      border: none !important;
+      box-shadow: none !important;
+      background: transparent !important;
+      border-radius: 0 !important;
+      padding: 0.55rem 0.75rem !important;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Loading overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Loading your portfolio…</div>
+</div>
+
+<!-- Topbar -->
+<div class="topbar">
+  <div class="topbar-brand">
+    <div class="topbar-dot"></div>
+    <span class="topbar-title">My Portfolio</span>
+    <span class="topbar-sub" id="userEmailDisplay">–</span>
+  </div>
+  <div class="topbar-actions">
+    <div class="save-badge" id="saveBadge">
+      <div class="save-dot"></div>
+      <span id="saveText">All changes saved</span>
+    </div>
+    <a href="#" id="previewBtn" target="_blank" class="btn-topbar btn-preview" title="View your live portfolio">Preview ↗</a>
+    <button onclick="doLogout()" class="btn-topbar btn-secondary">Sign out</button>
+  </div>
+</div>
+
+<!-- Dashboard body -->
+<div class="dashboard-body">
+
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-section-label">Portfolio</div>
+    <button class="nav-item active" id="nav-profile" onclick="showSection('profile')">
+      <span class="nav-icon">👤</span> Profile
+    </button>
+    <button class="nav-item" id="nav-hero" onclick="showSection('hero')">
+      <span class="nav-icon">✦</span> Hero
+    </button>
+    <button class="nav-item" id="nav-work" onclick="showSection('work')">
+      <span class="nav-icon">◻</span> Work
+    </button>
+    <button class="nav-item" id="nav-experience" onclick="showSection('experience')">
+      <span class="nav-icon">◈</span> Experience
+    </button>
+    <button class="nav-item" id="nav-about" onclick="showSection('about')">
+      <span class="nav-icon">◦</span> About
+    </button>
+
+    <div class="sidebar-section-label">Config</div>
+    <button class="nav-item" id="nav-settings" onclick="showSection('settings')">
+      <span class="nav-icon">⚙</span> Settings
+    </button>
+
+    <!-- Portfolio URL at bottom of sidebar -->
+    <div class="sidebar-footer">
+      <div class="portfolio-url-box">
+        <div class="url-label">Your portfolio</div>
+        <div class="url-value" id="sidebarPortfolioUrl">–</div>
+        <button class="copy-url-btn" onclick="copyPortfolioUrl()">Copy link</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Content panel -->
+  <main class="content-panel">
+
+    <!-- ═══════════════════ PROFILE ═══════════════════ -->
+    <div class="panel-section active" id="section-profile">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Profile</div>
+          <div class="section-desc">Your name, contact details, and social links — these appear throughout your portfolio.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Identity</div>
+        <div class="field-row">
+          <div class="field">
+            <label>Your name</label>
+            <input type="text" id="f-name" placeholder="Jane Smith" oninput="autosave()" />
+          </div>
+          <div class="field">
+            <label>Tagline</label>
+            <input type="text" id="f-tagline" placeholder="Product Designer" oninput="autosave()" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Footer description</label>
+          <textarea id="f-footer-desc" placeholder="One or two lines about what you do and what you're looking for." oninput="autosave()"></textarea>
+        </div>
+        <div class="field">
+          <label>Copyright line</label>
+          <input type="text" id="f-copyright" placeholder="© 2026 Jane Smith. All rights reserved." oninput="autosave()" />
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Contact &amp; Links</div>
+        <div class="field-row">
+          <div class="field">
+            <label>Email</label>
+            <input type="email" id="f-email" placeholder="jane@example.com" oninput="autosave()" />
+          </div>
+          <div class="field">
+            <label>LinkedIn URL</label>
+            <input type="url" id="f-linkedin" placeholder="https://linkedin.com/in/..." oninput="autosave()" />
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Dribbble URL (optional)</label>
+            <input type="url" id="f-dribbble" placeholder="https://dribbble.com/..." oninput="autosave()" />
+          </div>
+          <div class="field">
+            <label>Resume URL</label>
+            <input type="url" id="f-resume" placeholder="https://drive.google.com/..." oninput="autosave()" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════ HERO ═══════════════════ -->
+    <div class="panel-section" id="section-hero">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Hero</div>
+          <div class="section-desc">The first thing visitors see — your headline, one-liner, and key numbers.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Headline</div>
+        <div class="field">
+          <label>Line 1</label>
+          <input type="text" id="f-hero-line1" placeholder="Designing clarity" oninput="autosave()" />
+        </div>
+        <div class="field">
+          <label>Line 2</label>
+          <input type="text" id="f-hero-line2" placeholder="into systems that" oninput="autosave()" />
+        </div>
+        <div class="field">
+          <label>Line 3 (appears in italic accent colour)</label>
+          <input type="text" id="f-hero-line3" placeholder="resist it." oninput="autosave()" />
+        </div>
+        <div class="field">
+          <label>Subtitle paragraph</label>
+          <textarea id="f-hero-subtitle" placeholder="One or two sentences about your background and what makes your work distinctive." oninput="autosave()"></textarea>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Key Stats (up to 4)</div>
+        <div class="stats-grid" id="stats-grid">
+          <!-- rendered by JS -->
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">CTA Buttons</div>
+        <div class="field-row">
+          <div class="field">
+            <label>Primary button label</label>
+            <input type="text" id="f-cta1" placeholder="View Work" oninput="autosave()" />
+          </div>
+          <div class="field">
+            <label>Secondary button label</label>
+            <input type="text" id="f-cta2" placeholder="Download Resume" oninput="autosave()" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════ WORK ═══════════════════ -->
+    <div class="panel-section" id="section-work">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Work</div>
+          <div class="section-desc">Your selected case studies and projects — ordered as they appear on your portfolio.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Projects</div>
+        <div class="repeat-list" id="projects-list"></div>
+        <button class="btn-add" onclick="addProject()">+ Add project</button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════ EXPERIENCE ═══════════════════ -->
+    <div class="panel-section" id="section-experience">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Experience</div>
+          <div class="section-desc">Where you've worked — companies, roles, and a brief description of your impact.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Work History</div>
+        <div class="repeat-list" id="experience-list"></div>
+        <button class="btn-add" onclick="addExperience()">+ Add role</button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════ ABOUT ═══════════════════ -->
+    <div class="panel-section" id="section-about">
+      <div class="section-header">
+        <div>
+          <div class="section-title">About</div>
+          <div class="section-desc">Your full bio, skills, and tools — the longer story behind your work.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Hero Heading (About page)</div>
+        <div class="field">
+          <label>Line 1</label>
+          <input type="text" id="f-about-h1" placeholder="I design systems that make" oninput="autosave()" />
+        </div>
+        <div class="field">
+          <label>Line 2</label>
+          <input type="text" id="f-about-h2" placeholder="complex problems" oninput="autosave()" />
+        </div>
+        <div class="field">
+          <label>Line 3 (italic accent)</label>
+          <input type="text" id="f-about-h3" placeholder="usable by everyone." oninput="autosave()" />
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Bio</div>
+        <div class="field">
+          <label>Paragraph 1</label>
+          <textarea id="f-bio-1" rows="4" placeholder="First paragraph of your bio…" oninput="autosave()"></textarea>
+        </div>
+        <div class="field">
+          <label>Paragraph 2 (optional)</label>
+          <textarea id="f-bio-2" rows="4" placeholder="Second paragraph…" oninput="autosave()"></textarea>
+        </div>
+        <div class="field">
+          <label>Paragraph 3 (optional)</label>
+          <textarea id="f-bio-3" rows="4" placeholder="Third paragraph…" oninput="autosave()"></textarea>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Skills &amp; Tools</div>
+        <div class="field-row">
+          <div class="field">
+            <label>Skills (one per line)</label>
+            <textarea id="f-skills" rows="6" placeholder="Enterprise workflow design&#10;Information architecture&#10;AI product design" oninput="autosave()"></textarea>
+            <div class="field-hint">Each line becomes one skill tag.</div>
+          </div>
+          <div class="field">
+            <label>Tools (one per line)</label>
+            <textarea id="f-tools" rows="6" placeholder="Figma&#10;Cursor&#10;Google Analytics" oninput="autosave()"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Sidebar Info</div>
+        <div class="field-row">
+          <div class="field">
+            <label>"Currently" line</label>
+            <input type="text" id="f-currently" placeholder="Open to new roles" oninput="autosave()" />
+          </div>
+          <div class="field">
+            <label>Location</label>
+            <input type="text" id="f-location" placeholder="Bangalore, India. Open to remote." oninput="autosave()" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════ SETTINGS ═══════════════════ -->
+    <div class="panel-section" id="section-settings">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Settings</div>
+          <div class="section-desc">Your portfolio URL, publish status, and analytics.</div>
+        </div>
+      </div>
+
+      <div class="publish-banner hidden" id="publishBanner">
+        Your portfolio is live at <a id="publishBannerLink" href="#" target="_blank" rel="noopener">–</a>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Portfolio URL</div>
+        <div class="field">
+          <label>URL slug</label>
+          <div class="slug-preview">
+            <div class="slug-prefix" id="slugOriginPrefix">anubhavp.in/p/</div>
+            <input type="text" id="f-slug" placeholder="your-name" oninput="onSlugInput()" />
+          </div>
+          <div class="field-hint" id="slugHint">Use lowercase letters, numbers, and hyphens only. This is your permanent portfolio URL.</div>
+        </div>
+        <button class="btn-add" style="margin-top:0.5rem" onclick="saveSlug()">Save URL slug</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Visibility</div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-label">Published</div>
+            <div class="toggle-desc">When on, your portfolio is publicly visible at your portfolio URL.</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="f-published" onchange="autosave()" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Analytics</div>
+        <div class="field">
+          <label>Google Analytics Measurement ID (optional)</label>
+          <input type="text" id="f-ga-id" placeholder="G-XXXXXXXXXX" oninput="autosave()" />
+          <div class="field-hint">Create a free GA4 property at analytics.google.com to track visits to your portfolio.</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+
+<script>
+/* ═══════════════════════════════════════
+   DASHBOARD — PORTFOLIO EDITOR
+═══════════════════════════════════════ */
+
+var CURRENT_UID   = null;
+var CURRENT_SLUG  = null;
+var C             = {};        // live content object
+var saveTimer     = null;
+var SAVE_DELAY    = 1200;      // ms after last keystroke before save
+
+/* Blank template for new users */
+var BLANK = {
+  global: {
+    name: '', tagline: '', email: '', linkedin: '', dribbble: '',
+    resumeUrl: '', footerDesc: '', copyright: ''
+  },
+  home: {
+    hero: {
+      label: '', headingLines: ['', '', ''], subtitle: '',
+      stats: [
+        { value: '', label: '' },
+        { value: '', label: '' },
+        { value: '', label: '' },
+        { value: '', label: '' }
+      ],
+      cta1Label: 'View Work',
+      cta2Label: 'Download Resume'
+    },
+    projects:   [],
+    experience: [],
+    aiProjects: [],
+    blog:       [],
+    hideAiSection: true
+  },
+  about: {
+    heroHeadingLines: ['', '', ''],
+    bioParagraphs:    [
+      { type: 'paragraph', text: '' },
+      { type: 'paragraph', text: '' },
+      { type: 'paragraph', text: '' }
+    ],
+    skills:           [],
+    tools:            [],
+    sidebarBlocks:    [
+      { label: 'Currently', content: '' },
+      { label: 'Location',  content: '' }
+    ],
+    ctaHeading:     "Let's work together.",
+    ctaParagraph:   '',
+    ctaButtonLabel: 'Get in touch'
+  }
+};
+
+/* ── Auth guard ── */
+firebase.auth().onAuthStateChanged(function (user) {
+  if (!user || !user.emailVerified) {
+    window.location.href = 'login.html';
+    return;
+  }
+  // Main admin owns this domain — redirect them to their panel
+  if (user.email === 'pandeyanubhav229@gmail.com') {
+    window.location.href = 'admin.html';
+    return;
+  }
+  CURRENT_UID = user.uid;
+  document.getElementById('userEmailDisplay').textContent = '/ ' + user.email;
+  init();
+});
+
+/* ── Bootstrap ── */
+async function init() {
+  try {
+    var loaded = await window.loadContent(CURRENT_UID);
+    // If the loaded content belongs to the main admin (e.g. seeded from content.js
+    // fallback), treat the user as new and start with a blank template.
+    var isMainAdminContent = loaded && loaded.global &&
+      loaded.global.email === 'pandeyanubhav229@gmail.com';
+    C = (loaded && Object.keys(loaded).length > 0 && !isMainAdminContent)
+      ? loaded
+      : deepClone(BLANK);
+  } catch (e) {
+    C = deepClone(BLANK);
+  }
+
+  // Load slug from Firestore slugs index
+  try {
+    var slugDoc = await window.fbDb.collection('slugs').where('uid', '==', CURRENT_UID).limit(1).get();
+    if (!slugDoc.empty) {
+      CURRENT_SLUG = slugDoc.docs[0].id;
+      document.getElementById('f-slug').value = CURRENT_SLUG;
+    }
+  } catch (e) { /* not blocking */ }
+
+  renderAll();
+  updatePortfolioUrl();
+  document.getElementById('loadingOverlay').classList.add('hidden');
+  showSaved();
+}
+
+/* ── Section navigation ── */
+function showSection(id) {
+  document.querySelectorAll('.panel-section').forEach(function (s) { s.classList.remove('active'); });
+  document.querySelectorAll('.nav-item').forEach(function (b) { b.classList.remove('active'); });
+  document.getElementById('section-' + id).classList.add('active');
+  document.getElementById('nav-' + id).classList.add('active');
+}
+
+/* ── Render all fields from C ── */
+function renderAll() {
+  var g    = C.global || {};
+  var home = C.home   || {};
+  var hero = home.hero || {};
+  var ab   = C.about  || {};
+
+  // Profile
+  setVal('f-name',        g.name        || '');
+  setVal('f-tagline',     g.tagline     || '');
+  setVal('f-footer-desc', g.footerDesc  || '');
+  setVal('f-copyright',   g.copyright   || '');
+  setVal('f-email',       g.email       || '');
+  setVal('f-linkedin',    g.linkedin    || '');
+  setVal('f-dribbble',    g.dribbble    || '');
+  setVal('f-resume',      g.resumeUrl   || '');
+
+  // Hero
+  var lines = hero.headingLines || ['', '', ''];
+  setVal('f-hero-line1',    lines[0] || '');
+  setVal('f-hero-line2',    lines[1] || '');
+  setVal('f-hero-line3',    lines[2] || '');
+  setVal('f-hero-subtitle', hero.subtitle || '');
+  setVal('f-cta1',          hero.cta1Label || 'View Work');
+  setVal('f-cta2',          hero.cta2Label || 'Download Resume');
+
+  // Stats
+  renderStats(hero.stats || [{ value:'', label:'' }, { value:'', label:'' }, { value:'', label:'' }, { value:'', label:'' }]);
+
+  // Projects
+  renderProjects(home.projects || []);
+
+  // Experience
+  renderExperience(home.experience || []);
+
+  // About
+  var abLines = ab.heroHeadingLines || ['', '', ''];
+  setVal('f-about-h1', abLines[0] || '');
+  setVal('f-about-h2', abLines[1] || '');
+  setVal('f-about-h3', abLines[2] || '');
+
+  var bios = ab.bioParagraphs || [];
+  var textBios = bios.filter(function (b) { return b.type === 'paragraph'; });
+  setVal('f-bio-1', (textBios[0] || {}).text || '');
+  setVal('f-bio-2', (textBios[1] || {}).text || '');
+  setVal('f-bio-3', (textBios[2] || {}).text || '');
+
+  setVal('f-skills', (ab.skills || []).join('\n'));
+  setVal('f-tools',  (ab.tools  || []).join('\n'));
+
+  var currently = ((ab.sidebarBlocks || []).find(function (b) { return b.label === 'Currently'; }) || {}).content || '';
+  var location  = ((ab.sidebarBlocks || []).find(function (b) { return b.label === 'Location';  }) || {}).content || '';
+  setVal('f-currently', currently);
+  setVal('f-location',  location);
+
+  // Settings
+  var pub = (C._meta || {}).published;
+  document.getElementById('f-published').checked = pub === true;
+  setVal('f-ga-id', g.gaId || '');
+
+  updatePublishBanner();
+}
+
+/* ── Stats grid ── */
+function renderStats(stats) {
+  var grid = document.getElementById('stats-grid');
+  var html = '';
+  for (var i = 0; i < 4; i++) {
+    var s = stats[i] || { value: '', label: '' };
+    html += '<div class="card" style="margin-bottom:0">'
+      + '<div class="field"><label>Stat ' + (i+1) + ' — Value</label>'
+      + '<input type="text" id="stat-val-' + i + '" value="' + esc(s.value) + '" placeholder="95%" oninput="autosave()" /></div>'
+      + '<div class="field"><label>Label</label>'
+      + '<input type="text" id="stat-lbl-' + i + '" value="' + esc(s.label) + '" placeholder="Describe the metric" oninput="autosave()" /></div>'
+      + '</div>';
+  }
+  grid.innerHTML = html;
+}
+
+/* ── Projects list ── */
+function renderProjects(projects) {
+  var list = document.getElementById('projects-list');
+  if (!projects.length) {
+    list.innerHTML = '<div class="empty-state"><p>No projects yet.</p><p>Add your first case study or project below.</p></div>';
+    return;
+  }
+  list.innerHTML = projects.map(function (p, i) {
+    return itemHTML('project', i, p.name || 'Untitled project',
+      '<div class="field-row">'
+      + field('Tag', 'project-tag-' + i, p.tag || '', 'Enterprise SaaS')
+      + field('Project number', 'project-num-' + i, p.number || String(i+1).padStart(2,'0'), '01')
+      + '</div>'
+      + field('Name', 'project-name-' + i, p.name || '', 'SecureShare')
+      + field('Subtitle', 'project-sub-' + i, p.subtitle || '', 'External Contributor Platform — Acme Co')
+      + field('Description', 'project-desc-' + i, p.description || '', 'What did you design? What was the challenge?', true)
+      + field('Key metric', 'project-metric-' + i, p.metric || '', 'Turnaround: 6 weeks → 8 hours')
+      + field('Case study URL', 'project-url-' + i, p.url || '', 'work/myproject.html')
+    );
+  }).join('');
+}
+
+/* ── Experience list ── */
+function renderExperience(experience) {
+  var list = document.getElementById('experience-list');
+  if (!experience.length) {
+    list.innerHTML = '<div class="empty-state"><p>No experience added yet.</p></div>';
+    return;
+  }
+  list.innerHTML = experience.map(function (e, i) {
+    return itemHTML('exp', i, (e.company ? e.company + ' — ' : '') + (e.role || 'Role'),
+      field('Company', 'exp-company-' + i, e.company || '', 'Acme Corp')
+      + field('Role', 'exp-role-' + i, e.role || '', 'Senior Product Designer')
+      + field('Period', 'exp-period-' + i, e.period || '', 'Jan 2023 – Present')
+      + field('Description', 'exp-desc-' + i, e.description || '', 'What did you work on and what did you own?', true)
+      + field('Key metric', 'exp-metric-' + i, e.metric || '', '>95% reduction in turnaround')
+    );
+  }).join('');
+}
+
+/* ── DOM helpers ── */
+function itemHTML(prefix, idx, label, bodyHTML) {
+  return '<div class="repeat-item" id="item-' + prefix + '-' + idx + '">'
+    + '<div class="repeat-item-header" onclick="toggleItem(this)">'
+    + '<span class="repeat-item-label' + (label ? '' : ' placeholder') + '">' + esc(label || 'Untitled') + '</span>'
+    + '<div class="repeat-item-actions">'
+    + '<button class="btn-icon" title="Move up" onclick="event.stopPropagation();moveItem(\'' + prefix + '\',' + idx + ',-1)">↑</button>'
+    + '<button class="btn-icon" title="Move down" onclick="event.stopPropagation();moveItem(\'' + prefix + '\',' + idx + ',1)">↓</button>'
+    + '<button class="btn-icon danger" title="Delete" onclick="event.stopPropagation();deleteItem(\'' + prefix + '\',' + idx + ')">✕</button>'
+    + '</div></div>'
+    + '<div class="repeat-item-body">' + bodyHTML + '</div>'
+    + '</div>';
+}
+
+function field(label, id, value, placeholder, isTextarea) {
+  var inner = isTextarea
+    ? '<textarea id="' + id + '" placeholder="' + esc(placeholder) + '" oninput="autosave()">' + esc(value) + '</textarea>'
+    : '<input type="text" id="' + id + '" value="' + esc(value) + '" placeholder="' + esc(placeholder) + '" oninput="autosave()" />';
+  return '<div class="field"><label>' + label + '</label>' + inner + '</div>';
+}
+
+function toggleItem(header) {
+  var body = header.nextElementSibling;
+  var open = body.classList.toggle('open');
+  header.classList.toggle('open', open);
+}
+
+function moveItem(prefix, idx, dir) {
+  var arr = prefix === 'project' ? (C.home.projects || []) : (C.home.experience || []);
+  var newIdx = idx + dir;
+  if (newIdx < 0 || newIdx >= arr.length) return;
+  var tmp = arr[idx]; arr[idx] = arr[newIdx]; arr[newIdx] = tmp;
+  if (prefix === 'project') {
+    C.home.projects = arr;
+    renderProjects(arr);
+  } else {
+    C.home.experience = arr;
+    renderExperience(arr);
+  }
+  autosave();
+}
+
+function deleteItem(prefix, idx) {
+  if (!confirm('Delete this item?')) return;
+  if (prefix === 'project') {
+    C.home.projects = (C.home.projects || []).filter(function (_, i) { return i !== idx; });
+    renderProjects(C.home.projects);
+  } else {
+    C.home.experience = (C.home.experience || []).filter(function (_, i) { return i !== idx; });
+    renderExperience(C.home.experience);
+  }
+  autosave();
+}
+
+function addProject() {
+  if (!C.home) C.home = {};
+  if (!C.home.projects) C.home.projects = [];
+  var num = String(C.home.projects.length + 1).padStart(2, '0');
+  C.home.projects.push({ id: 'project-' + Date.now(), number: num, tag: '', name: '', subtitle: '', description: '', metric: '', url: '' });
+  renderProjects(C.home.projects);
+  // Open the newly added item
+  var items = document.querySelectorAll('#projects-list .repeat-item');
+  var last  = items[items.length - 1];
+  if (last) { var h = last.querySelector('.repeat-item-header'); if (h) toggleItem(h); }
+}
+
+function addExperience() {
+  if (!C.home) C.home = {};
+  if (!C.home.experience) C.home.experience = [];
+  C.home.experience.push({ company: '', role: '', period: '', description: '', metric: '' });
+  renderExperience(C.home.experience);
+  var items = document.querySelectorAll('#experience-list .repeat-item');
+  var last  = items[items.length - 1];
+  if (last) { var h = last.querySelector('.repeat-item-header'); if (h) toggleItem(h); }
+}
+
+/* ── Collect form values into C ── */
+function collectAll() {
+  if (!C.global) C.global = {};
+  if (!C.home)   C.home   = {};
+  if (!C.about)  C.about  = {};
+  if (!C.home.hero) C.home.hero = {};
+
+  C.global.name       = getVal('f-name');
+  C.global.tagline    = getVal('f-tagline');
+  C.global.footerDesc = getVal('f-footer-desc');
+  C.global.copyright  = getVal('f-copyright');
+  C.global.email      = getVal('f-email');
+  C.global.linkedin   = getVal('f-linkedin');
+  C.global.dribbble   = getVal('f-dribbble');
+  C.global.resumeUrl  = getVal('f-resume');
+  C.global.gaId       = getVal('f-ga-id');
+
+  // Hero
+  C.home.hero.headingLines = [getVal('f-hero-line1'), getVal('f-hero-line2'), getVal('f-hero-line3')];
+  C.home.hero.subtitle     = getVal('f-hero-subtitle');
+  C.home.hero.cta1Label    = getVal('f-cta1') || 'View Work';
+  C.home.hero.cta2Label    = getVal('f-cta2') || 'Download Resume';
+
+  // Stats
+  C.home.hero.stats = [0,1,2,3].map(function (i) {
+    return { value: getVal('stat-val-' + i), label: getVal('stat-lbl-' + i) };
+  });
+
+  // Projects — collect from rendered fields
+  (C.home.projects || []).forEach(function (p, i) {
+    p.tag         = getVal('project-tag-' + i);
+    p.number      = getVal('project-num-' + i);
+    p.name        = getVal('project-name-' + i);
+    p.subtitle    = getVal('project-sub-' + i);
+    p.description = getVal('project-desc-' + i);
+    p.metric      = getVal('project-metric-' + i);
+    p.url         = getVal('project-url-' + i);
+    p.id          = p.id || ('project-' + i);
+  });
+
+  // Experience — collect from rendered fields
+  (C.home.experience || []).forEach(function (e, i) {
+    e.company     = getVal('exp-company-' + i);
+    e.role        = getVal('exp-role-' + i);
+    e.period      = getVal('exp-period-' + i);
+    e.description = getVal('exp-desc-' + i);
+    e.metric      = getVal('exp-metric-' + i);
+  });
+
+  // About
+  C.about.heroHeadingLines = [getVal('f-about-h1'), getVal('f-about-h2'), getVal('f-about-h3')];
+
+  var bio1 = getVal('f-bio-1'), bio2 = getVal('f-bio-2'), bio3 = getVal('f-bio-3');
+  C.about.bioParagraphs = [bio1, bio2, bio3]
+    .filter(function (t) { return t.trim(); })
+    .map(function (t) { return { type: 'paragraph', text: t }; });
+
+  C.about.skills = getVal('f-skills').split('\n').map(function (s) { return s.trim(); }).filter(Boolean);
+  C.about.tools  = getVal('f-tools').split('\n').map(function (s) { return s.trim(); }).filter(Boolean);
+
+  var curr = getVal('f-currently');
+  var loc  = getVal('f-location');
+  C.about.sidebarBlocks = [
+    { label: 'Currently', content: curr },
+    { label: 'Location',  content: loc  }
+  ];
+
+  // Meta
+  if (!C._meta) C._meta = {};
+  C._meta.published = document.getElementById('f-published').checked;
+  C._meta.updatedAt = new Date().toISOString();
+
+  updatePublishBanner();
+}
+
+/* ── Autosave ── */
+function autosave() {
+  setSaving();
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveNow, SAVE_DELAY);
+}
+
+async function saveNow() {
+  collectAll();
+  try {
+    await window.saveContent(C, CURRENT_UID);
+    showSaved();
+  } catch (e) {
+    setSaveError();
+    console.error('Save failed:', e);
+  }
+}
+
+/* ── Slug handling ── */
+function onSlugInput() {
+  var raw = getVal('f-slug').toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-');
+  document.getElementById('f-slug').value = raw;
+  updatePortfolioUrl();
+}
+
+async function saveSlug() {
+  var slug = getVal('f-slug').trim();
+  if (!slug) { showToast('Enter a slug first.'); return; }
+  if (!/^[a-z0-9-]+$/.test(slug)) { showToast('Slug can only contain lowercase letters, numbers, and hyphens.'); return; }
+
+  // Check if slug is already taken by someone else
+  try {
+    var existing = await window.fbDb.collection('slugs').doc(slug).get();
+    if (existing.exists && existing.data().uid !== CURRENT_UID) {
+      showToast('That slug is already taken — try another.');
+      return;
+    }
+  } catch (e) { /* proceed */ }
+
+  try {
+    // Remove old slug if changed
+    if (CURRENT_SLUG && CURRENT_SLUG !== slug) {
+      await window.fbDb.collection('slugs').doc(CURRENT_SLUG).delete();
+    }
+    // Register new slug
+    await window.fbDb.collection('slugs').doc(slug).set({ uid: CURRENT_UID, registeredAt: new Date().toISOString() });
+    CURRENT_SLUG = slug;
+    updatePortfolioUrl();
+    showToast('Portfolio URL saved.');
+  } catch (e) {
+    showToast('Could not save slug — check your connection.');
+    console.error(e);
+  }
+}
+
+/* ── Portfolio URL display ── */
+function updatePortfolioUrl() {
+  var slug   = CURRENT_SLUG || getVal('f-slug') || null;
+  var origin = window.location.origin;
+  var url    = slug ? (origin + '/p/' + slug) : (origin + '/index.html?uid=' + (CURRENT_UID || ''));
+
+  document.getElementById('sidebarPortfolioUrl').textContent = slug
+    ? origin.replace('https://', '') + '/p/' + slug
+    : origin.replace('https://', '') + '/p/—';
+
+  var previewBtn = document.getElementById('previewBtn');
+  previewBtn.href = url;
+
+  document.getElementById('slugOriginPrefix').textContent = origin.replace('https://', '') + '/p/';
+
+  updatePublishBanner(url);
+}
+
+function updatePublishBanner(url) {
+  var published = document.getElementById('f-published') && document.getElementById('f-published').checked;
+  var banner    = document.getElementById('publishBanner');
+  var link      = document.getElementById('publishBannerLink');
+  var slug      = CURRENT_SLUG || getVal('f-slug');
+
+  if (published && slug) {
+    var fullUrl = window.location.origin + '/p/' + slug;
+    if (link) { link.href = fullUrl; link.textContent = fullUrl.replace('https://', ''); }
+    banner.classList.remove('hidden');
+  } else {
+    banner.classList.add('hidden');
+  }
+}
+
+function copyPortfolioUrl() {
+  var slug = CURRENT_SLUG || getVal('f-slug');
+  var url  = slug
+    ? window.location.origin + '/p/' + slug
+    : window.location.origin + '/index.html?uid=' + CURRENT_UID;
+  navigator.clipboard.writeText(url).then(function () { showToast('Link copied.'); }).catch(function () {});
+}
+
+/* ── Auth ── */
+function doLogout() {
+  if (!confirm('Sign out?')) return;
+  firebase.auth().signOut().then(function () { window.location.href = 'login.html'; });
+}
+
+/* ── Save state UI ── */
+function setSaving() {
+  var badge = document.getElementById('saveBadge');
+  badge.className = 'save-badge saving';
+  document.getElementById('saveText').textContent = 'Saving…';
+}
+function showSaved() {
+  var badge = document.getElementById('saveBadge');
+  badge.className = 'save-badge';
+  document.getElementById('saveText').textContent = 'All changes saved';
+}
+function setSaveError() {
+  var badge = document.getElementById('saveBadge');
+  badge.className = 'save-badge error';
+  document.getElementById('saveText').textContent = 'Save failed';
+}
+
+/* ── Toast ── */
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function () { t.classList.remove('show'); }, 2800);
+}
+
+/* ── Helpers ── */
+function getVal(id) {
+  var el = document.getElementById(id);
+  return el ? el.value : '';
+}
+function setVal(id, val) {
+  var el = document.getElementById(id);
+  if (el) el.value = val;
+}
+function esc(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function deepClone(obj) {
+  return JSON.parse(JSON.stringify(obj));
+}
+</script>
+</body>
+</html>

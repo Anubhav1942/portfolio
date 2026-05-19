@@ -5,3 +5,10 @@ Thumbs.db
 # Editor
 .vscode/
 .idea/
+
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+storage.rules
+database.rules.json

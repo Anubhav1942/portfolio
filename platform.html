@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Folio — Build your portfolio, free</title>
+  <meta name="description" content="Create a beautiful, fast portfolio site in minutes. Bring your own domain, manage everything from a clean admin panel, powered by Firebase." />
+  <link rel="canonical" href="https://anubhavp.in/platform.html" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:         #F5F4F0;
+      --dark:       #141413;
+      --card:       #FFFFFF;
+      --text:       #111110;
+      --text-sec:   #6A6A66;
+      --text-muted: #9A9A96;
+      --accent:     #1C3D2B;
+      --accent-mid: #2D6A4F;
+      --accent-soft:#52B788;
+      --border:     #E0DDD7;
+      --radius:     8px;
+      --ease:       0.18s ease;
+      --font-serif: 'Lora', Georgia, serif;
+      --font-sans:  'Inter', -apple-system, sans-serif;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      font-size: 15px;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* ── Topbar ── */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(245, 244, 240, 0.88);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      height: 56px;
+      display: flex;
+      align-items: center;
+    }
+
+    .topbar__inner {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .topbar__logo {
+      font-family: var(--font-serif);
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.02em;
+    }
+
+    .topbar__logo span {
+      color: var(--accent-mid);
+    }
+
+    .topbar__nav {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .topbar__link {
+      font-size: 0.82rem;
+      color: var(--text-sec);
+      transition: color var(--ease);
+    }
+
+    .topbar__link:hover { color: var(--text); }
+
+    .topbar__cta {
+      font-size: 0.82rem;
+      font-weight: 500;
+      padding: 0.44rem 1.1rem;
+      background: var(--dark);
+      color: #fff;
+      border-radius: var(--radius);
+      transition: background var(--ease);
+    }
+
+    .topbar__cta:hover { background: #2a2a28; color: #fff; }
+
+    /* ── Hero ── */
+    .hero {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 7rem 2rem 5rem;
+      text-align: center;
+    }
+
+    .hero__badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--accent-mid);
+      background: rgba(82, 183, 136, 0.1);
+      border: 1px solid rgba(82, 183, 136, 0.25);
+      border-radius: 100px;
+      padding: 0.3rem 0.85rem;
+      margin-bottom: 2rem;
+    }
+
+    .hero__dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-soft);
+    }
+
+    .hero__title {
+      font-family: var(--font-serif);
+      font-size: clamp(2.4rem, 5vw, 3.4rem);
+      font-weight: 600;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      margin-bottom: 1.4rem;
+    }
+
+    .hero__title em {
+      font-style: italic;
+      color: var(--accent-mid);
+    }
+
+    .hero__sub {
+      font-size: 1.05rem;
+      color: var(--text-sec);
+      line-height: 1.7;
+      max-width: 540px;
+      margin: 0 auto 2.5rem;
+    }
+
+    .hero__actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+      font-weight: 500;
+      padding: 0.72rem 1.75rem;
+      background: var(--dark);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: background var(--ease);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .btn-primary:hover { background: #2a2a28; color: #fff; }
+
+    .btn-ghost {
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+      font-weight: 400;
+      padding: 0.72rem 1.5rem;
+      border: 1px solid var(--border);
+      color: var(--text-sec);
+      background: transparent;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: border-color var(--ease), color var(--ease);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .btn-ghost:hover { border-color: var(--accent); color: var(--text); }
+
+    .hero__note {
+      margin-top: 1.2rem;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    /* ── Preview mockup ── */
+    .preview-wrap {
+      max-width: 900px;
+      margin: 0 auto 6rem;
+      padding: 0 2rem;
+    }
+
+    .preview-frame {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 32px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.04);
+    }
+
+    .preview-bar {
+      background: #F0EFE9;
+      border-bottom: 1px solid var(--border);
+      padding: 0.6rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .preview-bar__dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .preview-bar__url {
+      flex: 1;
+      margin-left: 0.5rem;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.2rem 0.7rem;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-family: var(--font-sans);
+    }
+
+    .preview-body {
+      padding: 2rem;
+      min-height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2rem;
+    }
+
+    .preview-content {
+      flex: 1;
+    }
+
+    .preview-name {
+      font-family: var(--font-serif);
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.35rem;
+    }
+
+    .preview-role {
+      font-size: 0.82rem;
+      color: var(--accent-mid);
+      font-weight: 500;
+      margin-bottom: 0.9rem;
+    }
+
+    .preview-bio {
+      font-size: 0.85rem;
+      color: var(--text-sec);
+      line-height: 1.65;
+      max-width: 380px;
+    }
+
+    .preview-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 1rem;
+    }
+
+    .preview-tag {
+      font-size: 0.7rem;
+      padding: 0.2rem 0.6rem;
+      background: #F0EFE9;
+      border-radius: 100px;
+      color: var(--text-sec);
+    }
+
+    .preview-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #2D6A4F, #52B788);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-serif);
+      font-size: 1.6rem;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    /* ── Features ── */
+    .section {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 2rem 6rem;
+    }
+
+    .section__label {
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent-mid);
+      margin-bottom: 0.75rem;
+    }
+
+    .section__title {
+      font-family: var(--font-serif);
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      margin-bottom: 3rem;
+      max-width: 480px;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .feature-card {
+      background: var(--card);
+      padding: 1.75rem;
+    }
+
+    .feature-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: #F0EFE9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+    }
+
+    .feature-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.4rem;
+    }
+
+    .feature-desc {
+      font-size: 0.82rem;
+      color: var(--text-sec);
+      line-height: 1.65;
+    }
+
+    /* ── How it works ── */
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      max-width: 600px;
+    }
+
+    .step {
+      display: flex;
+      gap: 1.25rem;
+      padding: 1.5rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .step:last-child { border-bottom: none; }
+
+    .step__num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--dark);
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .step__title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.3rem;
+    }
+
+    .step__desc {
+      font-size: 0.82rem;
+      color: var(--text-sec);
+      line-height: 1.65;
+    }
+
+    /* ── CTA band ── */
+    .cta-band {
+      background: var(--dark);
+      margin: 0 2rem 4rem;
+      border-radius: 12px;
+      padding: 4rem 3rem;
+      text-align: center;
+      max-width: calc(1080px - 4rem);
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .cta-band__title {
+      font-family: var(--font-serif);
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 600;
+      color: #fff;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.75rem;
+    }
+
+    .cta-band__sub {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 2rem;
+      line-height: 1.6;
+    }
+
+    .btn-light {
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+      font-weight: 500;
+      padding: 0.72rem 1.75rem;
+      background: #fff;
+      color: var(--dark);
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: opacity var(--ease);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .btn-light:hover { opacity: 0.88; }
+
+    /* ── Footer ── */
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .footer__text {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .footer__text a {
+      color: var(--text-sec);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    @media (max-width: 640px) {
+      .preview-body { flex-direction: column-reverse; align-items: flex-start; }
+      .topbar__nav .topbar__link { display: none; }
+      .cta-band { padding: 2.5rem 1.5rem; margin: 0 1rem 3rem; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="topbar__inner">
+      <a href="platform.html" class="topbar__logo">folio<span>.</span></a>
+      <nav class="topbar__nav">
+        <a href="index.html" class="topbar__link">See an example</a>
+        <a href="login.html?mode=signup" class="topbar__cta">Get started free</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="sk-wrap" aria-hidden="true">
+      <span class="sk sk-hero__label"></span>
+      <span class="sk sk-hero__h1"></span>
+      <span class="sk sk-hero__h1-2"></span>
+      <span class="sk sk-hero__sub-1"></span>
+      <span class="sk sk-hero__sub-2"></span>
+      <div class="sk-hero__ctas">
+        <span class="sk sk-hero__btn-primary"></span>
+        <span class="sk sk-hero__btn-ghost"></span>
+      </div>
+    </div>
+    <div class="hero__badge">
+      <span class="hero__dot"></span>
+      Free while in beta
+    </div>
+    <h1 class="hero__title">Your portfolio.<br /><em>Your domain.</em> Your rules.</h1>
+    <p class="hero__sub">
+      Build a clean, fast portfolio site with a real admin panel. No drag-and-drop builders,
+      no subscriptions, no watermarks. Bring your own domain and you own the whole thing.
+    </p>
+    <div class="hero__actions">
+      <a href="login.html?mode=signup" class="btn-primary">
+        Create your portfolio
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a href="index.html" class="btn-ghost">See a live example</a>
+    </div>
+    <p class="hero__note">No credit card. No install. Takes about 5 minutes.</p>
+  </section>
+
+  <!-- Preview mockup -->
+  <div class="preview-wrap">
+    <div class="preview-frame">
+      <div class="preview-bar">
+        <span class="preview-bar__dot" style="background:#FF5F57"></span>
+        <span class="preview-bar__dot" style="background:#FFBD2E"></span>
+        <span class="preview-bar__dot" style="background:#28CA41"></span>
+        <span class="preview-bar__url">yourname.com</span>
+      </div>
+      <div class="preview-body">
+        <div class="preview-content">
+          <p class="preview-name">Your Name</p>
+          <p class="preview-role">Product Designer / Engineer / Whatever you are</p>
+          <p class="preview-bio">
+            I design systems that are genuinely usable for the people who have to live inside them every day.
+            Currently open to new opportunities.
+          </p>
+          <div class="preview-tags">
+            <span class="preview-tag">Figma</span>
+            <span class="preview-tag">Product Strategy</span>
+            <span class="preview-tag">UX Research</span>
+            <span class="preview-tag">Enterprise SaaS</span>
+          </div>
+        </div>
+        <div class="preview-avatar">Y</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features -->
+  <section class="section">
+    <p class="section__label">What you get</p>
+    <h2 class="section__title">Everything you need, nothing you don't</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="3" width="14" height="12" rx="2" stroke="#2D6A4F" stroke-width="1.5"/><path d="M6 7h6M6 10h4" stroke="#2D6A4F" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <p class="feature-title">Full admin panel</p>
+        <p class="feature-desc">Edit every section of your portfolio from a clean dashboard. Changes save to the cloud instantly -- no pushing files, no deploy steps.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="6.5" stroke="#2D6A4F" stroke-width="1.5"/><path d="M9 2.5C9 2.5 6.5 5.5 6.5 9s2.5 6.5 2.5 6.5" stroke="#2D6A4F" stroke-width="1.5" stroke-linecap="round"/><path d="M2.5 9h13" stroke="#2D6A4F" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <p class="feature-title">Custom domain</p>
+        <p class="feature-desc">Connect your own domain in the settings panel. yourname.com, not someplatform.com/yourname. You bought it, it should say your name.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2L11.5 7H16.5L12.5 10.5L14 15.5L9 12.5L4 15.5L5.5 10.5L1.5 7H6.5L9 2Z" stroke="#2D6A4F" stroke-width="1.5" stroke-linejoin="round"/></svg>
+        </div>
+        <p class="feature-title">Case studies and work</p>
+        <p class="feature-desc">Add and edit case studies, project cards, experience entries, and blog posts. All managed from the same panel, all updating the live site.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="3" y="3" width="5" height="5" rx="1" stroke="#2D6A4F" stroke-width="1.5"/><rect x="10" y="3" width="5" height="5" rx="1" stroke="#2D6A4F" stroke-width="1.5"/><rect x="3" y="10" width="5" height="5" rx="1" stroke="#2D6A4F" stroke-width="1.5"/><rect x="10" y="10" width="5" height="5" rx="1" stroke="#2D6A4F" stroke-width="1.5"/></svg>
+        </div>
+        <p class="feature-title">Image uploads</p>
+        <p class="feature-desc">Upload project covers, blog thumbnails, and profile photos directly from the admin panel. Stored on Firebase, served fast, no size wrestling.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 15V9m0 0L6 12m3-3l3 3" stroke="#2D6A4F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 7.5A4 4 0 0 1 9 3.5a4 4 0 0 1 3.87 3" stroke="#2D6A4F" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <p class="feature-title">Google Analytics</p>
+        <p class="feature-desc">Paste your own GA4 measurement ID into the settings panel and get full Analytics on your portfolio traffic, no code changes needed.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="3" y="6" width="12" height="9" rx="1.5" stroke="#2D6A4F" stroke-width="1.5"/><path d="M6 6V4.5a3 3 0 0 1 6 0V6" stroke="#2D6A4F" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <p class="feature-title">Secure by default</p>
+        <p class="feature-desc">Firebase Auth handles logins with email verification. Firestore security rules ensure no one can read or modify another user's content.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="section" style="padding-bottom: 5rem;">
+    <p class="section__label">How it works</p>
+    <h2 class="section__title">Up and live in minutes</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step__num">1</div>
+        <div>
+          <p class="step__title">Create an account</p>
+          <p class="step__desc">Sign up with your email. You'll get a verification link, click it, and you're in. No waitlist, no approval process.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step__num">2</div>
+        <div>
+          <p class="step__title">Fill in your details</p>
+          <p class="step__desc">Your admin panel is waiting. Add your name, role, bio, work experience, and case studies. Everything saves automatically as you type.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step__num">3</div>
+        <div>
+          <p class="step__title">Connect your domain</p>
+          <p class="step__desc">Buy a domain from any registrar (GoDaddy, Namecheap, Cloudflare -- doesn't matter). Point it to GitHub Pages with a CNAME, then register it in your settings panel. Done.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step__num">4</div>
+        <div>
+          <p class="step__title">Share it</p>
+          <p class="step__desc">yourname.com is now live, pulling your content from the cloud, and updating whenever you make a change in the admin panel.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA band -->
+  <div class="cta-band">
+    <h2 class="cta-band__title">Your portfolio is one sign-up away</h2>
+    <p class="cta-band__sub">Free to use. No lock-in. Built by a designer who needed the same thing.</p>
+    <a href="login.html?mode=signup" class="btn-light">
+      Create your portfolio
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p class="footer__text">
+      Built by <a href="index.html">Anubhav Pandey</a> &nbsp;&middot;&nbsp;
+      <a href="help.html">Help &amp; setup guide</a> &nbsp;&middot;&nbsp;
+      <a href="mailto:pandeyanubhav229@gmail.com">Contact</a>
+    </p>
+  </footer>
+
+  <script>
+    /* Basic skeleton / loading reveal for platform page */
+    (function(){
+      // Reveal content on load, fallback after 2.5s
+      window.addEventListener('load', function(){
+        document.body.classList.add('content-loaded');
+      });
+      setTimeout(function(){ document.body.classList.add('content-loaded'); }, 2500);
+    })();
+  </script>
+
+</body>
+</html>

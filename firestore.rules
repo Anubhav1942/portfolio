@@ -1,0 +1,55 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Per-user portfolio content ──────────────────────────────────────
+    // Public portfolios need to be readable by unauthenticated visitors
+    // (the public page fetches content without auth). Writes are strictly
+    // owner-only: only the authenticated user matching the document path can save.
+    match /users/{userId}/{document=**} {
+      allow read:  if true;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // ── Domain → UID mappings ───────────────────────────────────────────
+    // Public read so the public portfolio page can resolve domain → uid.
+    // Write rules enforce that you can only register a domain to your own UID,
+    // and only the original owner can update or delete the mapping.
+    match /domains/{domain} {
+      allow read: if true;
+
+      // Create: allowed only if the new document's uid field matches the requester
+      allow create: if request.auth != null
+                    && request.resource.data.uid == request.auth.uid;
+
+      // Update / delete: only the existing owner can modify
+      allow update: if request.auth != null
+                    && resource.data.uid == request.auth.uid;
+      allow delete: if request.auth != null
+                    && resource.data.uid == request.auth.uid;
+    }
+
+    // ── Legacy shared path (anubhavp.in main site fallback) ────────────
+    // The old portfolio/content document is kept in sync by saveContent()
+    // for backward compatibility with public pages not yet on domain routing.
+    // Only the main site owner (Anubhav) can write here.
+    match /portfolio/{document} {
+      allow read:  if true;
+      allow write: if request.auth != null
+                   && request.auth.token.email == 'pandeyanubhav229@gmail.com';
+    }
+
+    // ── Slug index ──────────────────────────────────────────────────────
+    // Used to look up a user's UID from their chosen URL slug (e.g. "jane-smith").
+    // Public read for portfolio routing. Write restricted to owner of that slug.
+    match /slugs/{slug} {
+      allow read: if true;
+      allow create: if request.auth != null
+                    && request.resource.data.uid == request.auth.uid;
+      allow update: if request.auth != null
+                    && resource.data.uid == request.auth.uid;
+      allow delete: if request.auth != null
+                    && resource.data.uid == request.auth.uid;
+    }
+  }
+}

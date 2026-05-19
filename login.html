@@ -1,118 +1,125 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Login — Anubhav Pandey</title>
+  <title>Sign in — Portfolio Platform</title>
   <meta name="robots" content="noindex, nofollow" />
-
-  <!-- EmailJS — required for OTP delivery -->
-  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500&family=Inter:wght@300;400;500;600&display=swap"
-    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
 
   <style>
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --accent: #1C3D2B;
-      --accent-mid: #2D6A4F;
+      --accent:      #1C3D2B;
+      --accent-mid:  #2D6A4F;
       --accent-soft: #52B788;
-      --bg: #F7F5F1;
-      --card: #FFFFFF;
-      --text: #111110;
-      --text-sec: #6A6A66;
-      --text-muted: #9A9A96;
-      --border: #E0DDD7;
-      --danger: #C0392B;
-      --radius: 8px;
-      --font-serif: 'Lora', Georgia, serif;
-      --font-sans: 'Inter', -apple-system, sans-serif;
+      --bg:          #F7F5F1;
+      --card:        #FFFFFF;
+      --text:        #111110;
+      --text-sec:    #6A6A66;
+      --text-muted:  #9A9A96;
+      --border:      #E0DDD7;
+      --danger:      #C0392B;
+      --radius:      8px;
+      --ease:        0.18s ease;
     }
 
     body {
-      font-family: var(--font-sans);
+      font-family: 'Inter', -apple-system, sans-serif;
       font-size: 14px;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
+      padding: 1.5rem;
       -webkit-font-smoothing: antialiased;
-      padding: 2rem 1rem;
     }
 
-    .login-wrap {
+    /* ── Card ── */
+    .auth-card {
       width: 100%;
       max-width: 400px;
-    }
-
-    .login-brand {
-      text-align: center;
-      margin-bottom: 2.5rem;
-    }
-
-    .login-brand-dot {
-      width: 10px;
-      height: 10px;
-      background: var(--accent-soft);
-      border-radius: 50%;
-      margin: 0 auto 1rem;
-    }
-
-    .login-brand h1 {
-      font-family: var(--font-serif);
-      font-size: 1.4rem;
-      font-weight: 400;
-      color: var(--text);
-      margin-bottom: 0.3rem;
-    }
-
-    .login-brand p {
-      font-size: 0.78rem;
-      color: var(--text-muted);
-      letter-spacing: 0.02em;
-    }
-
-    .login-card {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 2rem;
+      border-radius: calc(var(--radius) * 2);
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.06);
     }
 
-    .step {
-      display: none;
+    .auth-logo {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 2rem 1.25rem;
+      border-bottom: 1px solid var(--border);
     }
 
-    .step.active {
-      display: block;
-    }
-
-    .step-title {
-      font-size: 0.95rem;
+    .auth-logo-mark {
+      width: 40px;
+      height: 40px;
+      background: var(--accent);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Lora', Georgia, serif;
+      font-size: 15px;
       font-weight: 600;
-      margin-bottom: 0.3rem;
+      color: #fff;
+      letter-spacing: -0.5px;
+      margin-bottom: 0.75rem;
     }
 
-    .step-desc {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin-bottom: 1.5rem;
-      line-height: 1.55;
+    .auth-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.2rem;
     }
+
+    .auth-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-sec);
+    }
+
+    /* ── Tabs ── */
+    .auth-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .auth-tab {
+      flex: 1;
+      padding: 0.75rem;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: color var(--ease), border-color var(--ease);
+    }
+
+    .auth-tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    /* ── Forms ── */
+    .auth-form-wrap {
+      padding: 1.75rem 2rem;
+    }
+
+    .auth-view { display: none; }
+    .auth-view.active { display: block; }
 
     .field {
       margin-bottom: 1rem;
@@ -120,434 +127,426 @@
 
     .field label {
       display: block;
-      font-size: 0.75rem;
+      font-size: 0.78rem;
       font-weight: 500;
       color: var(--text-sec);
-      margin-bottom: 0.35rem;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
+      margin-bottom: 0.4rem;
     }
 
     .field input {
       width: 100%;
-      padding: 0.6rem 0.75rem;
+      padding: 0.6rem 0.85rem;
       border: 1px solid var(--border);
-      border-radius: 5px;
+      border-radius: var(--radius);
       font-size: 0.88rem;
-      font-family: var(--font-sans);
+      font-family: inherit;
       color: var(--text);
       background: var(--bg);
-      transition: border-color 0.15s;
+      transition: border-color var(--ease), box-shadow var(--ease);
       outline: none;
     }
 
     .field input:focus {
       border-color: var(--accent-mid);
+      box-shadow: 0 0 0 3px rgba(44,106,79,0.12);
     }
 
-    .field input.otp-input {
-      font-size: 1.4rem;
-      letter-spacing: 0.4em;
-      text-align: center;
-      font-family: var(--font-serif);
+    .field input.error {
+      border-color: var(--danger);
     }
 
-    .btn-submit {
+    .field-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.4rem;
+    }
+
+    .field-row label { margin: 0; }
+
+    .link-btn {
+      font-size: 0.75rem;
+      color: var(--accent-mid);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      padding: 0;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .link-btn:hover { color: var(--accent); }
+
+    .btn-primary {
       width: 100%;
-      padding: 0.65rem 1rem;
+      padding: 0.65rem;
       background: var(--accent);
       color: #fff;
       border: none;
-      border-radius: 5px;
+      border-radius: var(--radius);
       font-size: 0.88rem;
       font-weight: 500;
-      font-family: var(--font-sans);
+      font-family: inherit;
       cursor: pointer;
+      transition: background var(--ease);
       margin-top: 0.25rem;
-      transition: background 0.15s, opacity 0.15s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
     }
 
-    .btn-submit:hover {
-      background: var(--accent-mid);
-    }
+    .btn-primary:hover { background: var(--accent-mid); }
+    .btn-primary:disabled { opacity: 0.55; cursor: not-allowed; }
 
-    .btn-submit:disabled {
-      opacity: 0.55;
-      cursor: not-allowed;
-    }
-
-    .btn-spinner {
-      width: 14px;
-      height: 14px;
-      border: 2px solid rgba(255, 255, 255, 0.3);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-      display: none;
-    }
-
-    .btn-submit.loading .btn-spinner {
-      display: block;
-    }
-
-    .btn-submit.loading .btn-label {
-      opacity: 0.7;
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    .error-msg {
+    /* ── Error / info messages ── */
+    .auth-message {
       font-size: 0.78rem;
-      color: var(--danger);
-      margin-top: 0.75rem;
-      padding: 0.5rem 0.65rem;
-      background: #FDF0EE;
-      border-radius: 4px;
-      border-left: 3px solid var(--danger);
+      padding: 0.6rem 0.8rem;
+      border-radius: var(--radius);
+      margin-bottom: 1rem;
       display: none;
     }
 
-    .error-msg.visible {
+    .auth-message.error {
+      background: #fdf0f0;
+      color: var(--danger);
+      border: 1px solid #f5c6c6;
       display: block;
     }
 
-    .otp-meta {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      margin-top: 1rem;
-      text-align: center;
-    }
-
-    .otp-meta a {
+    .auth-message.success {
+      background: #f0faf4;
       color: var(--accent-mid);
-      cursor: pointer;
-      text-decoration: underline;
+      border: 1px solid #b8e6cc;
+      display: block;
     }
 
-    .timer {
-      font-weight: 500;
-      color: var(--text-sec);
-    }
-
-    .setup-note {
-      margin-top: 1.5rem;
-      padding: 0.75rem;
-      background: #FFF9EC;
-      border: 1px solid #F0E0A0;
-      border-radius: 5px;
-      font-size: 0.75rem;
-      color: #7A6020;
-      line-height: 1.55;
-      display: none;
-    }
-
-    .setup-note strong {
-      font-weight: 600;
-    }
-
-    .setup-note a {
-      color: #7A6020;
-    }
-
-    .login-footer {
+    /* ── Verify email state ── */
+    .verify-card {
       text-align: center;
-      margin-top: 1.5rem;
+      padding: 2rem;
+    }
+
+    .verify-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .verify-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .verify-desc {
+      font-size: 0.82rem;
+      color: var(--text-sec);
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+
+    .btn-sec {
+      width: 100%;
+      padding: 0.6rem;
+      background: transparent;
+      color: var(--text-sec);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.82rem;
+      font-family: inherit;
+      cursor: pointer;
+      transition: border-color var(--ease), color var(--ease);
+      margin-top: 0.5rem;
+    }
+
+    .btn-sec:hover { border-color: var(--accent-mid); color: var(--accent); }
+
+    .divider {
+      text-align: center;
       font-size: 0.72rem;
       color: var(--text-muted);
-    }
-
-    .login-footer a {
-      color: var(--text-muted);
-      text-decoration: none;
-    }
-
-    .login-footer a:hover {
-      color: var(--text);
+      margin: 1.25rem 0 0;
     }
   </style>
 </head>
-
 <body>
 
-  <div class="login-wrap">
+<div class="auth-card" id="authCard">
 
-    <div class="login-brand">
-      <div class="login-brand-dot"></div>
-      <h1>Anubhav Pandey</h1>
-      <p>Portfolio Admin</p>
-    </div>
+  <!-- Logo / brand -->
+  <div class="auth-logo">
+    <div class="auth-logo-mark">AP</div>
+    <div class="auth-title" id="cardTitle">Welcome back</div>
+    <div class="auth-subtitle" id="cardSubtitle">Sign in to your portfolio admin panel</div>
+  </div>
 
-    <div class="login-card">
+  <!-- Sign in / Sign up tabs -->
+  <div class="auth-tabs" id="authTabs">
+    <button class="auth-tab active" id="tabSignin" onclick="switchAuthTab('signin')">Sign in</button>
+    <button class="auth-tab" id="tabSignup" onclick="switchAuthTab('signup')">Create portfolio</button>
+  </div>
 
-      <!-- STEP 1: Email + Password -->
-      <div class="step active" id="step1">
-        <div class="step-title">Sign in</div>
-        <div class="step-desc">Enter your credentials. A one-time code will be sent to your email.</div>
+  <!-- Forms wrapper -->
+  <div class="auth-form-wrap" id="formWrap">
 
+    <!-- ── Sign in ── -->
+    <div class="auth-view active" id="viewSignin">
+      <div class="auth-message" id="signinMsg"></div>
+      <form onsubmit="doSignin(event)">
         <div class="field">
           <label>Email</label>
-          <input type="email" id="email" placeholder="your@email.com" autocomplete="email" />
+          <input type="email" id="signinEmail" placeholder="you@example.com" required autocomplete="email" />
+        </div>
+        <div class="field">
+          <div class="field-row">
+            <label>Password</label>
+            <button type="button" class="link-btn" onclick="switchView('forgot')">Forgot password?</button>
+          </div>
+          <input type="password" id="signinPassword" placeholder="••••••••" required autocomplete="current-password" />
+        </div>
+        <button type="submit" class="btn-primary" id="signinBtn">Sign in</button>
+      </form>
+    </div>
+
+    <!-- ── Sign up ── -->
+    <div class="auth-view" id="viewSignup">
+      <div class="auth-message" id="signupMsg"></div>
+      <form onsubmit="doSignup(event)">
+        <div class="field">
+          <label>Email</label>
+          <input type="email" id="signupEmail" placeholder="you@example.com" required autocomplete="email" />
         </div>
         <div class="field">
           <label>Password</label>
-          <input type="password" id="password" placeholder="••••••••" autocomplete="current-password"
-            onkeydown="if(event.key==='Enter') handleLogin()" />
+          <input type="password" id="signupPassword" placeholder="Min. 8 characters" required autocomplete="new-password" minlength="8" />
         </div>
-
-        <button class="btn-submit" id="loginBtn" onclick="handleLogin()">
-          <span class="btn-spinner"></span>
-          <span class="btn-label">Continue</span>
-        </button>
-
-        <div class="error-msg" id="loginError"></div>
-
-        <!-- Shown if EmailJS is not configured -->
-        <div class="setup-note" id="emailjsNote">
-          <strong>EmailJS not configured.</strong> To enable OTP delivery, sign up at
-          <a href="https://www.emailjs.com" target="_blank">emailjs.com</a> (free), create a Gmail service
-          and an email template with variable <code>{{otp_code}}</code>, then replace the three
-          <code>YOUR_EMAILJS_*</code> placeholders at the bottom of this file with your actual IDs.
-        </div>
-      </div>
-
-      <!-- STEP 2: OTP -->
-      <div class="step" id="step2">
-        <div class="step-title">Check your email</div>
-        <div class="step-desc" id="otpDesc">Enter the 6-digit code sent to your email. It expires in <span class="timer"
-            id="timer">10:00</span>.</div>
-
         <div class="field">
-          <label>One-time code</label>
-          <input type="text" id="otp" class="otp-input" maxlength="6" placeholder="000000" inputmode="numeric"
-            pattern="[0-9]*" onkeydown="if(event.key==='Enter') handleOTP()" />
+          <label>Confirm password</label>
+          <input type="password" id="signupConfirm" placeholder="Repeat password" required autocomplete="new-password" />
         </div>
-
-        <button class="btn-submit" id="otpBtn" onclick="handleOTP()">
-          <span class="btn-spinner"></span>
-          <span class="btn-label">Verify and open Admin</span>
-        </button>
-
-        <div class="error-msg" id="otpError"></div>
-
-        <div class="otp-meta">
-          Didn't get it? <a onclick="resendOTP()">Resend code</a> &nbsp;·&nbsp;
-          <a onclick="backToStep1()">Back</a>
-        </div>
-      </div>
-
+        <button type="submit" class="btn-primary" id="signupBtn">Create my portfolio</button>
+      </form>
     </div>
 
-    <div class="login-footer">
-      <a href="index.html">← Back to portfolio</a>
+    <!-- ── Forgot password ── -->
+    <div class="auth-view" id="viewForgot">
+      <div class="auth-message" id="forgotMsg"></div>
+      <form onsubmit="doResetPassword(event)">
+        <div class="field">
+          <label>Your email address</label>
+          <input type="email" id="forgotEmail" placeholder="you@example.com" required autocomplete="email" />
+        </div>
+        <button type="submit" class="btn-primary" id="forgotBtn">Send reset link</button>
+      </form>
+      <div class="divider">
+        <button class="link-btn" onclick="switchView('signin')">Back to sign in</button>
+      </div>
+    </div>
+
+    <!-- ── Verify email ── -->
+    <div class="auth-view" id="viewVerify">
+      <div class="verify-card">
+        <div class="verify-icon">📬</div>
+        <div class="verify-title">Check your inbox</div>
+        <div class="verify-desc" id="verifyDesc">
+          We sent a verification link to your email address. Click it to activate your account, then sign in below.
+        </div>
+        <button class="btn-primary" onclick="switchAuthTab('signin')">Sign in</button>
+        <button class="btn-sec" id="resendBtn" onclick="doResend()">Resend verification email</button>
+      </div>
     </div>
 
   </div>
+</div>
 
-  <script>
-    /* ═══════════════════════════════════════════════
-       CONFIGURATION — fill these in after setting up
-       your EmailJS account at emailjs.com
-    ═══════════════════════════════════════════════ */
-    const EMAILJS_PUBLIC_KEY = '9pRMeqcwMzHUkNN85';
-    const EMAILJS_SERVICE_ID = 'service_k6en379';
-    const EMAILJS_TEMPLATE_ID = 'template_5bpwi5o';
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="firebase-config.js"></script>
 
-    /* ═══════════════════════════════════════════════
-       AUTH CONSTANTS — do not change
-    ═══════════════════════════════════════════════ */
-    // Authorised email
-    const ADMIN_EMAIL = 'pandeyanubhav229@gmail.com';
+<script>
+  /* ═══════════════════════════════════════
+     AUTH PAGE LOGIC
+  ═══════════════════════════════════════ */
 
-    // Password check uses base64 encoding (crypto.subtle is unreliable on file:// URLs)
-    // Note: on a static site the source is always readable — this provides
-    // reasonable protection against casual access, not determined attackers.
-    const PASSWORD_B64 = 'UmVMVjE5NDI=';
+  var lastSignupUser = null; // hold ref for resend
 
-    const SESSION_KEY = 'portfolio_admin_session';
-    const OTP_KEY = 'portfolio_admin_otp';
-    const OTP_TTL = 10 * 60 * 1000; // 10 minutes
-    const SESSION_TTL = 8 * 60 * 60 * 1000; // 8 hours
-
-    let timerInterval = null;
-
-    /* ── Init ── */
-    window.addEventListener('DOMContentLoaded', () => {
-      // Already authenticated? Go straight to admin
-      const session = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
-      if (session && session.expires > Date.now()) {
-        window.location.href = 'admin.html';
-        return;
-      }
-
-      const emailjsReady = EMAILJS_PUBLIC_KEY !== 'YOUR_EMAILJS_PUBLIC_KEY';
-      if (emailjsReady) {
-        emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
-      } else {
-        document.getElementById('emailjsNote').style.display = 'block';
-      }
-    });
-
-    /* ══════════════════════════════════════════════
-       STEP 1: Email + Password
-    ══════════════════════════════════════════════ */
-    function handleLogin() {
-      const email = document.getElementById('email').value.trim().toLowerCase();
-      const password = document.getElementById('password').value;
-      const errEl = document.getElementById('loginError');
-      const btn = document.getElementById('loginBtn');
-
-      clearError(errEl);
-
-      if (!email || !password) {
-        return showError(errEl, 'Please enter your email and password.');
-      }
-
-      if (email !== ADMIN_EMAIL) {
-        return showError(errEl, 'Access denied.');
-      }
-
-      // Compare using base64 — avoids crypto.subtle which can fail on file:// URLs
-      if (password !== atob(PASSWORD_B64)) {
-        return showError(errEl, 'Incorrect password.');
-      }
-
-      // Credentials correct — generate and send OTP
-      setLoading(btn, true);
-
-      const otp = String(Math.floor(100000 + Math.random() * 900000));
-      localStorage.setItem(OTP_KEY, JSON.stringify({ code: otp, expires: Date.now() + OTP_TTL }));
-
-      const emailjsReady = EMAILJS_PUBLIC_KEY !== 'YOUR_EMAILJS_PUBLIC_KEY';
-
-      function proceedToStep2() {
-        setLoading(btn, false);
-        showStep2();
-        document.getElementById('otpDesc').innerHTML =
-          'Your code: <strong style="font-family:monospace;letter-spacing:0.1em;font-size:1.1em">' + otp + '</strong>. (Also sent to your email if configured.) Expires in <span class="timer" id="timer">10:00</span>.';
-      }
-
-      if (emailjsReady) {
-        emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-          to_email: ADMIN_EMAIL,
-          otp_code: otp,
-        }).then(function() {
-          proceedToStep2();
-        }).catch(function(err) {
-          console.error('EmailJS error:', err);
-          // Still proceed — OTP is shown on screen as fallback
-          proceedToStep2();
-        });
-      } else {
-        proceedToStep2();
-      }
+  /* Redirect if already signed in + email verified */
+  firebase.auth().onAuthStateChanged(function (user) {
+    if (user && user.emailVerified) {
+      window.location.href = (user.email === 'pandeyanubhav229@gmail.com')
+        ? 'admin.html'
+        : 'dashboard.html';
     }
+  });
 
-    /* ══════════════════════════════════════════════
-       STEP 2: OTP
-    ══════════════════════════════════════════════ */
-    function showStep2() {
-      document.getElementById('step1').classList.remove('active');
-      document.getElementById('step2').classList.add('active');
-      document.getElementById('otp').focus();
-      startTimer();
+  /* ── Check URL params ── */
+  (function () {
+    var params = new URLSearchParams(window.location.search);
+    if (params.get('verify') === '1') {
+      setVerifyView('Please verify your email before signing in.');
     }
-
-    function backToStep1() {
-      document.getElementById('step2').classList.remove('active');
-      document.getElementById('step1').classList.add('active');
-      clearInterval(timerInterval);
-      clearError(document.getElementById('otpError'));
-      document.getElementById('otp').value = '';
+    if (params.get('mode') === 'signup') {
+      switchAuthTab('signup');
     }
+  })();
 
-    function handleOTP() {
-      const entered = document.getElementById('otp').value.trim();
-      const errEl = document.getElementById('otpError');
-      const btn = document.getElementById('otpBtn');
+  /* ── Tab switching ── */
+  function switchAuthTab(tab) {
+    document.getElementById('tabSignin').classList.toggle('active', tab === 'signin');
+    document.getElementById('tabSignup').classList.toggle('active', tab === 'signup');
+    switchView(tab === 'signin' ? 'signin' : 'signup');
+    document.getElementById('cardTitle').textContent    = tab === 'signin' ? 'Welcome back' : 'Create your portfolio';
+    document.getElementById('cardSubtitle').textContent = tab === 'signin'
+      ? 'Sign in to your portfolio admin panel'
+      : 'Free to start — your portfolio, your domain';
+  }
 
-      clearError(errEl);
+  /* ── View switching (signin / signup / forgot / verify) ── */
+  function switchView(viewId) {
+    document.querySelectorAll('.auth-view').forEach(function (v) { v.classList.remove('active'); });
+    document.getElementById('view' + viewId.charAt(0).toUpperCase() + viewId.slice(1)).classList.add('active');
+    // Show/hide tabs
+    var hideTabs = (viewId === 'forgot' || viewId === 'verify');
+    document.getElementById('authTabs').style.display = hideTabs ? 'none' : '';
+  }
 
-      const stored = JSON.parse(localStorage.getItem(OTP_KEY) || 'null');
+  function setVerifyView(desc) {
+    if (desc) document.getElementById('verifyDesc').textContent = desc;
+    document.getElementById('cardTitle').textContent    = 'Almost there';
+    document.getElementById('cardSubtitle').textContent = 'One last step';
+    switchView('verify');
+  }
 
-      if (!stored || Date.now() > stored.expires) {
-        return showError(errEl, 'This code has expired. Please start over.', true);
-      }
+  /* ── Helpers ── */
+  function setMsg(id, msg, type) {
+    var el = document.getElementById(id);
+    el.textContent    = msg;
+    el.className      = 'auth-message ' + (type || 'error');
+  }
 
-      if (entered !== stored.code) {
-        return showError(errEl, 'Incorrect code. Check your email and try again.');
-      }
+  function clearMsg(id) {
+    var el = document.getElementById(id);
+    el.className  = 'auth-message';
+    el.textContent = '';
+  }
 
-      // Success
-      clearInterval(timerInterval);
-      localStorage.removeItem(OTP_KEY);
-      localStorage.setItem(SESSION_KEY, JSON.stringify({
-        token: generateToken(),
-        expires: Date.now() + SESSION_TTL
-      }));
+  function setLoading(btnId, loading) {
+    document.getElementById(btnId).disabled = loading;
+    document.getElementById(btnId).textContent = loading ? 'Please wait…' : {
+      signinBtn: 'Sign in',
+      signupBtn: 'Create my portfolio',
+      forgotBtn: 'Send reset link'
+    }[btnId];
+  }
 
-      setLoading(btn, true);
-      setTimeout(() => { window.location.href = 'admin.html'; }, 300);
-    }
+  function friendlyError(code) {
+    var map = {
+      'auth/user-not-found':      'No account found with that email.',
+      'auth/wrong-password':      'Incorrect password. Try again or reset it.',
+      'auth/invalid-credential':  'Incorrect email or password.',
+      'auth/email-already-in-use':'An account already exists with that email.',
+      'auth/weak-password':       'Password must be at least 8 characters.',
+      'auth/invalid-email':       'Please enter a valid email address.',
+      'auth/too-many-requests':   'Too many attempts. Please wait a moment and try again.',
+      'auth/network-request-failed':   'Network error — check your connection and try again.',
+      'auth/operation-not-allowed':    'Sign-up is not enabled yet. Please contact the site owner.',
+      'auth/popup-blocked':            'Popup was blocked by your browser. Allow popups and try again.',
+      'auth/requires-recent-login':    'Session expired. Please sign in again.'
+    };
+    return map[code] || ('Something went wrong (' + (code || 'unknown') + '). Please try again.');
+  }
 
-    async function resendOTP() {
-      backToStep1();
-      // Re-enter password to resend
-      document.getElementById('password').focus();
-    }
+  /* ── Sign in ── */
+  function doSignin(e) {
+    e.preventDefault();
+    clearMsg('signinMsg');
+    var email    = document.getElementById('signinEmail').value.trim();
+    var password = document.getElementById('signinPassword').value;
 
-    /* ── Timer ── */
-    function startTimer() {
-      const stored = JSON.parse(localStorage.getItem(OTP_KEY) || 'null');
-      if (!stored) return;
-
-      function tick() {
-        const remaining = Math.max(0, stored.expires - Date.now());
-        const mm = String(Math.floor(remaining / 60000)).padStart(2, '0');
-        const ss = String(Math.floor((remaining % 60000) / 1000)).padStart(2, '0');
-        const timerEl = document.getElementById('timer');
-        if (timerEl) timerEl.textContent = `${mm}:${ss}`;
-        if (remaining === 0) {
-          clearInterval(timerInterval);
-          showError(document.getElementById('otpError'), 'Code expired. Go back and request a new one.');
+    setLoading('signinBtn', true);
+    firebase.auth().signInWithEmailAndPassword(email, password)
+      .then(function (cred) {
+        if (!cred.user.emailVerified) {
+          lastSignupUser = cred.user;
+          firebase.auth().signOut();
+          setVerifyView('Please verify your email before signing in. Check your inbox or resend the link below.');
+          return;
         }
-      }
-      tick();
-      timerInterval = setInterval(tick, 1000);
+        window.location.href = (cred.user.email === 'pandeyanubhav229@gmail.com')
+          ? 'admin.html'
+          : 'dashboard.html';
+      })
+      .catch(function (err) {
+        setMsg('signinMsg', friendlyError(err.code));
+        setLoading('signinBtn', false);
+      });
+  }
+
+  /* ── Sign up ── */
+  function doSignup(e) {
+    e.preventDefault();
+    clearMsg('signupMsg');
+    var email    = document.getElementById('signupEmail').value.trim();
+    var password = document.getElementById('signupPassword').value;
+    var confirm  = document.getElementById('signupConfirm').value;
+
+    if (password !== confirm) {
+      setMsg('signupMsg', 'Passwords do not match.');
+      return;
+    }
+    if (password.length < 8) {
+      setMsg('signupMsg', 'Password must be at least 8 characters.');
+      return;
     }
 
-    /* ══════════════════════════════════════════════
-       HELPERS
-    ══════════════════════════════════════════════ */
-    function generateToken() {
-      return Array.from(crypto.getRandomValues(new Uint8Array(24)))
-        .map(b => b.toString(16).padStart(2, '0')).join('');
-    }
+    setLoading('signupBtn', true);
+    firebase.auth().createUserWithEmailAndPassword(email, password)
+      .then(function (cred) {
+        lastSignupUser = cred.user;
+        return cred.user.sendEmailVerification();
+      })
+      .then(function () {
+        firebase.auth().signOut();
+        setVerifyView('We sent a verification link to ' + email + '. Click it to activate your account, then sign in.');
+      })
+      .catch(function (err) {
+        setMsg('signupMsg', friendlyError(err.code));
+        setLoading('signupBtn', false);
+      });
+  }
 
-    function showError(el, msg, goBack) {
-      el.textContent = msg;
-      el.classList.add('visible');
-      if (goBack) setTimeout(backToStep1, 2500);
-    }
+  /* ── Forgot password ── */
+  function doResetPassword(e) {
+    e.preventDefault();
+    clearMsg('forgotMsg');
+    var email = document.getElementById('forgotEmail').value.trim();
+    setLoading('forgotBtn', true);
+    firebase.auth().sendPasswordResetEmail(email)
+      .then(function () {
+        setMsg('forgotMsg', 'Reset link sent — check your inbox.', 'success');
+        setLoading('forgotBtn', false);
+      })
+      .catch(function (err) {
+        setMsg('forgotMsg', friendlyError(err.code));
+        setLoading('forgotBtn', false);
+      });
+  }
 
-    function clearError(el) {
-      el.textContent = '';
-      el.classList.remove('visible');
+  /* ── Resend verification ── */
+  function doResend() {
+    if (!lastSignupUser) {
+      document.getElementById('verifyDesc').textContent = 'Please sign in first, then we can resend the verification email.';
+      return;
     }
-
-    function setLoading(btn, loading) {
-      btn.disabled = loading;
-      btn.classList.toggle('loading', loading);
-    }
-  </script>
-
+    document.getElementById('resendBtn').disabled = true;
+    lastSignupUser.sendEmailVerification()
+      .then(function () {
+        document.getElementById('verifyDesc').textContent = 'Verification email sent again — check your inbox.';
+        setTimeout(function () { document.getElementById('resendBtn').disabled = false; }, 30000);
+      })
+      .catch(function () {
+        document.getElementById('verifyDesc').textContent = 'Could not resend — please try signing up again.';
+      });
+  }
+</script>
 </body>
-
 </html>

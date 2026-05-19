@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Help &amp; Setup Guide — Folio</title>
+  <meta name="description" content="How to set up your portfolio, connect a custom domain, and configure your site." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:         #F5F4F0;
+      --dark:       #141413;
+      --card:       #FFFFFF;
+      --text:       #111110;
+      --text-sec:   #6A6A66;
+      --text-muted: #9A9A96;
+      --accent:     #1C3D2B;
+      --accent-mid: #2D6A4F;
+      --accent-soft:#52B788;
+      --border:     #E0DDD7;
+      --danger:     #C0392B;
+      --success:    #27AE60;
+      --radius:     8px;
+      --ease:       0.18s ease;
+      --font-serif: 'Lora', Georgia, serif;
+      --font-sans:  'Inter', -apple-system, sans-serif;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      font-size: 15px;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.7;
+    }
+
+    a { color: var(--accent-mid); text-decoration: underline; text-underline-offset: 2px; }
+    a:hover { color: var(--accent); }
+
+    /* Topbar */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(245,244,240,0.9);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      height: 52px;
+      display: flex;
+      align-items: center;
+    }
+    .topbar__inner {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .topbar__logo {
+      font-family: var(--font-serif);
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+      text-decoration: none;
+    }
+    .topbar__logo span { color: var(--accent-mid); }
+    .topbar__back {
+      font-size: 0.8rem;
+      color: var(--text-sec);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: color var(--ease);
+    }
+    .topbar__back:hover { color: var(--text); }
+
+    /* Layout */
+    .layout {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 3rem 2rem 5rem;
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+
+    /* Sidebar nav */
+    .sidebar {
+      position: sticky;
+      top: 72px;
+    }
+    .sidebar__title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+    }
+    .sidebar__links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+    }
+    .sidebar__links a {
+      display: block;
+      font-size: 0.82rem;
+      color: var(--text-sec);
+      text-decoration: none;
+      padding: 0.3rem 0.6rem;
+      border-radius: 4px;
+      transition: background var(--ease), color var(--ease);
+    }
+    .sidebar__links a:hover {
+      background: rgba(0,0,0,0.04);
+      color: var(--text);
+    }
+    .sidebar__links a.active {
+      background: rgba(44,106,79,0.08);
+      color: var(--accent-mid);
+      font-weight: 500;
+    }
+
+    /* Content */
+    .content { min-width: 0; }
+
+    .page-title {
+      font-family: var(--font-serif);
+      font-size: 2rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+    }
+    .page-subtitle {
+      font-size: 1rem;
+      color: var(--text-sec);
+      margin-bottom: 3rem;
+    }
+
+    /* Sections */
+    .section {
+      margin-bottom: 3.5rem;
+      scroll-margin-top: 80px;
+    }
+    .section__title {
+      font-family: var(--font-serif);
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.6rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .section p {
+      color: var(--text-sec);
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+    .section p:last-child { margin-bottom: 0; }
+
+    /* Steps */
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin: 1.25rem 0;
+    }
+    .step {
+      display: flex;
+      gap: 1rem;
+      padding: 1.1rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .step:last-child { border-bottom: none; }
+    .step__num {
+      width: 24px;
+      height: 24px;
+      min-width: 24px;
+      border-radius: 50%;
+      background: var(--dark);
+      color: #fff;
+      font-size: 0.68rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 2px;
+    }
+    .step__title {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.3rem;
+    }
+    .step__desc {
+      font-size: 0.83rem;
+      color: var(--text-sec);
+      line-height: 1.65;
+    }
+
+    /* Code blocks */
+    .code-block {
+      background: #1E1E1E;
+      border-radius: var(--radius);
+      padding: 1.1rem 1.25rem;
+      margin: 1rem 0;
+      overflow-x: auto;
+    }
+    .code-block code {
+      font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+      font-size: 0.8rem;
+      color: #D4D4D4;
+      line-height: 1.7;
+      white-space: pre;
+    }
+    .code-block code .kw  { color: #569CD6; }
+    .code-block code .str { color: #CE9178; }
+    .code-block code .cmt { color: #6A9955; }
+    .code-block code .num { color: #B5CEA8; }
+
+    /* Callouts */
+    .callout {
+      border-radius: var(--radius);
+      padding: 0.9rem 1rem;
+      font-size: 0.83rem;
+      line-height: 1.6;
+      margin: 1rem 0;
+      display: flex;
+      gap: 0.6rem;
+    }
+    .callout-info  { background: rgba(44,106,79,0.07); border: 1px solid rgba(44,106,79,0.2); color: var(--accent); }
+    .callout-warn  { background: #FFFBEB; border: 1px solid #F59E0B; color: #92400E; }
+    .callout-danger { background: #FEF2F2; border: 1px solid #FECACA; color: var(--danger); }
+    .callout-icon  { flex-shrink: 0; margin-top: 1px; }
+
+    /* DNS table */
+    .dns-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.83rem;
+    }
+    .dns-table th {
+      text-align: left;
+      font-weight: 600;
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 0.5rem 0.75rem;
+      border-bottom: 2px solid var(--border);
+      background: #F9F8F5;
+    }
+    .dns-table td {
+      padding: 0.6rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-sec);
+    }
+    .dns-table td:first-child { font-weight: 500; color: var(--text); }
+    .dns-table code {
+      font-family: 'SF Mono', monospace;
+      font-size: 0.78rem;
+      background: #F0EFE9;
+      padding: 0.1rem 0.35rem;
+      border-radius: 3px;
+      color: var(--accent-mid);
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.7rem;
+      font-weight: 500;
+      padding: 0.15rem 0.5rem;
+      border-radius: 100px;
+    }
+    .badge-green { background: rgba(39,174,96,0.1); color: var(--success); }
+    .badge-pending { background: rgba(245,158,11,0.1); color: #D97706; }
+    .badge-manual { background: rgba(0,0,0,0.06); color: var(--text-sec); }
+
+    /* Architecture diagram (text-based) */
+    .arch-flow {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      margin: 1rem 0;
+      font-size: 0.8rem;
+      color: var(--text-sec);
+      line-height: 1.9;
+    }
+    .arch-flow strong { color: var(--text); }
+    .arch-arrow { color: var(--text-muted); margin: 0 0.3rem; }
+
+    @media (max-width: 640px) {
+      .layout { grid-template-columns: 1fr; gap: 1.5rem; }
+      .sidebar { position: static; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="topbar">
+    <div class="topbar__inner">
+      <a href="platform.html" class="topbar__logo">folio<span>.</span></a>
+      <a href="platform.html" class="topbar__back">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 3L5 7l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Back to platform
+      </a>
+    </div>
+  </header>
+
+  <div class="layout">
+
+    <!-- Sidebar -->
+    <nav class="sidebar">
+      <p class="sidebar__title">On this page</p>
+      <ul class="sidebar__links">
+        <li><a href="#how-it-works">How it works</a></li>
+        <li><a href="#new-user-flow">New user flow</a></li>
+        <li><a href="#custom-domain">Connecting a domain</a></li>
+        <li><a href="#firebase-console">Firebase Console steps</a></li>
+        <li><a href="#security-rules">Firestore security rules</a></li>
+        <li><a href="#storage-rules">Storage security rules</a></li>
+        <li><a href="#troubleshooting">Troubleshooting</a></li>
+      </ul>
+    </nav>
+
+    <!-- Main content -->
+    <main class="content">
+      <h1 class="page-title">Help &amp; Setup Guide</h1>
+      <p class="page-subtitle">How the platform works, how to connect a domain, and how to lock it down properly.</p>
+
+      <!-- How it works -->
+      <section class="section" id="how-it-works">
+        <h2 class="section__title">How it works</h2>
+        <p>Every portfolio on this platform is powered by the same set of HTML template files, hosted on Firebase Hosting. The content -- your name, bio, work, case studies -- lives in Firestore, not in the HTML. When a visitor loads any page, the JavaScript reads the hostname from the browser URL, looks that up in a Firestore <code>domains</code> collection to find your user ID, then fetches your specific content and renders it.</p>
+        <p>This means the template files are shared across all users. You do not get a separate codebase or repo. What you get is your own isolated content document in Firestore and a custom domain that routes to it.</p>
+
+        <div class="arch-flow">
+          <strong>Visitor arrives at yourname.com</strong>
+          <span class="arch-arrow">→</span> Firebase Hosting serves the HTML template
+          <br />
+          <strong>Template JS runs</strong>
+          <span class="arch-arrow">→</span> reads <code>window.location.hostname</code> = "yourname.com"
+          <br />
+          <strong>Firestore lookup</strong>
+          <span class="arch-arrow">→</span> <code>domains/yourname.com</code> → finds your <code>uid</code>
+          <br />
+          <strong>Content fetch</strong>
+          <span class="arch-arrow">→</span> <code>users/{uid}/portfolio/content</code> → your data
+          <br />
+          <strong>Page renders</strong> with your content
+        </div>
+
+        <p>Your admin panel at <code>/admin.html</code> uses Firebase Auth to verify your identity, then reads and writes only your content document. No user can read or write another user's content -- this is enforced by Firestore security rules on the server side.</p>
+      </section>
+
+      <!-- New user flow -->
+      <section class="section" id="new-user-flow">
+        <h2 class="section__title">New user flow</h2>
+        <p>Here is the full sequence from signing up to having a live portfolio at your own domain.</p>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step__num">1</div>
+            <div>
+              <p class="step__title">Create an account</p>
+              <p class="step__desc">Go to <a href="platform.html">the platform page</a> and click "Create your portfolio". Sign up with your email. You will receive a verification email -- click the link in it before trying to log in. Unverified accounts cannot access the admin panel.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step__num">2</div>
+            <div>
+              <p class="step__title">Fill in your content</p>
+              <p class="step__desc">After signing in you are taken to the admin panel. Work through each section: Home (hero, projects, experience), About (bio, sidebar), and Profile &amp; Links (your name, tagline, contact details). Everything saves automatically as you type -- there is no publish or save button to click.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step__num">3</div>
+            <div>
+              <p class="step__title">Buy a domain</p>
+              <p class="step__desc">Purchase a domain from any registrar -- GoDaddy, Namecheap, Cloudflare, Porkbun, wherever you prefer. The registrar does not matter; you just need the ability to edit the domain's DNS records. A <code>.com</code>, <code>.in</code>, <code>.io</code>, <code>.co</code> -- any extension works.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step__num">4</div>
+            <div>
+              <p class="step__title">Connect the domain in Firebase Console</p>
+              <p class="step__desc">Go to the <a href="https://console.firebase.google.com/project/portfolio2anubhavp/hosting" target="_blank" rel="noopener">Firebase Hosting Console</a>, click "Add custom domain", and type your domain. Firebase will give you DNS records to add. Add them in your registrar's DNS settings. Firebase will verify ownership and issue an SSL certificate automatically. This step is covered in detail below.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step__num">5</div>
+            <div>
+              <p class="step__title">Register the domain in your admin panel</p>
+              <p class="step__desc">In your admin panel, go to Settings → Domain &amp; Analytics. Type your domain (e.g. <code>yourname.com</code>) and click "Register domain". This creates the Firestore mapping so visitors arriving at your domain get your content, not someone else's.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step__num">6</div>
+            <div>
+              <p class="step__title">Your site is live</p>
+              <p class="step__desc">Once DNS has propagated (usually within an hour, sometimes a few hours), yourname.com will show your portfolio. Any future edits in the admin panel go live immediately -- no re-deploy needed.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Custom domain walkthrough -->
+      <section class="section" id="custom-domain">
+        <h2 class="section__title">Connecting a custom domain</h2>
+        <p>The domain connection requires two things to happen: Firebase must verify you own the domain, and your DNS must point the domain to Firebase's servers. Firebase walks you through this in the Console with specific records to add.</p>
+
+        <p>The records Firebase will give you look like this (exact IPs will be shown in the Console):</p>
+
+        <table class="dns-table">
+          <thead>
+            <tr><th>Type</th><th>Name / Host</th><th>Value</th><th>Purpose</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>A</td><td><code>@</code></td><td><code>199.36.158.100</code></td><td>Points root domain to Firebase</td></tr>
+            <tr><td>TXT</td><td><code>@</code></td><td><code>hosting-site=portfolio2anubhavp</code></td><td>Proves you own the domain</td></tr>
+            <tr><td>CNAME</td><td><code>www</code></td><td><code>yourname.com</code></td><td>www subdomain (optional)</td></tr>
+          </tbody>
+        </table>
+
+        <div class="callout callout-warn">
+          <span class="callout-icon">⚠</span>
+          <span>If your domain previously pointed to GitHub Pages, you will have old A records (185.199.x.x) that need to be deleted first. Firebase's ACME challenge will fail as long as those old records exist, because the domain is still answering from GitHub's servers.</span>
+        </div>
+
+        <p>After adding the records, return to the Firebase Console dialog and click Verify. The TXT record verifies almost instantly. The A record may show a clock icon (pending) for 10-60 minutes while DNS propagates globally -- this is normal. Once both show green checkmarks, Firebase issues the SSL certificate and your domain is live over HTTPS.</p>
+
+        <div class="callout callout-info">
+          <span class="callout-icon">ℹ</span>
+          <span>DNS propagation time depends on the TTL set on your old records. Records with a 1-hour TTL can take up to an hour to fully replace globally. Records with 600-second (10 minute) TTLs switch faster. You can check current DNS state at <a href="https://dnschecker.org" target="_blank" rel="noopener">dnschecker.org</a>.</span>
+        </div>
+      </section>
+
+      <!-- Firebase Console steps -->
+      <section class="section" id="firebase-console">
+        <h2 class="section__title">Firebase Console steps</h2>
+        <p>These are the one-time Console actions required to fully set up the platform. They cannot be done from code -- they must be done manually in the Firebase web interface.</p>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step__num">1</div>
+            <div>
+              <p class="step__title">Enable Email/Password authentication <span class="badge badge-manual">one-time</span></p>
+              <p class="step__desc">Go to <strong>Authentication → Sign-in method</strong>. Enable "Email/Password". Also enable "Email link (passwordless sign-in)" if you want to add that later. Without this enabled, no one can create an account.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step__num">2</div>
+            <div>
+              <p class="step__title">Apply Firestore security rules <span class="badge badge-manual">one-time</span></p>
+              <p class="step__desc">Go to <strong>Firestore Database → Rules</strong>. Replace the default rules with the ones in the section below. Click Publish. Without this, any authenticated user can read or write any other user's content.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step__num">3</div>
+            <div>
+              <p class="step__title">Apply Storage security rules <span class="badge badge-manual">one-time</span></p>
+              <p class="step__desc">Go to <strong>Storage → Rules</strong>. Replace the default rules with the Storage rules in the section below. Without this, uploaded images are either fully public or fully locked -- neither is correct.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step__num">4</div>
+            <div>
+              <p class="step__title">Add custom domains for each user <span class="badge badge-pending">per user</span></p>
+              <p class="step__desc">Each time a user wants to connect their domain, go to <strong>Hosting → Add custom domain</strong> and type their domain. Firebase will generate DNS records for them to add. You can delegate this step to users if you give them access to the Firebase project, or handle it yourself for each new user.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-warn">
+          <span class="callout-icon">⚠</span>
+          <span>Step 4 (adding custom domains for each user) is currently a manual process requiring Console access. Each user's domain must be individually added in Firebase Hosting before their DNS changes will work. This is a Firebase platform limitation -- there is no API to add hosting domains from client-side code.</span>
+        </div>
+      </section>
+
+      <!-- Firestore security rules -->
+      <section class="section" id="security-rules">
+        <h2 class="section__title">Firestore security rules</h2>
+        <p>Paste the following into <strong>Firestore Database → Rules</strong> and click Publish. These rules enforce that each user can only read and write their own content, while allowing public read access to the domain mapping and legacy content path that portfolio pages need to load.</p>
+
+        <div class="code-block"><code><span class="kw">rules_version</span> = <span class="str">'2'</span>;
+<span class="kw">service</span> cloud.firestore {
+  <span class="kw">match</span> /databases/{database}/documents {
+
+    <span class="cmt">// Each user's portfolio — only they can read or write it</span>
+    <span class="kw">match</span> /users/{uid}/portfolio/content {
+      <span class="kw">allow</span> read, write: <span class="kw">if</span> request.auth != null
+                          &amp;&amp; request.auth.uid == uid;
+    }
+
+    <span class="cmt">// Domain-to-uid mapping — public read (needed to load any portfolio),</span>
+    <span class="cmt">// only the domain owner can write it</span>
+    <span class="kw">match</span> /domains/{domain} {
+      <span class="kw">allow</span> read: <span class="kw">if</span> true;
+      <span class="kw">allow</span> write: <span class="kw">if</span> request.auth != null
+                   &amp;&amp; request.auth.uid == resource.data.uid;
+      <span class="kw">allow</span> create: <span class="kw">if</span> request.auth != null
+                    &amp;&amp; request.auth.uid == request.resource.data.uid;
+    }
+
+    <span class="cmt">// Legacy shared path — public read for backward compat,</span>
+    <span class="cmt">// authenticated write only (tighten once migration is complete)</span>
+    <span class="kw">match</span> /portfolio/content {
+      <span class="kw">allow</span> read: <span class="kw">if</span> true;
+      <span class="kw">allow</span> write: <span class="kw">if</span> request.auth != null;
+    }
+  }
+}</code></div>
+
+        <p>Once multiple users are fully migrated to domain-based routing and no public pages fall back to the legacy <code>portfolio/content</code> path, the last rule can be changed to <code>allow write: if false</code> to fully lock it down.</p>
+      </section>
+
+      <!-- Storage security rules -->
+      <section class="section" id="storage-rules">
+        <h2 class="section__title">Firebase Storage security rules</h2>
+        <p>Paste the following into <strong>Storage → Rules</strong> and click Publish. These rules allow each user to upload to their own image folder and allow anyone to read images (since portfolio images must be publicly accessible). Maximum file size is enforced at 10 MB.</p>
+
+        <div class="code-block"><code><span class="kw">rules_version</span> = <span class="str">'2'</span>;
+<span class="kw">service</span> firebase.storage {
+  <span class="kw">match</span> /b/{bucket}/o {
+
+    <span class="cmt">// User image uploads — public read, write only by the owner</span>
+    <span class="kw">match</span> /users/{uid}/images/{allPaths=**} {
+      <span class="kw">allow</span> read: <span class="kw">if</span> true;
+      <span class="kw">allow</span> write: <span class="kw">if</span> request.auth != null
+                   &amp;&amp; request.auth.uid == uid
+                   &amp;&amp; request.resource.size &lt; <span class="num">10</span> * <span class="num">1024</span> * <span class="num">1024</span>
+                   &amp;&amp; request.resource.contentType.matches(<span class="str">'image/.*'</span>);
+      <span class="kw">allow</span> delete: <span class="kw">if</span> request.auth != null
+                    &amp;&amp; request.auth.uid == uid;
+    }
+
+    <span class="cmt">// Everything else is denied by default</span>
+  }
+}</code></div>
+
+        <div class="callout callout-info">
+          <span class="callout-icon">ℹ</span>
+          <span>The <code>request.resource.contentType.matches('image/.*')</code> check prevents users from uploading non-image files (PDFs, scripts, etc.) disguised as images. The 10 MB cap avoids Storage quota abuse.</span>
+        </div>
+      </section>
+
+      <!-- Troubleshooting -->
+      <section class="section" id="troubleshooting">
+        <h2 class="section__title">Troubleshooting</h2>
+
+        <p><strong>Domain verification keeps failing with ACME 404 errors.</strong> The old A records from your previous host (e.g. GitHub Pages) are still active in your DNS. Go back to your registrar, delete any A records you did not add yourself, then click Verify again. Use <a href="https://dnschecker.org" target="_blank" rel="noopener">dnschecker.org</a> to confirm the A record is resolving to Firebase's IP before retrying.</p>
+
+        <p><strong>Portfolio shows blank content after domain connection.</strong> The domain was not registered in the admin panel. Go to Settings → Domain &amp; Analytics, type your exact domain (no https://, no trailing slash), and click Register domain. The Firestore mapping must exist before the public page can find your content.</p>
+
+        <p><strong>Uploaded image shows a broken link.</strong> Firebase Storage rules may not have been applied yet. Go to Storage → Rules in the Firebase Console and paste the Storage rules above. Also confirm the file type is an image (jpg, png, webp) and is under 10 MB.</p>
+
+        <p><strong>Admin panel redirects to login even though I am signed in.</strong> Email verification is required. Check your inbox for the verification email sent at signup and click the link. If it expired, go to the login page and click "Resend verification email".</p>
+
+        <p><strong>Content edited in admin panel is not showing on the public site.</strong> The public pages load content from Firestore on every page load -- there is no cache to clear. If changes are not appearing, open browser DevTools (F12) and check the Console for Firestore errors. The most common cause is security rules not yet applied, or the domain not registered in Firestore.</p>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+    // Highlight active sidebar link on scroll
+    const sections = document.querySelectorAll('.section[id]');
+    const links    = document.querySelectorAll('.sidebar__links a');
+
+    function updateActive() {
+      let current = '';
+      sections.forEach(s => {
+        if (window.scrollY >= s.offsetTop - 100) current = s.id;
+      });
+      links.forEach(a => {
+        a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+      });
+    }
+
+    window.addEventListener('scroll', updateActive, { passive: true });
+    updateActive();
+  </script>
+
+</body>
+</html>

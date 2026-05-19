@@ -1,0 +1,97 @@
+{
+  "firestore": {
+    "rules": "firestore.rules"
+  },
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      ".git",
+      ".gitignore",
+      "firebase.json",
+      ".firebaserc",
+      "node_modules",
+      "seo-analytics-strategy.md",
+      "firestore.rules"
+    ],
+    "headers": [
+      {
+        "source": "/admin.html",
+        "headers": [
+          { "key": "X-Frame-Options", "value": "DENY" },
+          { "key": "X-Content-Type-Options", "value": "nosniff" },
+          { "key": "Cache-Control", "value": "no-store" }
+        ]
+      },
+      {
+        "source": "/login.html",
+        "headers": [
+          { "key": "X-Frame-Options", "value": "DENY" },
+          { "key": "X-Content-Type-Options", "value": "nosniff" },
+          { "key": "Cache-Control", "value": "no-store" }
+        ]
+      },
+      {
+        "source": "**/*.html",
+        "headers": [
+          { "key": "Cache-Control", "value": "public, max-age=60, stale-while-revalidate=300" }
+        ]
+      },
+      {
+        "source": "/styles/**",
+        "headers": [
+          { "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }
+        ]
+      },
+      {
+        "source": "/scripts/**",
+        "headers": [
+          { "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }
+        ]
+      },
+      {
+        "source": "/assets/**",
+        "headers": [
+          { "key": "Cache-Control", "value": "public, max-age=2592000, immutable" }
+        ]
+      },
+      {
+        "source": "/dashboard.html",
+        "headers": [
+          { "key": "X-Frame-Options", "value": "DENY" },
+          { "key": "X-Content-Type-Options", "value": "nosniff" },
+          { "key": "Cache-Control", "value": "no-store" }
+        ]
+      },
+      {
+        "source": "/p/index.html",
+        "headers": [
+          { "key": "Cache-Control", "value": "public, max-age=60, stale-while-revalidate=300" }
+        ]
+      },
+      {
+        "source": "/firebase-config.js",
+        "headers": [
+          { "key": "Cache-Control", "value": "public, max-age=60" }
+        ]
+      },
+      {
+        "source": "/content.js",
+        "headers": [
+          { "key": "Cache-Control", "value": "public, max-age=60, stale-while-revalidate=300" }
+        ]
+      }
+    ],
+    "rewrites": [
+      {
+        "source": "/work/**",
+        "destination": "/work/**"
+      },
+      {
+        "source": "/p/**",
+        "destination": "/p/index.html"
+      }
+    ],
+    "cleanUrls": false,
+    "trailingSlash": false
+  }
+}

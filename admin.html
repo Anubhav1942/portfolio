@@ -1053,6 +1053,53 @@
       transition: color var(--ease), border-color var(--ease);
     }
     .preview-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+    /* ── Image upload ── */
+    .upload-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.75rem;
+      font-family: inherit;
+      font-weight: 500;
+      color: var(--text-sec);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.38rem 0.7rem;
+      cursor: pointer;
+      transition: color var(--ease), border-color var(--ease), background var(--ease);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .upload-btn:hover { color: var(--accent); border-color: var(--accent); background: #fff; }
+    .upload-btn.uploading { opacity: 0.55; pointer-events: none; }
+
+    .img-preview-thumb {
+      width: 60px;
+      height: 44px;
+      border-radius: 3px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      background-size: cover;
+      background-position: center;
+      flex-shrink: 0;
+    }
+
+    .domain-register-row {
+      display: flex;
+      gap: 0.6rem;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+    .domain-register-row input { flex: 1; min-width: 160px; }
+    .domain-status {
+      font-size: 0.75rem;
+      margin-top: 0.4rem;
+      color: var(--text-muted);
+    }
+    .domain-status.ok { color: var(--success); }
+    .domain-status.err { color: var(--danger); }
   </style>
 </head>
 
@@ -1367,6 +1414,18 @@
         </div>
         <div class="card">
           <div class="card-body card-body-grid">
+            <div class="field full">
+              <label>Profile Photo</label>
+              <div style="display:flex;gap:0.75rem;align-items:center">
+                <input type="url" data-path="global.profilePhoto" placeholder="https://… or upload below" style="flex:1" />
+                <div class="img-preview-thumb" id="profilePhotoThumb"></div>
+                <label class="upload-btn" title="Upload from device">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 8V2M3 5l3-3 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M1.5 9.5h9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                  Upload
+                  <input type="file" accept="image/*" style="display:none" onchange="uploadProfilePhoto(this)" />
+                </label>
+              </div>
+            </div>
             <div class="field"><label>Your Name</label><input type="text" data-path="global.name" /></div>
             <div class="field"><label>Tagline</label><input type="text" data-path="global.tagline" /></div>
             <div class="field"><label>Email</label><input type="email" data-path="global.email" /></div>
@@ -1396,12 +1455,38 @@
       <div class="panel" id="panel-settings-site">
         <div class="panel-header">
           <div class="panel-title">Domain &amp; Analytics</div>
-          <div class="panel-desc">Custom domain and Google Analytics tracking ID.</div>
+          <div class="panel-desc">Your default portfolio URL, custom domain, and Google Analytics.</div>
         </div>
         <div class="card">
-          <div class="card-body card-body-grid">
-            <div class="field"><label>Custom Domain</label><input type="text" data-path="global.customDomain" placeholder="e.g. anubhavp.in" /></div>
-            <div class="field"><label>Google Analytics ID</label><input type="text" data-path="global.gaId" placeholder="G-XXXXXXXXXX" /><span class="field-hint">Replace G-5D0X4RLR71 with your real GA4 ID</span></div>
+          <div class="card-body">
+
+            <!-- Default URL (read-only, shown once auth is ready) -->
+            <div class="field" style="margin-bottom:1.25rem">
+              <label>Your default portfolio URL</label>
+              <div style="display:flex;gap:0.6rem;align-items:center">
+                <input type="text" id="defaultUrlInput" readonly style="flex:1;background:var(--bg);color:var(--text-sec);cursor:text" placeholder="Loading…" />
+                <button class="btn-icon" title="Copy URL" onclick="copyDefaultUrl()" style="padding:0.4rem 0.65rem;font-size:0.78rem;border:1px solid var(--border);border-radius:4px;background:transparent;cursor:pointer;color:var(--text-sec)">Copy</button>
+                <a id="defaultUrlLink" href="#" target="_blank" rel="noopener" style="font-size:0.78rem;color:var(--accent-mid);white-space:nowrap;text-decoration:none">Open ↗</a>
+              </div>
+              <span class="field-hint">Share this link before you have a custom domain. It always shows your portfolio content.</span>
+            </div>
+
+            <div class="field">
+              <label>Custom Domain <span style="font-weight:400;color:var(--text-muted)">(optional)</span></label>
+              <div class="domain-register-row">
+                <input type="text" id="domainInput" data-path="global.customDomain" placeholder="e.g. yourname.com" />
+                <button class="btn-primary" style="margin:0;font-size:0.78rem;padding:0.46rem 1rem" onclick="registerDomain()">Register domain</button>
+              </div>
+              <div id="domainStatus" class="domain-status" style="display:none"></div>
+              <span class="field-hint">After pointing your domain's DNS to Firebase, click Register so visitors to your domain see your portfolio content. See the <a href="help.html" target="_blank">setup guide</a> for DNS instructions.</span>
+            </div>
+
+            <div class="field" style="margin-top:1rem">
+              <label>Google Analytics ID</label>
+              <input type="text" data-path="global.gaId" placeholder="G-XXXXXXXXXX" />
+              <span class="field-hint">Your GA4 measurement ID. Goes live on the public portfolio on next page load.</span>
+            </div>
+
           </div>
         </div>
       </div>
@@ -1475,7 +1560,9 @@
 
   <!-- Firebase SDK (compat) -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
   <script src="firebase-config.js"></script>
 
   <script>
@@ -1484,17 +1571,47 @@
   ════════════════════════════════════════ */
 
   const STORAGE_KEY  = 'portfolio_content_v1';
-  const SESSION_KEY  = 'portfolio_admin_session';
   let C = {}; // working copy of content
   let saveTimer = null;
+  window.CURRENT_UID = null;
 
-  /* ── Auth guard ── */
-  (function checkAuth() {
-    const session = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
-    if (!session || session.expires <= Date.now()) {
+  /* ── Auth guard via Firebase Auth ── */
+  firebase.auth().onAuthStateChanged(function(user) {
+    if (!user || !user.emailVerified) {
       window.location.href = 'login.html';
+      return;
     }
-  })();
+    // This panel is the main site admin — restricted to the site owner only.
+    // All other signed-in users are redirected to their own dashboard.
+    if (user.email !== 'pandeyanubhav229@gmail.com') {
+      window.location.href = 'dashboard.html';
+      return;
+    }
+    window.CURRENT_UID = user.uid;
+
+    // Populate the default portfolio URL in Domain & Analytics panel
+    var base       = window.location.origin; // e.g. https://anubhavp.in
+    var defaultUrl = base + '/index.html?uid=' + user.uid;
+    var urlInput   = document.getElementById('defaultUrlInput');
+    var urlLink    = document.getElementById('defaultUrlLink');
+    if (urlInput) urlInput.value = defaultUrl;
+    if (urlLink)  urlLink.href   = defaultUrl;
+
+    // Auto-register this hostname → uid in Firestore so visitors to this domain
+    // see the logged-in user's content (skips localhost and already-registered domains).
+    var hostname = window.location.hostname;
+    if (hostname && hostname !== 'localhost' && hostname !== '127.0.0.1') {
+      window.fbDb.collection('domains').doc(hostname).get()
+        .then(function(doc) {
+          if (!doc.exists || !doc.data().uid) {
+            return window.registerDomain(hostname, user.uid);
+          }
+        })
+        .catch(function() { /* non-fatal — user can register manually */ });
+    }
+
+    init();
+  });
 
   /* ── Bootstrap ── */
   async function init() {
@@ -1503,12 +1620,12 @@
     ind.className = 'save-indicator saving';
     document.getElementById('saveText').textContent = 'Loading content…';
 
-    // Try Firestore first
+    // Load content from Firestore for this user
     let fromFirestore = false;
     try {
-      const doc = await firebase.firestore().collection('portfolio').doc('content').get();
-      if (doc.exists && doc.data() && doc.data().data) {
-        C = JSON.parse(doc.data().data);
+      const loaded = await window.loadContent(window.CURRENT_UID);
+      if (loaded && Object.keys(loaded).length > 0) {
+        C = loaded;
         fromFirestore = true;
       }
     } catch (e) { /* offline */ }
@@ -1516,10 +1633,10 @@
     if (!fromFirestore) {
       // Fall back to localStorage or content.js
       const stored = localStorage.getItem(STORAGE_KEY);
-      C = stored ? JSON.parse(stored) : deepClone(window.CONTENT);
-      // Auto-seed Firestore so it's ready for visitors
+      C = stored ? JSON.parse(stored) : deepClone(window.CONTENT || {});
+      // Seed Firestore so it's ready for visitors
       try {
-        await window.saveContent(C);
+        await window.saveContent(C, window.CURRENT_UID);
         showToast('Content seeded to Firestore — all set!');
       } catch (e) { /* will retry on next save */ }
     }
@@ -1532,8 +1649,111 @@
   /* ── Logout ── */
   function logout() {
     if (!confirm('Sign out of the admin panel?')) return;
-    localStorage.removeItem(SESSION_KEY);
-    window.location.href = 'login.html';
+    firebase.auth().signOut().then(function() {
+      window.location.href = 'login.html';
+    });
+  }
+
+  /* ── Copy default portfolio URL ── */
+  function copyDefaultUrl() {
+    var input = document.getElementById('defaultUrlInput');
+    if (!input || !input.value) return;
+    navigator.clipboard.writeText(input.value).then(function() {
+      showToast('URL copied to clipboard');
+    }).catch(function() {
+      input.select();
+      document.execCommand('copy');
+      showToast('URL copied');
+    });
+  }
+
+  /* ── Domain registration (Task #29) ── */
+  async function registerDomain() {
+    const input  = document.getElementById('domainInput');
+    const status = document.getElementById('domainStatus');
+    const domain = (input ? input.value : '').trim().replace(/^https?:\/\//, '').replace(/\/$/, '');
+
+    if (!domain) {
+      showDomainStatus('Enter a domain name first.', 'err');
+      return;
+    }
+    if (!window.CURRENT_UID) {
+      showDomainStatus('Not signed in — please refresh.', 'err');
+      return;
+    }
+    showDomainStatus('Registering…', '');
+    try {
+      await window.registerDomain(domain, window.CURRENT_UID);
+      // Also persist to content so the field pre-fills on next load
+      if (!C.global) C.global = {};
+      C.global.customDomain = domain;
+      await window.saveContent(C, window.CURRENT_UID);
+      showDomainStatus('Domain registered. Visitors to ' + domain + ' will see your portfolio.', 'ok');
+    } catch (e) {
+      showDomainStatus('Failed: ' + (e.message || 'unknown error'), 'err');
+    }
+  }
+
+  function showDomainStatus(msg, type) {
+    const el = document.getElementById('domainStatus');
+    if (!el) return;
+    el.textContent = msg;
+    el.className   = 'domain-status' + (type ? ' ' + type : '');
+    el.style.display = 'block';
+  }
+
+  /* ── Image upload helpers (Task #28) ── */
+
+  // Generic uploader — calls window.uploadImage, updates a URL input and a thumb preview
+  async function uploadImageToField(file, folder, urlInput, thumbEl, labelEl) {
+    if (!file) return;
+    if (labelEl) labelEl.classList.add('uploading');
+    try {
+      const url = await window.uploadImage(file, window.CURRENT_UID, folder, function(pct) {
+        if (labelEl) labelEl.textContent = pct + '%';
+      });
+      if (urlInput) {
+        urlInput.value = url;
+        urlInput.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+      if (thumbEl) thumbEl.style.backgroundImage = 'url(' + url + ')';
+    } catch (e) {
+      showToast('Upload failed: ' + (e.message || 'error'));
+    } finally {
+      if (labelEl) {
+        labelEl.classList.remove('uploading');
+        labelEl.innerHTML = `<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 8V2M3 5l3-3 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M1.5 9.5h9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Upload<input type="file" accept="image/*" style="display:none" onchange="${labelEl.dataset.onchange}" />`;
+      }
+    }
+  }
+
+  function uploadProfilePhoto(fileInput) {
+    const file    = fileInput.files[0];
+    const urlEl   = document.querySelector('[data-path="global.profilePhoto"]');
+    const thumbEl = document.getElementById('profilePhotoThumb');
+    const labelEl = fileInput.closest('label');
+    uploadImageToField(file, 'profile', urlEl, thumbEl, labelEl);
+  }
+
+  function uploadBlogCover(fileInput, idx) {
+    const file    = fileInput.files[0];
+    const urlEl   = document.querySelector('[data-blog-img="' + idx + '"]');
+    const thumbEl = urlEl ? urlEl.closest('.field').querySelector('[data-thumb-preview]') : null;
+    const labelEl = fileInput.closest('label');
+    uploadImageToField(file, 'blog', urlEl, thumbEl, labelEl).then(function() {
+      if (urlEl) updateNestedItem('home', 'blog', idx, 'image', urlEl.value);
+    });
+  }
+
+  function uploadProjectCover(fileInput, idx) {
+    const file    = fileInput.files[0];
+    const row     = fileInput.closest('.repeat-item-body');
+    const urlEl   = row ? row.querySelectorAll('input[type="url"]')[row.querySelectorAll('input[type="url"]').length - 1] : null;
+    const thumbEl = row ? row.querySelector('.img-preview-thumb') : null;
+    const labelEl = fileInput.closest('label');
+    uploadImageToField(file, 'projects', urlEl, thumbEl, labelEl).then(function() {
+      if (urlEl) updateItem('projects', idx, 'coverImage', urlEl.value);
+    });
   }
 
   function deepClone(obj) {
@@ -1593,6 +1813,20 @@
         scheduleSave();
       });
     });
+
+    // Populate profile photo thumb on load
+    const profilePhotoVal = getPath(C, 'global.profilePhoto');
+    const profileThumb    = document.getElementById('profilePhotoThumb');
+    if (profilePhotoVal && profileThumb) {
+      profileThumb.style.backgroundImage = 'url(' + profilePhotoVal + ')';
+    }
+    // Keep thumb in sync when URL is typed manually
+    const profilePhotoInput = document.querySelector('[data-path="global.profilePhoto"]');
+    if (profilePhotoInput && profileThumb) {
+      profilePhotoInput.addEventListener('input', () => {
+        profileThumb.style.backgroundImage = profilePhotoInput.value ? 'url(' + profilePhotoInput.value + ')' : '';
+      });
+    }
   }
 
   /* ── Auto-save ── */
@@ -1604,7 +1838,7 @@
 
   async function save() {
     try {
-      await window.saveContent(C);
+      await window.saveContent(C, window.CURRENT_UID);
     } catch (e) {
       // Firestore failed — at least keep local cache
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(C)); } catch (_) {}
@@ -1696,6 +1930,18 @@
           <div class="repeat-body-grid">
             <div class="field"><label>Metric line</label><input type="text" value="${esc(p.metric)}" oninput="updateItem('projects',${i},'metric',this.value)" /></div>
             <div class="field"><label>Case study URL</label><input type="url" value="${esc(p.url)}" oninput="updateItem('projects',${i},'url',this.value)" /></div>
+          </div>
+          <div class="field">
+            <label>Cover image</label>
+            <div style="display:flex;gap:0.6rem;align-items:center">
+              <input type="url" value="${esc(p.coverImage||'')}" placeholder="https://… or upload" oninput="updateItem('projects',${i},'coverImage',this.value)" style="flex:1" />
+              <div class="img-preview-thumb" style="${p.coverImage ? 'background-image:url('+esc(p.coverImage)+')' : ''}"></div>
+              <label class="upload-btn" title="Upload from device">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 8V2M3 5l3-3 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M1.5 9.5h9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                Upload
+                <input type="file" accept="image/*" style="display:none" onchange="uploadProjectCover(this,${i})" />
+              </label>
+            </div>
           </div>
         </div>
       `;
@@ -1821,10 +2067,15 @@
           </div>
           <div class="field"><label>Post URL</label><input type="url" value="${esc(post.url)}" oninput="updateNestedItem('home','blog',${i},'url',this.value)" /></div>
           <div class="field">
-            <label>Cover image URL <span style="font-weight:400;color:var(--text-muted)">(paste a direct image link — jpg, png, webp)</span></label>
-            <div style="display:flex;gap:0.75rem;align-items:center">
-              <input type="url" value="${esc(post.image||'')}" placeholder="https://..." oninput="updateNestedItem('home','blog',${i},'image',this.value);updateBlogThumbPreview(this)" style="flex:1" />
-              <div style="width:76px;height:54px;border-radius:3px;background:var(--bg-alt);border:1px solid var(--border);background-size:cover;background-position:center;flex-shrink:0;${post.image ? 'background-image:url('+esc(post.image)+')' : ''}" data-thumb-preview="${i}"></div>
+            <label>Cover image</label>
+            <div style="display:flex;gap:0.6rem;align-items:center">
+              <input type="url" value="${esc(post.image||'')}" placeholder="https://… or upload" oninput="updateNestedItem('home','blog',${i},'image',this.value);updateBlogThumbPreview(this)" style="flex:1" data-blog-img="${i}" />
+              <div class="img-preview-thumb" style="${post.image ? 'background-image:url('+esc(post.image)+')' : ''}" data-thumb-preview="${i}"></div>
+              <label class="upload-btn" title="Upload from device">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 8V2M3 5l3-3 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M1.5 9.5h9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                Upload
+                <input type="file" accept="image/*" style="display:none" onchange="uploadBlogCover(this,${i})" />
+              </label>
             </div>
           </div>
         </div>
@@ -2947,10 +3198,30 @@
     const reader = new FileReader();
     reader.onload = function(e) {
       try {
-        // Execute the JS in a sandboxed scope to extract window.CONTENT
-        const sandbox = {};
-        const fn = new Function('window', e.target.result);
-        fn(sandbox);
+        const code = e.target.result;
+        // Strategy 1: Execute with a window-compatible sandbox
+        const sandbox = {
+          CONTENT: undefined,
+          console: { log: function(){}, warn: function(){}, error: function(){} }
+        };
+        // Provide a proxy so window.X = ... also sets sandbox.X
+        const windowProxy = new Proxy(sandbox, {
+          set: function(t, p, v) { t[p] = v; return true; },
+          get: function(t, p) { return p in t ? t[p] : undefined; }
+        });
+        try {
+          const fn = new Function('window', code);
+          fn(windowProxy);
+        } catch (execErr) {
+          // Strategy 2: Regex-extract the JSON object from window.CONTENT = {...};
+          const match = code.match(/window\.CONTENT\s*=\s*(\{[\s\S]*\});?\s*$/m)
+                     || code.match(/window\.CONTENT\s*=\s*(\{[\s\S]*\})/m);
+          if (match) {
+            sandbox.CONTENT = JSON.parse(match[1]);
+          } else {
+            throw execErr;
+          }
+        }
         if (!sandbox.CONTENT || typeof sandbox.CONTENT !== 'object') {
           throw new Error('No valid window.CONTENT found in file.');
         }
@@ -2982,15 +3253,46 @@
     });
   })();
 
-  function confirmImport() {
+  async function confirmImport() {
     if (!_importParsed) return;
     // Deep-merge: replace top-level keys from imported content into C
-    Object.assign(C, JSON.parse(JSON.stringify(_importParsed)));
+    const imported = JSON.parse(JSON.stringify(_importParsed));
+    // Ensure required nested structures exist before merging
+    if (!C.home) C.home = {};
+    if (!C.home.hero) C.home.hero = {};
+    if (!C.global) C.global = {};
+    Object.assign(C, imported);
     localStorage.setItem('portfolio_content_v1', JSON.stringify(C));
     closeImportModal();
-    // Re-initialise the entire admin UI with the new data
-    init();
-    showToast('content.js imported — all fields updated');
+    // Re-render admin panels with the imported data.
+    // Do NOT call init() here — init() reloads from Firestore, which would
+    // overwrite C with the old content and silently discard the import.
+    try {
+      renderAllPanels();
+    } catch (renderErr) {
+      console.warn('renderAllPanels error after import:', renderErr);
+    }
+    // Re-bind fields to new content values (clone inputs to remove old listeners)
+    document.querySelectorAll('[data-path]').forEach(function(el) {
+      const clone = el.cloneNode(true);
+      el.parentNode.replaceChild(clone, el);
+    });
+    bindSimpleFields();
+    showToast('content.js imported — rendering panels…');
+    // Persist to Firestore so the public site picks up the imported content.
+    if (window.CURRENT_UID) {
+      showSaving();
+      try {
+        await window.saveContent(C, window.CURRENT_UID);
+        showSaved();
+        showToast('\u2714 content.js imported and published to your site');
+      } catch (e) {
+        showSaved();
+        showToast('content.js imported — Firestore save failed, check connection');
+      }
+    } else {
+      showToast('content.js imported — sign in to publish to your site');
+    }
   }
 
   document.getElementById('importModal').addEventListener('click', function(e) {
