@@ -85,16 +85,20 @@
   }
   </script>
 
-  <!-- Google Analytics 4 -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-5D0X4RLR71"></script>
+  <!-- Google Analytics: injected dynamically after content loads so each user's GA ID is used -->
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){ dataLayer.push(arguments); }
-    gtag('js', new Date());
-    gtag('config', 'G-5D0X4RLR71', {
-      page_title: document.title,
-      page_location: window.location.href,
-    });
+    window.__injectGA = function(id) {
+      if (!id || window.__gaInjected) return;
+      window.__gaInjected = true;
+      var s = document.createElement('script');
+      s.async = true;
+      s.src = 'https://www.googletagmanager.com/gtag/js?id=' + id;
+      document.head.appendChild(s);
+      gtag('js', new Date());
+      gtag('config', id, { page_title: document.title, page_location: window.location.href });
+    };
   </script>
 
   <!-- Fonts -->
@@ -117,10 +121,11 @@
         <li><a href="#work">Work</a></li>
         <li><a href="https://anubhav1942.github.io/portfolio/about.html">About</a></li>
         <li><a href="#writing">Blogs</a></li>
+        <li><a href="assets/anubhav-pandey-resume.pdf" target="_blank" rel="noopener" data-track="resume-view" data-track-source="nav">View Resume</a></li>
       </ul>
 
       <div class="nav__actions">
-        <a href="assets/anubhav-pandey-resume.pdf" target="_blank" rel="noopener" class="nav__btn-ghost" data-track="resume-view" data-track-source="nav">View Resume</a>
+        <a href="login.html?mode=signup" class="nav__create-link">Create your own portfolio <span aria-hidden="true">→</span></a>
         <button type="button" class="nav__btn-primary js-contact-open" data-track="contact" data-track-source="nav">Get in touch</button>
       </div>
 
@@ -144,45 +149,66 @@
       <div class="container">
         <div class="hero__inner">
 
-          <div class="hero__label">
-            <span class="label">Product Designer</span>
-          </div>
-
-          <h1 class="hero__heading" id="hero-heading">
-            Designing clarity<br />
-            into systems that<br />
-            <em>resist it.</em>
-          </h1>
-
-          <p class="hero__sub" id="hero-subtitle">
-            I was the founding designer at Carboledger — an enterprise B2B SaaS for
-            sustainability compliance. 11 interconnected modules. 4-person team.
-            Every UX decision mine.
-          </p>
-
-          <!-- Metric strip -->
-          <div class="hero__stats" id="hero-stats" role="list" aria-label="Key outcomes">
-            <div role="listitem">
-              <span class="hero__stat-value">&gt;95%</span>
-              <span class="hero__stat-label">Reduction in enterprise request turnaround</span>
+          <!-- ── Skeleton ── -->
+          <div class="sk-wrap" aria-hidden="true">
+            <span class="sk sk-hero__label"></span>
+            <span class="sk sk-hero__h1"></span>
+            <span class="sk sk-hero__h1-2"></span>
+            <span class="sk sk-hero__sub-1"></span>
+            <span class="sk sk-hero__sub-2"></span>
+            <div class="sk-hero__stats">
+              <div class="sk-hero__stat"><span class="sk sk-hero__stat-val"></span><span class="sk sk-hero__stat-label"></span><span class="sk sk-hero__stat-label-2"></span></div>
+              <div class="sk-hero__stat"><span class="sk sk-hero__stat-val"></span><span class="sk sk-hero__stat-label"></span><span class="sk sk-hero__stat-label-2"></span></div>
+              <div class="sk-hero__stat"><span class="sk sk-hero__stat-val"></span><span class="sk sk-hero__stat-label"></span><span class="sk sk-hero__stat-label-2"></span></div>
+              <div class="sk-hero__stat"><span class="sk sk-hero__stat-val"></span><span class="sk sk-hero__stat-label"></span></div>
             </div>
-            <div role="listitem">
-              <span class="hero__stat-value">14k+</span>
-              <span class="hero__stat-label">Structured data fields managed in one workflow</span>
-            </div>
-            <div role="listitem">
-              <span class="hero__stat-value">~80%</span>
-              <span class="hero__stat-label">Adoption rate across enterprise users</span>
-            </div>
-            <div role="listitem">
-              <span class="hero__stat-value">11</span>
-              <span class="hero__stat-label">Interconnected platform modules owned</span>
+            <div class="sk-hero__ctas">
+              <span class="sk sk-hero__btn-primary"></span>
+              <span class="sk sk-hero__btn-ghost"></span>
             </div>
           </div>
 
-          <div class="hero__ctas">
-            <a href="#work" class="btn-primary">View Work</a>
-            <a href="assets/anubhav-pandey-resume.pdf" class="btn-ghost" target="_blank" rel="noopener" data-track="resume-view" data-track-source="hero">View Resume</a>
+          <!-- ── Real content ── -->
+          <div class="content-target">
+            <div class="hero__label">
+              <span class="label">Product Designer</span>
+            </div>
+
+            <h1 class="hero__heading" id="hero-heading">
+              Designing clarity<br />
+              into systems that<br />
+              <em>resist it.</em>
+            </h1>
+
+            <p class="hero__sub" id="hero-subtitle">
+              I was the founding designer at Carboledger — an enterprise B2B SaaS for
+              sustainability compliance. 11 interconnected modules. 4-person team.
+              Every UX decision mine.
+            </p>
+
+            <div class="hero__stats" id="hero-stats" role="list" aria-label="Key outcomes">
+              <div role="listitem">
+                <span class="hero__stat-value">&gt;95%</span>
+                <span class="hero__stat-label">Reduction in enterprise request turnaround</span>
+              </div>
+              <div role="listitem">
+                <span class="hero__stat-value">14k+</span>
+                <span class="hero__stat-label">Structured data fields managed in one workflow</span>
+              </div>
+              <div role="listitem">
+                <span class="hero__stat-value">~80%</span>
+                <span class="hero__stat-label">Adoption rate across enterprise users</span>
+              </div>
+              <div role="listitem">
+                <span class="hero__stat-value">11</span>
+                <span class="hero__stat-label">Interconnected platform modules owned</span>
+              </div>
+            </div>
+
+            <div class="hero__ctas">
+              <a href="#work" class="btn-primary">View Work</a>
+              <a href="assets/anubhav-pandey-resume.pdf" class="btn-ghost" target="_blank" rel="noopener" data-track="resume-view" data-track-source="hero">View Resume</a>
+            </div>
           </div>
 
         </div>
@@ -199,7 +225,45 @@
           <span class="label">2022 — Present</span>
         </div>
 
-        <div class="projects__grid" id="projects-grid" role="list">
+        <!-- ── Skeleton ── -->
+        <div class="sk-wrap" aria-hidden="true">
+          <div class="sk-projects__grid">
+            <!-- card 1 -->
+            <div class="sk-project-card">
+              <div class="sk-project-card__top"><span class="sk sk-project-card__num"></span><span class="sk sk-project-card__tag"></span></div>
+              <span class="sk sk-project-card__title"></span><span class="sk sk-project-card__sub"></span>
+              <span class="sk sk-project-card__desc-1"></span><span class="sk sk-project-card__desc-2"></span><span class="sk sk-project-card__desc-3"></span>
+              <span class="sk sk-project-card__metric"></span>
+              <span class="sk sk-project-card__cta"></span>
+            </div>
+            <!-- card 2 -->
+            <div class="sk-project-card">
+              <div class="sk-project-card__top"><span class="sk sk-project-card__num"></span><span class="sk sk-project-card__tag"></span></div>
+              <span class="sk sk-project-card__title"></span><span class="sk sk-project-card__sub"></span>
+              <span class="sk sk-project-card__desc-1"></span><span class="sk sk-project-card__desc-2"></span><span class="sk sk-project-card__desc-3"></span>
+              <span class="sk sk-project-card__metric"></span>
+              <span class="sk sk-project-card__cta"></span>
+            </div>
+            <!-- card 3 -->
+            <div class="sk-project-card">
+              <div class="sk-project-card__top"><span class="sk sk-project-card__num"></span><span class="sk sk-project-card__tag"></span></div>
+              <span class="sk sk-project-card__title"></span><span class="sk sk-project-card__sub"></span>
+              <span class="sk sk-project-card__desc-1"></span><span class="sk sk-project-card__desc-2"></span>
+              <span class="sk sk-project-card__metric"></span>
+              <span class="sk sk-project-card__cta"></span>
+            </div>
+            <!-- card 4 -->
+            <div class="sk-project-card">
+              <div class="sk-project-card__top"><span class="sk sk-project-card__num"></span><span class="sk sk-project-card__tag"></span></div>
+              <span class="sk sk-project-card__title"></span><span class="sk sk-project-card__sub"></span>
+              <span class="sk sk-project-card__desc-1"></span><span class="sk sk-project-card__desc-2"></span><span class="sk sk-project-card__desc-3"></span>
+              <span class="sk sk-project-card__metric"></span>
+              <span class="sk sk-project-card__cta"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="content-target projects__grid" id="projects-grid" role="list">
 
           <!-- SecureShare -->
           <article class="project-card" role="listitem">
@@ -331,7 +395,28 @@
           <span class="section-title">Where I Have Worked</span>
         </div>
 
-        <ul class="exp__list" id="experience-list" role="list">
+        <!-- ── Skeleton ── -->
+        <div class="sk-wrap" aria-hidden="true">
+          <div>
+            <div class="sk-exp__item">
+              <div><span class="sk sk--dark sk-exp__company"></span><span class="sk sk--dark sk-exp__role"></span></div>
+              <div><span class="sk sk--dark sk-exp__desc-1"></span><span class="sk sk--dark sk-exp__desc-2"></span><span class="sk sk--dark sk-exp__desc-3"></span></div>
+              <span class="sk sk--dark sk-exp__metric"></span>
+            </div>
+            <div class="sk-exp__item">
+              <div><span class="sk sk--dark sk-exp__company"></span><span class="sk sk--dark sk-exp__role"></span></div>
+              <div><span class="sk sk--dark sk-exp__desc-1"></span><span class="sk sk--dark sk-exp__desc-2"></span></div>
+              <span class="sk sk--dark sk-exp__metric"></span>
+            </div>
+            <div class="sk-exp__item">
+              <div><span class="sk sk--dark sk-exp__company"></span><span class="sk sk--dark sk-exp__role"></span></div>
+              <div><span class="sk sk--dark sk-exp__desc-1"></span><span class="sk sk--dark sk-exp__desc-2"></span><span class="sk sk--dark sk-exp__desc-3"></span></div>
+              <span class="sk sk--dark sk-exp__metric"></span>
+            </div>
+          </div>
+        </div>
+
+        <ul class="content-target exp__list" id="experience-list" role="list">
 
           <li class="exp__item" role="listitem">
             <div>
@@ -386,7 +471,16 @@
           <span class="label">Living — updated as I build</span>
         </div>
 
-        <div class="ai-grid" id="ai-grid" role="list">
+        <!-- ── Skeleton ── -->
+        <div class="sk-wrap" aria-hidden="true">
+          <div class="sk-ai__grid">
+            <div class="sk-ai__card"><span class="sk sk-ai__tag"></span><span class="sk sk-ai__title"></span><span class="sk sk-ai__desc-1"></span><span class="sk sk-ai__desc-2"></span><span class="sk sk-ai__desc-3"></span><span class="sk sk-ai__link"></span></div>
+            <div class="sk-ai__card"><span class="sk sk-ai__tag"></span><span class="sk sk-ai__title"></span><span class="sk sk-ai__desc-1"></span><span class="sk sk-ai__desc-2"></span><span class="sk sk-ai__desc-3"></span><span class="sk sk-ai__link"></span></div>
+            <div class="sk-ai__card"><span class="sk sk-ai__tag"></span><span class="sk sk-ai__title"></span><span class="sk sk-ai__desc-1"></span><span class="sk sk-ai__desc-2"></span><span class="sk sk-ai__desc-3"></span><span class="sk sk-ai__link"></span></div>
+          </div>
+        </div>
+
+        <div class="content-target ai-grid" id="ai-grid" role="list">
 
           <!-- Placeholder 1 -->
           <article class="ai-card" role="listitem">
@@ -435,8 +529,16 @@
           <a href="https://medium.com/@pandeyanubhav229" class="section-link" target="_blank" rel="noopener">All posts →</a>
         </div>
 
-        <!-- 3 blog posts — replace with actual titles, dates, URLs, read times -->
-        <ul class="blog__list" id="blog-list" role="list">
+        <!-- ── Skeleton ── -->
+        <div class="sk-wrap" aria-hidden="true">
+          <div class="sk-blog__list">
+            <div class="sk-blog__item"><span class="sk sk-blog__thumb"></span><div class="sk-blog__body"><span class="sk sk-blog__title-1"></span><span class="sk sk-blog__title-2"></span><span class="sk sk-blog__date"></span><span class="sk sk-blog__cta"></span></div></div>
+            <div class="sk-blog__item"><span class="sk sk-blog__thumb"></span><div class="sk-blog__body"><span class="sk sk-blog__title-1"></span><span class="sk sk-blog__title-2"></span><span class="sk sk-blog__date"></span><span class="sk sk-blog__cta"></span></div></div>
+            <div class="sk-blog__item"><span class="sk sk-blog__thumb"></span><div class="sk-blog__body"><span class="sk sk-blog__title-1"></span><span class="sk sk-blog__title-2"></span><span class="sk sk-blog__date"></span><span class="sk sk-blog__cta"></span></div></div>
+          </div>
+        </div>
+
+        <ul class="content-target blog__list" id="blog-list" role="list">
 
           <li class="blog__item" role="listitem">
             <div class="blog__thumb"></div>
@@ -566,9 +668,14 @@
      falls back to localStorage / content.js.
   ═══════════════════════════════════════════ */
   window.loadContent().then(function(C) {
+    // Always reveal content (even on empty / fallback)
+    document.body.classList.add('content-loaded');
     if (!C) return;
 
     const g = C.global || {};
+
+    /* ── Dynamic GA injection ── */
+    if (g.gaId) window.__injectGA(g.gaId);
     const h = C.home   || {};
     const hero = h.hero || {};
 
@@ -685,7 +792,15 @@
         s.src = s.src.replace('G-5D0X4RLR71', g.gaId);
       });
     }
+  }).catch(function() {
+    // Firestore failed — reveal static content.js fallback
+    document.body.classList.add('content-loaded');
   });
+
+  // Safety net: never leave skeletons visible beyond 4s
+  setTimeout(function() {
+    document.body.classList.add('content-loaded');
+  }, 4000);
   </script>
 
   <!-- Behaviours -->
