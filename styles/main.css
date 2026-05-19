@@ -956,37 +956,40 @@ p {
    10. BLOG SHELF
    ============================================================ */
 
+/* ── Blog card carousel ── */
+.blog__carousel-wrap {
+  position: relative;
+}
+
 .blog__list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-6);
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 .blog__item {
-  display: grid;
-  grid-template-columns: 76px 90px 1fr 80px;
-  gap: var(--sp-6);
-  align-items: center;
-  padding: var(--sp-6) 0;
-  border-bottom: 1px solid var(--border);
-  transition: background var(--ease);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) * 2);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow var(--ease), transform var(--ease);
   cursor: pointer;
 }
 
-.blog__item:first-child {
-  border-top: 1px solid var(--border);
+.blog__item:hover {
+  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+  transform: translateY(-2px);
 }
 
-.blog__item:hover .blog__title {
-  color: var(--accent-mid);
-}
-
-/* Thumbnail — uses background-image so it degrades gracefully to bg-alt when no image set */
 .blog__thumb {
-  width: 76px;
-  height: 54px;
-  border-radius: var(--radius);
+  width: 100%;
+  aspect-ratio: 16/9;
   background: var(--bg-alt);
-  border: 1px solid var(--border);
   background-size: cover;
   background-position: center;
   flex-shrink: 0;
@@ -994,29 +997,52 @@ p {
 }
 
 .blog__item:hover .blog__thumb {
-  opacity: 0.85;
+  opacity: 0.92;
 }
 
-.blog__date {
-  font-size: 0.73rem;
-  color: var(--text-muted);
-  line-height: 1.4;
+.blog__card-body {
+  padding: var(--sp-6);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: var(--sp-3);
 }
 
 .blog__title {
   font-family: var(--font-sans);
-  font-size: 0.92rem;
-  font-weight: 400;
+  font-size: 0.95rem;
+  font-weight: 600;
   color: var(--text);
-  line-height: 1.45;
-  transition: color var(--ease);
+  line-height: 1.4;
+}
+
+.blog__date {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.4;
 }
 
 .blog__read-time {
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   color: var(--text-muted);
-  text-align: right;
-  white-space: nowrap;
+}
+
+.blog__card-cta {
+  display: inline-block;
+  margin-top: auto;
+  padding: 0.42rem 1rem;
+  background: var(--accent-mid);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border-radius: var(--radius);
+  text-decoration: none;
+  transition: background var(--ease);
+  align-self: flex-start;
+}
+
+.blog__card-cta:hover {
+  background: var(--accent);
 }
 
 
@@ -1391,13 +1417,8 @@ p {
     grid-template-columns: 1fr;
   }
 
-  .blog__item {
-    grid-template-columns: 70px 1fr;
-  }
-
-  .blog__thumb,
-  .blog__read-time {
-    display: none;
+  .blog__list {
+    grid-template-columns: 1fr;
   }
 
   .footer__grid {

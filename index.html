@@ -396,48 +396,33 @@
         <ul class="blog__list" id="blog-list" role="list">
 
           <li class="blog__item" role="listitem">
-            <a
-              href="blog/post-1.html"
-              style="display: contents;"
-              target="_blank" rel="noopener"
-              data-track="blog-post"
-              data-track-name="blog-post-1"
-            >
-              <div class="blog__thumb"></div>
-              <span class="blog__date">Add<br/>date</span>
+            <div class="blog__thumb"></div>
+            <div class="blog__card-body">
               <span class="blog__title">[Blog Post Title 1 — Replace with actual title]</span>
-              <span class="blog__read-time">X min read</span>
-            </a>
+              <span class="blog__date">Add date &nbsp;·&nbsp; X min read</span>
+              <a href="blog/post-1.html" target="_blank" rel="noopener"
+                class="blog__card-cta" data-track="blog-post" data-track-name="blog-post-1">Read post →</a>
+            </div>
           </li>
 
           <li class="blog__item" role="listitem">
-            <a
-              href="blog/post-2.html"
-              style="display: contents;"
-              target="_blank" rel="noopener"
-              data-track="blog-post"
-              data-track-name="blog-post-2"
-            >
-              <div class="blog__thumb"></div>
-              <span class="blog__date">Add<br/>date</span>
+            <div class="blog__thumb"></div>
+            <div class="blog__card-body">
               <span class="blog__title">[Blog Post Title 2 — Replace with actual title]</span>
-              <span class="blog__read-time">X min read</span>
-            </a>
+              <span class="blog__date">Add date &nbsp;·&nbsp; X min read</span>
+              <a href="blog/post-2.html" target="_blank" rel="noopener"
+                class="blog__card-cta" data-track="blog-post" data-track-name="blog-post-2">Read post →</a>
+            </div>
           </li>
 
           <li class="blog__item" role="listitem">
-            <a
-              href="blog/post-3.html"
-              style="display: contents;"
-              target="_blank" rel="noopener"
-              data-track="blog-post"
-              data-track-name="blog-post-3"
-            >
-              <div class="blog__thumb"></div>
-              <span class="blog__date">Add<br/>date</span>
+            <div class="blog__thumb"></div>
+            <div class="blog__card-body">
               <span class="blog__title">[Blog Post Title 3 — Replace with actual title]</span>
-              <span class="blog__read-time">X min read</span>
-            </a>
+              <span class="blog__date">Add date &nbsp;·&nbsp; X min read</span>
+              <a href="blog/post-3.html" target="_blank" rel="noopener"
+                class="blog__card-cta" data-track="blog-post" data-track-name="blog-post-3">Read post →</a>
+            </div>
           </li>
 
         </ul>
@@ -641,13 +626,13 @@
     if (blogEl && h.blog) {
       blogEl.innerHTML = h.blog.map(post => `
         <li class="blog__item" role="listitem">
-          <a href="${post.url}" style="display:contents;" target="_blank" rel="noopener"
-            data-track="blog-post" data-track-name="${post.title}">
-            <div class="blog__thumb" style="${post.image ? 'background-image:url(' + post.image + ')' : ''}" role="img" aria-label="${post.title} thumbnail"></div>
-            <span class="blog__date">${post.date.replace(' ','<br/>')}</span>
+          <div class="blog__thumb" style="${post.image ? 'background-image:url(' + post.image + ')' : ''}" role="img" aria-label="${post.title} thumbnail"></div>
+          <div class="blog__card-body">
             <span class="blog__title">${post.title}</span>
-            <span class="blog__read-time">${post.readTime}</span>
-          </a>
+            <span class="blog__date">${post.date}${post.readTime ? ' &nbsp;·&nbsp; ' + post.readTime : ''}</span>
+            <a href="${post.url}" target="_blank" rel="noopener"
+              class="blog__card-cta" data-track="blog-post" data-track-name="${post.title}">Read post →</a>
+          </div>
         </li>
       `).join('');
     }
