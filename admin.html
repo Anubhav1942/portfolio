@@ -1017,7 +1017,6 @@
       </div>
       <button class="btn-topbar btn-preview" onclick="previewSite()">Preview site ↗</button>
       <button class="btn-topbar" onclick="openImportModal()" style="background:transparent;border:1px solid rgba(255,255,255,0.18);color:rgba(255,255,255,0.75)">Import content.js</button>
-      <button class="btn-topbar btn-export" onclick="publishToSite()">Publish to site</button>
       <button class="btn-topbar" onclick="logout()" style="background:transparent;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.55)" title="Sign out">Sign out</button>
     </div>
   </div>
@@ -1412,8 +1411,13 @@
   <!-- TOAST -->
   <div class="toast" id="toast"></div>
 
-  <!-- Load content.js defaults -->
+  <!-- Load content.js defaults (fallback) -->
   <script src="content.js"></script>
+
+  <!-- Firebase SDK (compat) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
 
   <script>
   /* ════════════════════════════════════════
@@ -1434,10 +1438,32 @@
   })();
 
   /* ── Bootstrap ── */
-  function init() {
-    // Load from localStorage first, fall back to content.js defaults
-    const stored = localStorage.getItem(STORAGE_KEY);
-    C = stored ? JSON.parse(stored) : deepClone(window.CONTENT);
+  async function init() {
+    // Show loading state
+    const ind = document.getElementById('saveIndicator');
+    ind.className = 'save-indicator saving';
+    document.getElementById('saveText').textContent = 'Loading content…';
+
+    // Try Firestore first
+    let fromFirestore = false;
+    try {
+      const doc = await firebase.firestore().collection('portfolio').doc('content').get();
+      if (doc.exists && doc.data() && doc.data().data) {
+        C = JSON.parse(doc.data().data);
+        fromFirestore = true;
+      }
+    } catch (e) { /* offline */ }
+
+    if (!fromFirestore) {
+      // Fall back to localStorage or content.js
+      const stored = localStorage.getItem(STORAGE_KEY);
+      C = stored ? JSON.parse(stored) : deepClone(window.CONTENT);
+      // Auto-seed Firestore so it's ready for visitors
+      try {
+        await window.saveContent(C);
+        showToast('Content seeded to Firestore — all set!');
+      } catch (e) { /* will retry on next save */ }
+    }
 
     renderAllPanels();
     bindSimpleFields();
@@ -1507,8 +1533,14 @@
     saveTimer = setTimeout(save, 600);
   }
 
-  function save() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(C));
+  async function save() {
+    try {
+      await window.saveContent(C);
+    } catch (e) {
+      // Firestore failed — at least keep local cache
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(C)); } catch (_) {}
+      console.warn('Firestore save failed:', e);
+    }
     showSaved();
   }
 
@@ -2716,7 +2748,6 @@
      PREVIEW
   ════════════════════════════════════════ */
   function previewSite() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(C));
     window.open('index.html', '_blank');
   }
 

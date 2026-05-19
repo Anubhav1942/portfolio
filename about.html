@@ -366,10 +366,11 @@
 
   <!-- Content renderer -->
   <script src="content.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
   <script>
-  (function renderAbout() {
-    const stored = localStorage.getItem('portfolio_content_v1');
-    const C = stored ? JSON.parse(stored) : window.CONTENT;
+  window.loadContent().then(function(C) {
     if (!C) return;
 
     const a = C.about || {};
@@ -424,7 +425,7 @@
     const ctaP = document.getElementById('about-cta-para');
     if (ctaP) ctaP.textContent = a.ctaParagraph || '';
 
-  })();
+  });
   </script>
 
   <script src="scripts/main.js" defer></script>

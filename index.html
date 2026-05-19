@@ -514,16 +514,15 @@
 
   <!-- Content layer + renderer -->
   <script src="content.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
   <script>
   /* ═══════════════════════════════════════════
-     CONTENT RENDERER — reads window.CONTENT
-     (or localStorage override from admin.html)
-     and injects text into the DOM.
+     CONTENT RENDERER — loads from Firestore,
+     falls back to localStorage / content.js.
   ═══════════════════════════════════════════ */
-  (function renderFromContent() {
-    // Load from localStorage if admin has saved a draft
-    const stored = localStorage.getItem('portfolio_content_v1');
-    const C = stored ? JSON.parse(stored) : window.CONTENT;
+  window.loadContent().then(function(C) {
     if (!C) return;
 
     const g = C.global || {};
@@ -643,7 +642,7 @@
         s.src = s.src.replace('G-5D0X4RLR71', g.gaId);
       });
     }
-  })();
+  });
   </script>
 
   <!-- Behaviours -->
