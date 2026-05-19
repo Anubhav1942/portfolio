@@ -857,25 +857,28 @@ p {
   line-height: inherit;
 }
 
-.exp__desc ul {
-  list-style: none;
-  padding: 0;
+.exp__desc ul,
+.exp__desc ol {
+  list-style: none !important;
+  padding: 0 !important;
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.65rem;
+  gap: 0.55rem;
 }
 
 .exp__desc li {
-  padding-left: 1.1rem;
-  position: relative;
+  display: grid;
+  grid-template-columns: 0.85rem 1fr;
+  gap: 0.4rem;
+  align-items: baseline;
+  list-style: none !important;
 }
 
 .exp__desc li::before {
   content: "–";
-  position: absolute;
-  left: 0;
-  color: var(--text-on-dark-sec);
+  color: var(--text-on-dark-muted);
+  flex-shrink: 0;
 }
 
 .exp__metric {
