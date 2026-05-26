@@ -361,6 +361,24 @@
 
     .cs-img-icon { font-size: 1.4rem; opacity: 0.35; }
 
+    /* Real uploaded images */
+    .cs-img-figure { margin: var(--sp-10) 0; }
+    .cs-img-figure--xl {
+      margin-left: calc(-1 * var(--sp-12));
+      margin-right: calc(-1 * var(--sp-12));
+      width: calc(100% + 2 * var(--sp-12));
+    }
+    .cs-img-real {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+    .cs-img-figure--xl .cs-img-real { border-left: none; border-right: none; border-radius: 0; }
+    .cs-img-caption { font-size: 0.75rem; color: var(--text-muted); text-align: center; margin-top: var(--sp-2); line-height: 1.5; }
+    .cs-img-pair figure { margin: 0; }
+
     .cs-callout {
       background: var(--accent-tint);
       border-left: 3px solid var(--accent-mid);
@@ -635,7 +653,7 @@
 
             <section class="cs-sec" id="cs-reflection" data-section="cs-reflection">
               <div class="cs-sec-label">
-                <span class="cs-sec-num">05</span>
+                <span class="cs-sec-num" id="cs-reflection-num"></span>
                 <span class="label">Reflection</span>
               </div>
               <h2>What I would do differently</h2>
@@ -767,7 +785,18 @@
           if (block.size === 'pair') {
             const alts = block.alts || ['',''];
             const caps = block.captions || ['',''];
-            return `<div class="cs-img-pair"><div class="cs-img" role="img" aria-label="${alts[0]}"><span class="cs-img-icon">⬛</span><span>${caps[0]||alts[0]}</span></div><div class="cs-img" role="img" aria-label="${alts[1]}"><span class="cs-img-icon">⬛</span><span>${caps[1]||alts[1]}</span></div></div>`;
+            const urls = block.urls || ['',''];
+            const cell1 = urls[0]
+              ? `<figure style="margin:0"><img src="${urls[0]}" alt="${alts[0]}" class="cs-img-real" loading="lazy" />${caps[0] ? `<figcaption class="cs-img-caption">${caps[0]}</figcaption>` : ''}</figure>`
+              : `<div class="cs-img" role="img" aria-label="${alts[0]}"><span class="cs-img-icon">⬛</span><span>${caps[0]||alts[0]}</span></div>`;
+            const cell2 = urls[1]
+              ? `<figure style="margin:0"><img src="${urls[1]}" alt="${alts[1]}" class="cs-img-real" loading="lazy" />${caps[1] ? `<figcaption class="cs-img-caption">${caps[1]}</figcaption>` : ''}</figure>`
+              : `<div class="cs-img" role="img" aria-label="${alts[1]}"><span class="cs-img-icon">⬛</span><span>${caps[1]||alts[1]}</span></div>`;
+            return `<div class="cs-img-pair">${cell1}${cell2}</div>`;
+          }
+          if (block.url) {
+            const figCls = block.size === 'xl' ? 'cs-img-figure cs-img-figure--xl' : 'cs-img-figure';
+            return `<figure class="${figCls}"><img src="${block.url}" alt="${block.alt||''}" class="cs-img-real" loading="lazy" />${block.caption ? `<figcaption class="cs-img-caption">${block.caption}</figcaption>` : ''}</figure>`;
           }
           return `<div class="cs-img cs-img--${block.size||'md'}" role="img" aria-label="${block.alt||''}"><span class="cs-img-icon">⬛</span><span>${block.caption||block.alt||''}</span><span style="font-size:0.65rem;opacity:0.6;">Replace with actual image</span></div>`;
         default:
@@ -845,10 +874,12 @@
     }
 
     const reflEl = document.getElementById('cs-reflection-text');
-    if (reflEl && cs.reflection) reflEl.textContent = cs.reflection;
+    if (reflEl && cs.reflection) reflEl.innerHTML = cs.reflection;
 
     const reflSection = document.getElementById('cs-reflection');
     if (reflSection && cs.hideReflection) reflSection.style.display = 'none';
+    const reflNumEl = document.getElementById('cs-reflection-num');
+    if (reflNumEl) reflNumEl.textContent = String((cs.sections || []).length + 1).padStart(2, '0');
 
     const nextEl = document.getElementById('cs-next-link');
     if (nextEl && cs.nextProject) {
