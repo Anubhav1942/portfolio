@@ -99,7 +99,21 @@
     }
 
     .save-indicator.saved  { color: var(--accent-soft); }
-    .save-indicator.saving { color: rgba(255,255,255,0.5); }
+    .save-indicator.saving { color: #fbbf24; }
+    .save-indicator.error  { color: #f87171; }
+
+    .btn-save-manual {
+      background: var(--accent) !important;
+      color: #fff !important;
+      font-weight: 600;
+      opacity: 1;
+      transition: opacity 0.15s, background 0.15s;
+    }
+    .btn-save-manual:disabled {
+      opacity: 0.35;
+      cursor: default;
+      pointer-events: none;
+    }
 
     .save-dot {
       width: 6px;
@@ -1115,8 +1129,9 @@
     <div class="topbar-actions">
       <div class="save-indicator" id="saveIndicator">
         <div class="save-dot"></div>
-        <span id="saveText">All changes saved</span>
+        <span id="saveText">No changes</span>
       </div>
+      <button class="btn-topbar btn-save-manual" id="btnManualSave" onclick="manualSave()" disabled>Save</button>
       <button class="btn-topbar btn-preview" onclick="previewSite()">Preview site ↗</button>
       <button class="btn-topbar" onclick="openImportModal()" style="background:transparent;border:1px solid rgba(255,255,255,0.18);color:rgba(255,255,255,0.75)">Import content.js</button>
       <button class="btn-topbar" onclick="logout()" style="background:transparent;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.55)" title="Sign out">Sign out</button>
@@ -1571,34 +1586,57 @@
   ════════════════════════════════════════ */
 
   const STORAGE_KEY  = 'portfolio_content_v1';
+  const VERSIONS_KEY = 'portfolio_versions_v1';
+  const RTE_TOOLBAR  = `
+    <div class="rte-toolbar" onmousedown="event.preventDefault()">
+      <button type="button" class="rte-btn" onclick="rteCmd(this,'bold')" title="Bold"><b>B</b></button>
+      <button type="button" class="rte-btn" onclick="rteCmd(this,'italic')" title="Italic"><em>I</em></button>
+      <span class="rte-sep"></span>
+      <button type="button" class="rte-btn" onclick="rteCmd(this,'insertUnorderedList')" title="Bullet list">• List</button>
+      <button type="button" class="rte-btn" onclick="rteCmd(this,'insertOrderedList')" title="1. List">1. List</button>
+      <span class="rte-sep"></span>
+      <button type="button" class="rte-btn" onclick="rteInsertBr(this)" title="Line break">↵ BR</button>
+    </div>`;
   let C = {}; // working copy of content
-  let saveTimer = null;
+  let _dirty = false; // true when there are unsaved changes
+  // Tracks which case study tabs have been lazily rendered
+  const _csRendered = {};
   window.CURRENT_UID = null;
 
-  /* ── Auth guard via Firebase Auth ── */
+  /* ── Step 1: render immediately from localStorage or content.js, no auth wait ── */
+  (function bootstrapFromCache() {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      C = stored ? JSON.parse(stored) : deepClone(window.CONTENT || {});
+    } catch(e) {
+      C = deepClone(window.CONTENT || {});
+    }
+    if (Object.keys(C).length) {
+      renderAllPanels();
+      bindSimpleFields();
+      setStatusReady();
+    }
+  })();
+
+  /* ── Step 2: auth resolves async; sync from Firestore in background ── */
   firebase.auth().onAuthStateChanged(function(user) {
     if (!user || !user.emailVerified) {
       window.location.href = 'login.html';
       return;
     }
-    // This panel is the main site admin — restricted to the site owner only.
-    // All other signed-in users are redirected to their own dashboard.
     if (user.email !== 'pandeyanubhav229@gmail.com') {
       window.location.href = 'dashboard.html';
       return;
     }
     window.CURRENT_UID = user.uid;
 
-    // Populate the default portfolio URL in Domain & Analytics panel
-    var base       = window.location.origin; // e.g. https://anubhavp.in
+    var base       = window.location.origin;
     var defaultUrl = base + '/index.html?uid=' + user.uid;
     var urlInput   = document.getElementById('defaultUrlInput');
     var urlLink    = document.getElementById('defaultUrlLink');
     if (urlInput) urlInput.value = defaultUrl;
     if (urlLink)  urlLink.href   = defaultUrl;
 
-    // Auto-register this hostname → uid in Firestore so visitors to this domain
-    // see the logged-in user's content (skips localhost and already-registered domains).
     var hostname = window.location.hostname;
     if (hostname && hostname !== 'localhost' && hostname !== '127.0.0.1') {
       window.fbDb.collection('domains').doc(hostname).get()
@@ -1607,43 +1645,63 @@
             return window.registerDomain(hostname, user.uid);
           }
         })
-        .catch(function() { /* non-fatal — user can register manually */ });
+        .catch(function() {});
     }
 
-    init();
+    syncFromFirestore();
   });
 
-  /* ── Bootstrap ── */
-  async function init() {
-    // Show loading state
-    const ind = document.getElementById('saveIndicator');
-    ind.className = 'save-indicator saving';
-    document.getElementById('saveText').textContent = 'Loading content…';
-
-    // Load content from Firestore for this user
-    let fromFirestore = false;
+  /* ── Firestore background sync ── */
+  async function syncFromFirestore() {
     try {
       const loaded = await window.loadContent(window.CURRENT_UID);
       if (loaded && Object.keys(loaded).length > 0) {
-        C = loaded;
-        fromFirestore = true;
-      }
-    } catch (e) { /* offline */ }
+        // Never overwrite the user's working data:
+        //   — if _dirty: user has unsaved edits in memory, their save wins
+        //   — if any sections/decisions tab is open: user is actively viewing
+        //     content that would be wiped by a full re-render; skip it
+        if (_dirty) return;
 
-    if (!fromFirestore) {
-      // Fall back to localStorage or content.js
-      const stored = localStorage.getItem(STORAGE_KEY);
-      C = stored ? JSON.parse(stored) : deepClone(window.CONTENT || {});
-      // Seed Firestore so it's ready for visitors
+        const anyTabOpen = Object.values(_csRendered).some(function(r) {
+          return r && (r.sections || r.decisions);
+        });
+        if (anyTabOpen) return;
+
+        const firestoreJson = JSON.stringify(loaded);
+        const currentJson   = JSON.stringify(C);
+        if (firestoreJson !== currentJson) {
+          C = loaded;
+          renderAllPanels();
+          bindSimpleFields();
+        }
+        return;
+      }
+    } catch(e) { /* offline or Firestore unavailable */ }
+
+    // No Firestore content yet — seed from content.js if C is still empty
+    if (!Object.keys(C).length) {
+      C = deepClone(window.CONTENT || {});
+      renderAllPanels();
+      bindSimpleFields();
+    }
+    if (window.CURRENT_UID) {
       try {
         await window.saveContent(C, window.CURRENT_UID);
         showToast('Content seeded to Firestore — all set!');
-      } catch (e) { /* will retry on next save */ }
+      } catch(e) {}
     }
+  }
 
-    renderAllPanels();
-    bindSimpleFields();
-    showSaved();
+  function setStatusReady() {
+    // Called only from bootstrapFromCache on initial page render.
+    // Does NOT touch _dirty — that is managed solely by markDirty() and manualSave().
+    const ind = document.getElementById('saveIndicator');
+    if (ind) {
+      ind.className = 'save-indicator';
+      document.getElementById('saveText').textContent = 'No changes';
+    }
+    const btn = document.getElementById('btnManualSave');
+    if (btn) btn.disabled = true;
   }
 
   /* ── Logout ── */
@@ -1707,6 +1765,8 @@
   // Generic uploader — calls window.uploadImage, updates a URL input and a thumb preview
   async function uploadImageToField(file, folder, urlInput, thumbEl, labelEl) {
     if (!file) return;
+    // Capture original label HTML before mutating so we can restore it in finally
+    const originalLabelHTML = labelEl ? labelEl.innerHTML : null;
     if (labelEl) labelEl.classList.add('uploading');
     try {
       const url = await window.uploadImage(file, window.CURRENT_UID, folder, function(pct) {
@@ -1720,9 +1780,9 @@
     } catch (e) {
       showToast('Upload failed: ' + (e.message || 'error'));
     } finally {
-      if (labelEl) {
+      if (labelEl && originalLabelHTML !== null) {
         labelEl.classList.remove('uploading');
-        labelEl.innerHTML = `<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 8V2M3 5l3-3 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M1.5 9.5h9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Upload<input type="file" accept="image/*" style="display:none" onchange="${labelEl.dataset.onchange}" />`;
+        labelEl.innerHTML = originalLabelHTML;
       }
     }
   }
@@ -1754,6 +1814,63 @@
     uploadImageToField(file, 'projects', urlEl, thumbEl, labelEl).then(function() {
       if (urlEl) updateItem('projects', idx, 'coverImage', urlEl.value);
     });
+  }
+
+  /* Update the thumb preview next to a URL input as the user types */
+  function updateCSBlockThumb(input) {
+    const thumb = input.parentElement.querySelector('.img-preview-thumb');
+    if (thumb) thumb.style.backgroundImage = input.value ? 'url(' + input.value + ')' : '';
+  }
+
+  /* Upload an image for a case study block, store URL in data, re-render panel */
+  async function uploadCSBlockImage(fileInput, csKey, listKey, itemIdx, blockIdx, mode, pairIdx) {
+    const file = fileInput.files[0];
+    if (!file) return;
+
+    const labelEl = fileInput.closest('label');
+    const origInner = labelEl ? labelEl.innerHTML : '';
+    if (labelEl) { labelEl.classList.add('uploading'); labelEl.childNodes[0].textContent = ' Uploading…'; }
+
+    try {
+      const url = await window.uploadImage(file, window.CURRENT_UID, 'case-studies/' + csKey);
+
+      // Update data model
+      const list = listKey === 'sections' ? C.caseStudies[csKey].sections : C.caseStudies[csKey].decisions;
+      const block = list[itemIdx].blocks[blockIdx];
+
+      if (mode === 'pair') {
+        if (!block.urls) block.urls = ['', ''];
+        block.urls[pairIdx] = url;
+      } else {
+        block.url = url;
+      }
+
+      markDirty();
+      showToast('Image uploaded');
+
+      // Re-render the case study panel, restore to the correct tab
+      const activePaneId = (() => {
+        const pane = document.querySelector(`#cs-${csKey}-fields .cs-panel-pane.active`);
+        return pane ? pane.id : null;
+      })();
+      renderCaseStudy(csKey);
+      if (activePaneId) {
+        const pane = document.getElementById(activePaneId);
+        if (pane) {
+          document.querySelectorAll(`#cs-${csKey}-fields .cs-panel-pane`).forEach(p => p.classList.remove('active'));
+          pane.classList.add('active');
+          const tabIdx = ['info','sections','decisions','reflection'].indexOf(activePaneId.replace('cs-' + csKey + '-pane-', ''));
+          const tabBtns = document.querySelectorAll(`#cs-${csKey}-fields .cs-panel-tab-btn`);
+          if (tabBtns[tabIdx]) {
+            tabBtns.forEach(b => b.classList.remove('active'));
+            tabBtns[tabIdx].classList.add('active');
+          }
+        }
+      }
+    } catch (e) {
+      showToast('Upload failed: ' + (e.message || 'error'));
+      if (labelEl) { labelEl.classList.remove('uploading'); labelEl.innerHTML = origInner; }
+    }
   }
 
   function deepClone(obj) {
@@ -1800,6 +1917,8 @@
 
   /* ── Bind all data-path inputs/textareas/RTE editors ── */
   function bindSimpleFields() {
+    const profileThumb = document.getElementById('profilePhotoThumb');
+
     document.querySelectorAll('[data-path]').forEach(el => {
       const path = el.dataset.path;
       const val = getPath(C, path);
@@ -1808,55 +1927,97 @@
         if (isRTE) el.innerHTML = val;
         else el.value = val;
       }
-      el.addEventListener('input', () => {
-        setPath(C, path, isRTE ? el.innerHTML : el.value);
-        scheduleSave();
-      });
+      // Use oninput assignment so re-calling bindSimpleFields replaces the handler
+      // instead of stacking duplicate listeners.
+      el.oninput = () => {
+        const v = isRTE ? el.innerHTML : el.value;
+        setPath(C, path, v);
+        markDirty();
+        // Keep profile photo thumbnail in sync without a separate addEventListener
+        if (path === 'global.profilePhoto' && profileThumb) {
+          profileThumb.style.backgroundImage = v ? 'url(' + v + ')' : '';
+        }
+      };
     });
 
-    // Populate profile photo thumb on load
+    // Initialise profile photo thumb from current value
     const profilePhotoVal = getPath(C, 'global.profilePhoto');
-    const profileThumb    = document.getElementById('profilePhotoThumb');
     if (profilePhotoVal && profileThumb) {
       profileThumb.style.backgroundImage = 'url(' + profilePhotoVal + ')';
     }
-    // Keep thumb in sync when URL is typed manually
-    const profilePhotoInput = document.querySelector('[data-path="global.profilePhoto"]');
-    if (profilePhotoInput && profileThumb) {
-      profilePhotoInput.addEventListener('input', () => {
-        profileThumb.style.backgroundImage = profilePhotoInput.value ? 'url(' + profilePhotoInput.value + ')' : '';
-      });
-    }
   }
 
-  /* ── Auto-save ── */
-  function scheduleSave() {
-    showSaving();
-    clearTimeout(saveTimer);
-    saveTimer = setTimeout(save, 600);
-  }
-
-  async function save() {
-    try {
-      await window.saveContent(C, window.CURRENT_UID);
-    } catch (e) {
-      // Firestore failed — at least keep local cache
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(C)); } catch (_) {}
-      console.warn('Firestore save failed:', e);
-    }
-    showSaved();
-  }
-
-  function showSaving() {
+  /* ── Dirty tracking (replaces autosave) ── */
+  function markDirty() {
+    if (_dirty) return;
+    _dirty = true;
     const ind = document.getElementById('saveIndicator');
     ind.className = 'save-indicator saving';
-    document.getElementById('saveText').textContent = 'Saving…';
+    ind.onclick = null;
+    document.getElementById('saveText').textContent = 'Unsaved changes';
+    document.getElementById('btnManualSave').disabled = false;
   }
+
+  /* ── Manual save (called by Save button) ── */
+  async function manualSave() {
+    // Flush all RTE editors before saving
+    Object.keys(C.caseStudies || {}).forEach(function(k) {
+      try { flushCSRTEs(k); } catch(e) {}
+    });
+    try { flushBioRTEs(); } catch(e) {}
+    try { flushSidebarRTEs(); } catch(e) {}
+
+    const btn = document.getElementById('btnManualSave');
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+
+    try {
+      await window.saveContent(C, window.CURRENT_UID);
+      _dirty = false;
+      showSaved();
+      // Auto-snapshot on every save
+      autoSnapshot();
+    } catch (e) {
+      // localStorage already updated by saveContent() before Firestore write
+      console.warn('[save] Firestore save failed:', e);
+      showSaveError();
+    } finally {
+      btn.textContent = 'Save';
+    }
+  }
+
+  /* ── Auto-snapshot on every manual save ── */
+  function autoSnapshot() {
+    const versions = JSON.parse(localStorage.getItem(VERSIONS_KEY) || '[]');
+    const name = 'Auto — ' + new Date().toLocaleString();
+    versions.unshift({ id: Date.now(), name, date: new Date().toLocaleString(), content: deepClone(C) });
+    if (versions.length > 20) versions.pop();
+    localStorage.setItem(VERSIONS_KEY, JSON.stringify(versions));
+    renderVersionsList();
+  }
+
+  /* Guard unsaved changes on tab close */
+  window.addEventListener('beforeunload', function(e) {
+    if (_dirty) {
+      e.preventDefault();
+      e.returnValue = 'You have unsaved changes. Save before leaving.';
+    }
+  });
 
   function showSaved() {
     const ind = document.getElementById('saveIndicator');
     ind.className = 'save-indicator saved';
-    document.getElementById('saveText').textContent = 'All changes saved';
+    ind.onclick = null;
+    document.getElementById('saveText').textContent = 'Saved';
+    document.getElementById('btnManualSave').disabled = true;
+  }
+
+  function showSaveError() {
+    const ind = document.getElementById('saveIndicator');
+    ind.className = 'save-indicator error';
+    document.getElementById('saveText').textContent = 'Save failed — try again';
+    ind.onclick = null;
+    document.getElementById('btnManualSave').disabled = false;
   }
 
   /* ── Toast ── */
@@ -1892,11 +2053,11 @@
     });
   }
 
-  function updateStat(i, key, val) { C.home.hero.stats[i][key] = val; scheduleSave(); }
-  function removeStat(i) { C.home.hero.stats.splice(i, 1); renderStats(); scheduleSave(); }
+  function updateStat(i, key, val) { C.home.hero.stats[i][key] = val; markDirty(); }
+  function removeStat(i) { C.home.hero.stats.splice(i, 1); renderStats(); markDirty(); }
   function addStat() {
     C.home.hero.stats.push({ value: '', label: '' });
-    renderStats(); scheduleSave();
+    renderStats(); markDirty();
     showToast('Stat added');
   }
 
@@ -1951,7 +2112,7 @@
 
   function addProject() {
     C.home.projects.push({ id:'new-'+Date.now(), number:'0'+(C.home.projects.length+1), tag:'', name:'New Project', subtitle:'', description:'', metric:'', url:'' });
-    renderProjects(); scheduleSave(); showToast('Project added');
+    renderProjects(); markDirty(); showToast('Project added');
   }
 
   /* ════════════════════════════════════════
@@ -1989,7 +2150,7 @@
 
   function addExperience() {
     C.home.experience.push({ company:'', role:'', period:'', description:'', metric:'' });
-    renderExperience(); scheduleSave(); showToast('Experience entry added');
+    renderExperience(); markDirty(); showToast('Experience entry added');
   }
 
   /* ════════════════════════════════════════
@@ -2025,10 +2186,11 @@
             <div class="field"><label>Tag</label><input type="text" value="${esc(p.tag)}" oninput="updateNestedItem('home','aiProjects',${i},'tag',this.value)" /></div>
             <div class="field"><label>Title</label><input type="text" value="${esc(p.title)}" oninput="updateNestedItem('home','aiProjects',${i},'title',this.value)" /></div>
           </div>
-          <div class="field"><label>Description</label>${rteHtml(p.description,"updateNestedItem('home','aiProjects',"+i+",'description',this.innerHTML)")}</div>
+          <div class="field"><label>Short description <span class="field-hint">(shown on card)</span></label>${rteHtml(p.description,"updateNestedItem('home','aiProjects',"+i+",'description',this.innerHTML)")}</div>
+          <div class="field"><label>Full detail <span class="field-hint">(shown in drawer)</span></label><textarea rows="5" style="width:100%;font-size:13px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;resize:vertical;" oninput="updateNestedItem('home','aiProjects',${i},'detailDescription',this.value)">${esc(p.detailDescription||'')}</textarea></div>
           <div class="repeat-body-grid">
-            <div class="field"><label>Link text</label><input type="text" value="${esc(p.linkText)}" oninput="updateNestedItem('home','aiProjects',${i},'linkText',this.value)" /></div>
-            <div class="field"><label>URL (optional)</label><input type="url" value="${esc(p.url)}" oninput="updateNestedItem('home','aiProjects',${i},'url',this.value)" /></div>
+            <div class="field"><label>Tool URL <span class="field-hint">(drawer "Visit tool" button)</span></label><input type="url" value="${esc(p.toolUrl||p.url||'')}" oninput="updateNestedItem('home','aiProjects',${i},'toolUrl',this.value)" /></div>
+            <div class="field"><label>Legacy link text</label><input type="text" value="${esc(p.linkText)}" oninput="updateNestedItem('home','aiProjects',${i},'linkText',this.value)" /></div>
           </div>
         </div>
       `;
@@ -2037,8 +2199,8 @@
   }
 
   function addAiProject() {
-    C.home.aiProjects.push({ tag:'', title:'New Project', description:'', linkText:'View', url:'' });
-    renderAiProjects(); scheduleSave(); showToast('Project added');
+    C.home.aiProjects.push({ tag:'', title:'New Project', description:'', detailDescription:'', linkText:'View', url:'', toolUrl:'' });
+    renderAiProjects(); markDirty(); showToast('Project added');
   }
 
   /* ════════════════════════════════════════
@@ -2086,7 +2248,7 @@
 
   function addBlogPost() {
     C.home.blog.push({ date:'', title:'New Post', readTime:'', url:'', image:'' });
-    renderBlog(); scheduleSave(); showToast('Post row added');
+    renderBlog(); markDirty(); showToast('Post row added');
   }
 
   function updateBlogThumbPreview(input) {
@@ -2106,7 +2268,7 @@
       el.className = 'repeat-item';
       el.innerHTML = `
         <div class="repeat-item-header" onclick="toggleRepeat(this)">
-          <span class="repeat-item-label">${item.type === 'heading' ? '— Heading: ' : '¶  '} ${(item.text||'').substring(0,50)}${(item.text||'').length>50?'…':''}</span>
+          <span class="repeat-item-label">${item.type === 'heading' ? '— Heading: ' : '¶  '} ${(()=>{ const t=(item.text||'').replace(/<[^>]*>/g,''); return t.length>50?t.substring(0,50)+'…':t; })()}</span>
           <div class="repeat-item-controls">
             <button class="btn-icon" onclick="moveItem('bioParagraphs',${i},-1,event,true)">↑</button>
             <button class="btn-icon" onclick="moveItem('bioParagraphs',${i},1,event,true)">↓</button>
@@ -2117,8 +2279,8 @@
           <div class="field">
             <label>Type</label>
             <div class="type-toggle">
-              <button class="type-btn ${item.type==='paragraph'?'active':''}" onclick="setBioType(${i},'paragraph',this)">Paragraph</button>
-              <button class="type-btn ${item.type==='heading'?'active':''}" onclick="setBioType(${i},'heading',this)">Section heading</button>
+              <button class="type-btn ${item.type==='paragraph'?'active':''}" onclick="setBioType(${i},'paragraph')">Paragraph</button>
+              <button class="type-btn ${item.type==='heading'?'active':''}" onclick="setBioType(${i},'heading')">Section heading</button>
             </div>
           </div>
           <div class="field">
@@ -2137,17 +2299,17 @@
   function addBioItem(type) {
     flushBioRTEs();
     C.about.bioParagraphs.push({ type, text: '' });
-    renderBio(); scheduleSave(); showToast(type === 'heading' ? 'Heading added' : 'Paragraph added');
+    renderBio(); markDirty(); showToast(type === 'heading' ? 'Heading added' : 'Paragraph added');
   }
 
-  function setBioType(i, type, btn) {
+  function setBioType(i, type) {
     flushBioRTEs();
     C.about.bioParagraphs[i].type = type;
-    renderBio(); scheduleSave();
+    renderBio(); markDirty();
   }
 
-  function updateBioItem(i, key, val) { C.about.bioParagraphs[i][key] = val; scheduleSave(); }
-  function removeBioItem(i, e) { e.stopPropagation(); flushBioRTEs(); C.about.bioParagraphs.splice(i,1); renderBio(); scheduleSave(); }
+  function updateBioItem(i, key, val) { C.about.bioParagraphs[i][key] = val; markDirty(); }
+  function removeBioItem(i, e) { e.stopPropagation(); flushBioRTEs(); C.about.bioParagraphs.splice(i,1); renderBio(); markDirty(); }
 
   /* ════════════════════════════════════════
      RENDER: Skills / Tools lists
@@ -2168,11 +2330,11 @@
 
   function addListItem(key) {
     C.about[key].push('');
-    renderList(key, key+'-list'); scheduleSave();
+    renderList(key, key+'-list'); markDirty();
   }
 
-  function updateListItem(key, i, val) { C.about[key][i] = val; scheduleSave(); }
-  function removeListItem(key, i) { C.about[key].splice(i,1); renderList(key, key+'-list'); scheduleSave(); }
+  function updateListItem(key, i, val) { C.about[key][i] = val; markDirty(); }
+  function removeListItem(key, i) { C.about[key].splice(i,1); renderList(key, key+'-list'); markDirty(); }
 
   /* ════════════════════════════════════════
      RENDER: Sidebar blocks
@@ -2200,9 +2362,9 @@
     });
   }
 
-  function addSidebarBlock() { flushSidebarRTEs(); C.about.sidebarBlocks.push({ label:'', content:'' }); renderSidebarBlocks(); scheduleSave(); }
-  function removeSidebarBlock(i,e) { e.stopPropagation(); flushSidebarRTEs(); C.about.sidebarBlocks.splice(i,1); renderSidebarBlocks(); scheduleSave(); }
-  function updateSidebarBlock(i, key, val) { C.about.sidebarBlocks[i][key] = val; scheduleSave(); }
+  function addSidebarBlock() { flushSidebarRTEs(); C.about.sidebarBlocks.push({ label:'', content:'' }); renderSidebarBlocks(); markDirty(); }
+  function removeSidebarBlock(i,e) { e.stopPropagation(); flushSidebarRTEs(); C.about.sidebarBlocks.splice(i,1); renderSidebarBlocks(); markDirty(); }
+  function updateSidebarBlock(i, key, val) { C.about.sidebarBlocks[i][key] = val; markDirty(); }
 
   /* ════════════════════════════════════════
      RENDER: Case study panels
@@ -2210,7 +2372,26 @@
   function renderCaseStudy(csKey) {
     const cs = C.caseStudies[csKey];
     if (!cs) return;
+
+    // If this case study was added dynamically in a previous session, its panel
+    // won't exist in the HTML on reload — create it now before writing into it.
+    if (!document.getElementById('panel-cs-' + csKey)) {
+      const main = document.querySelector('.main');
+      const pDiv = document.createElement('div');
+      pDiv.className = 'panel';
+      pDiv.id = 'panel-cs-' + csKey;
+      pDiv.innerHTML = `
+        <div class="panel-header">
+          <div class="panel-title">Case Study — ${esc(cs.title || csKey)}</div>
+          <div class="panel-desc">Hero, outcomes, sections.</div>
+        </div>
+        <div id="cs-${csKey}-fields"></div>
+      `;
+      main.appendChild(pDiv);
+    }
+
     const container = document.getElementById('cs-' + csKey + '-fields');
+    if (!container) return;
     container.innerHTML = '';
 
     const secCount = (cs.sections  || []).length;
@@ -2243,7 +2424,7 @@
               <div class="card-body-grid">
                 <div class="field"><label>Title</label><input type="text" value="${esc(cs.title)}" oninput="updateCS('${csKey}','title',this.value)" /></div>
                 <div class="field"><label>Tag 1</label><input type="text" value="${esc(cs.tags[0]||'')}" oninput="updateCSTag('${csKey}',0,this.value)" /></div>
-                <div class="field full"><label>Subtitle</label>${rteHtml(cs.subtitle,"updateCS('${csKey}','subtitle',this.innerHTML)")}</div>
+                <div class="field full"><label>Subtitle</label>${rteHtml(cs.subtitle,`updateCS('${csKey}','subtitle',this.innerHTML)`)}</div>
                 <div class="field"><label>Tag 2</label><input type="text" value="${esc(cs.tags[1]||'')}" oninput="updateCSTag('${csKey}',1,this.value)" /></div>
               </div>
             </div>
@@ -2285,7 +2466,7 @@
           <div class="section-divider">Reflection</div>
           <div class="card">
             <div class="card-body">
-              <div class="field"><label>Reflection paragraph</label>${rteHtml(cs.reflection,"updateCS('${csKey}','reflection',this.innerHTML)",true)}</div>
+              <div class="field"><label>Reflection paragraph</label>${rteHtml(cs.reflection,`updateCS('${csKey}','reflection',this.innerHTML)`,true)}</div>
             </div>
           </div>
 
@@ -2303,8 +2484,8 @@
 
     renderCSMeta(csKey);
     renderCSOutcomes(csKey);
-    renderCSSections(csKey);
-    renderCSDecisions(csKey);
+    // Sections and decisions are lazy — rendered on first tab open
+    _csRendered[csKey] = { sections: false, decisions: false };
   }
 
   function renderCSMeta(csKey) {
@@ -2353,9 +2534,9 @@
 
       let body = '';
       if (block.type === 'paragraph') {
-        body = `<div class="field"><label>Text</label>${rteHtml(block.text,"updateCSBlock('${csKey}','${listKey}',"+itemIdx+","+bi+",'text',this.innerHTML)",false,"data-cs='${csKey}' data-list='${listKey}' data-item='"+itemIdx+"' data-block='"+bi+"' data-field='text'")}</div>`;
+        body = `<div class="field"><label>Text</label>${rteHtml(block.text,`updateCSBlock('${csKey}','${listKey}',${itemIdx},${bi},'text',this.innerHTML)`,false,`data-cs='${csKey}' data-list='${listKey}' data-item='${itemIdx}' data-block='${bi}' data-field='text'`)}</div>`;
       } else if (block.type === 'callout') {
-        body = `<div class="field"><label>Callout text</label>${rteHtml(block.text,"updateCSBlock('${csKey}','${listKey}',"+itemIdx+","+bi+",'text',this.innerHTML)",false,"data-cs='${csKey}' data-list='${listKey}' data-item='"+itemIdx+"' data-block='"+bi+"' data-field='text'")}</div>`;
+        body = `<div class="field"><label>Callout text</label>${rteHtml(block.text,`updateCSBlock('${csKey}','${listKey}',${itemIdx},${bi},'text',this.innerHTML)`,false,`data-cs='${csKey}' data-list='${listKey}' data-item='${itemIdx}' data-block='${bi}' data-field='text'`)}</div>`;
       } else if (block.type === 'list') {
         const items = (block.items || []).map((item, si) => `
           <div class="sub-item-row">
@@ -2378,25 +2559,48 @@
       } else if (block.type === 'image') {
         const checked = block.show ? 'checked' : '';
         const sizeOpts = ['md','lg','xl','pair'].map(s => `<option value="${s}" ${block.size===s?'selected':''}>${s}</option>`).join('');
+        const uploadSvg = `<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 8V2M3 5l3-3 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M1.5 9.5h9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`;
         if (block.size === 'pair') {
           const alts = block.alts || ['',''];
           const caps = block.captions || ['',''];
+          const urls = block.urls || ['',''];
           body = `
             <div class="repeat-body-grid">
               <div class="field"><label>Show image</label><label style="display:flex;align-items:center;gap:0.4rem;margin-top:0.3rem"><input type="checkbox" ${checked} onchange="updateCSBlock('${csKey}','${listKey}',${itemIdx},${bi},'show',this.checked)" /> Visible</label></div>
               <div class="field"><label>Size</label><select onchange="updateCSBlock('${csKey}','${listKey}',${itemIdx},${bi},'size',this.value)">${sizeOpts}</select></div>
               <div class="field"><label>Alt 1</label><input type="text" value="${esc(alts[0])}" oninput="updateCSBlockPairField('${csKey}','${listKey}',${itemIdx},${bi},'alts',0,this.value)" /></div>
               <div class="field"><label>Caption 1</label><input type="text" value="${esc(caps[0])}" oninput="updateCSBlockPairField('${csKey}','${listKey}',${itemIdx},${bi},'captions',0,this.value)" /></div>
+              <div class="field full"><label>Image 1</label>
+                <div style="display:flex;gap:0.6rem;align-items:center">
+                  <input type="url" value="${esc(urls[0])}" placeholder="https://… or upload" oninput="updateCSBlockPairField('${csKey}','${listKey}',${itemIdx},${bi},'urls',0,this.value);updateCSBlockThumb(this)" style="flex:1" />
+                  <div class="img-preview-thumb" style="${urls[0] ? 'background-image:url('+esc(urls[0])+')' : ''}"></div>
+                  <label class="upload-btn" title="Upload image">${uploadSvg} Upload<input type="file" accept="image/*" style="display:none" onchange="uploadCSBlockImage(this,'${csKey}','${listKey}',${itemIdx},${bi},'pair',0)" /></label>
+                </div>
+              </div>
               <div class="field"><label>Alt 2</label><input type="text" value="${esc(alts[1])}" oninput="updateCSBlockPairField('${csKey}','${listKey}',${itemIdx},${bi},'alts',1,this.value)" /></div>
               <div class="field"><label>Caption 2</label><input type="text" value="${esc(caps[1])}" oninput="updateCSBlockPairField('${csKey}','${listKey}',${itemIdx},${bi},'captions',1,this.value)" /></div>
+              <div class="field full"><label>Image 2</label>
+                <div style="display:flex;gap:0.6rem;align-items:center">
+                  <input type="url" value="${esc(urls[1])}" placeholder="https://… or upload" oninput="updateCSBlockPairField('${csKey}','${listKey}',${itemIdx},${bi},'urls',1,this.value);updateCSBlockThumb(this)" style="flex:1" />
+                  <div class="img-preview-thumb" style="${urls[1] ? 'background-image:url('+esc(urls[1])+')' : ''}"></div>
+                  <label class="upload-btn" title="Upload image">${uploadSvg} Upload<input type="file" accept="image/*" style="display:none" onchange="uploadCSBlockImage(this,'${csKey}','${listKey}',${itemIdx},${bi},'pair',1)" /></label>
+                </div>
+              </div>
             </div>`;
         } else {
           body = `
             <div class="repeat-body-grid">
               <div class="field"><label>Show image</label><label style="display:flex;align-items:center;gap:0.4rem;margin-top:0.3rem"><input type="checkbox" ${checked} onchange="updateCSBlock('${csKey}','${listKey}',${itemIdx},${bi},'show',this.checked)" /> Visible</label></div>
               <div class="field"><label>Size</label><select onchange="updateCSBlock('${csKey}','${listKey}',${itemIdx},${bi},'size',this.value)">${sizeOpts}</select></div>
-              <div class="field"><label>Alt text</label><input type="text" value="${esc(block.alt)}" oninput="updateCSBlock('${csKey}','${listKey}',${itemIdx},${bi},'alt',this.value)" /></div>
-              <div class="field"><label>Caption</label><input type="text" value="${esc(block.caption)}" oninput="updateCSBlock('${csKey}','${listKey}',${itemIdx},${bi},'caption',this.value)" /></div>
+              <div class="field"><label>Alt text</label><input type="text" value="${esc(block.alt||'')}" oninput="updateCSBlock('${csKey}','${listKey}',${itemIdx},${bi},'alt',this.value)" /></div>
+              <div class="field"><label>Caption</label><input type="text" value="${esc(block.caption||'')}" oninput="updateCSBlock('${csKey}','${listKey}',${itemIdx},${bi},'caption',this.value)" /></div>
+              <div class="field full"><label>Image</label>
+                <div style="display:flex;gap:0.6rem;align-items:center">
+                  <input type="url" value="${esc(block.url||'')}" placeholder="https://… or upload" oninput="updateCSBlock('${csKey}','${listKey}',${itemIdx},${bi},'url',this.value);updateCSBlockThumb(this)" style="flex:1" />
+                  <div class="img-preview-thumb" style="${block.url ? 'background-image:url('+esc(block.url)+')' : ''}"></div>
+                  <label class="upload-btn" title="Upload image">${uploadSvg} Upload<input type="file" accept="image/*" style="display:none" onchange="uploadCSBlockImage(this,'${csKey}','${listKey}',${itemIdx},${bi},'single')" /></label>
+                </div>
+              </div>
             </div>`;
         }
       }
@@ -2430,6 +2634,8 @@
   }
 
   function renderCSSections(csKey) {
+    if (!_csRendered[csKey]) _csRendered[csKey] = {};
+    _csRendered[csKey].sections = true;
     const cs = C.caseStudies[csKey];
     const container = document.getElementById('cs-' + csKey + '-sections');
     if (!container) return;
@@ -2470,6 +2676,8 @@
   }
 
   function renderCSDecisions(csKey) {
+    if (!_csRendered[csKey]) _csRendered[csKey] = {};
+    _csRendered[csKey].decisions = true;
     const cs = C.caseStudies[csKey];
     const container = document.getElementById('cs-' + csKey + '-decisions');
     if (!container) return;
@@ -2523,6 +2731,15 @@
     container.querySelectorAll('.cs-panel-pane').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById('cs-' + csKey + '-pane-' + tabId).classList.add('active');
+
+    // Lazy-render sections/decisions the first time the tab is opened
+    // renderCSSections/renderCSDecisions each set _csRendered[csKey].sections/decisions = true
+    const rendered = _csRendered[csKey] || {};
+    if (tabId === 'sections' && !rendered.sections) {
+      renderCSSections(csKey);
+    } else if (tabId === 'decisions' && !rendered.decisions) {
+      renderCSDecisions(csKey);
+    }
   }
 
   /* ── Update tab count badges ── */
@@ -2538,7 +2755,7 @@
   /* ── Returns true if a section/decision item has any written content ── */
   function sectionHasContent(item) {
     return (item.blocks || []).some(b => {
-      if (b.type === 'paragraph' || b.type === 'callout') return (b.text || '').trim().length > 0;
+      if (b.type === 'paragraph' || b.type === 'callout') return (b.text || '').replace(/<[^>]*>/g,'').trim().length > 0;
       if (b.type === 'list')   return (b.items || []).some(i => i && String(i).trim());
       if (b.type === 'metric') return (b.items || []).length > 0;
       if (b.type === 'image')  return true;
@@ -2549,7 +2766,7 @@
   /* ── Returns a short readable preview string for a block ── */
   function blockPreview(block) {
     if (block.type === 'paragraph' || block.type === 'callout') {
-      const t = (block.text || '').trim();
+      const t = (block.text || '').replace(/<[^>]*>/g, '').trim();
       return t ? '“' + t.substring(0, 55) + (t.length > 55 ? '…' : '') + '”' : 'Empty';
     }
     if (block.type === 'list') {
@@ -2567,22 +2784,22 @@
   }
 
   /* ── CS updaters ── */
-  function updateCS(csKey, field, val) { C.caseStudies[csKey][field] = val; scheduleSave(); }
-  function updateCSTag(csKey, i, val) { C.caseStudies[csKey].tags[i] = val; scheduleSave(); }
-  function updateCSNext(csKey, field, val) { C.caseStudies[csKey].nextProject[field] = val; scheduleSave(); }
-  function updateCSMeta(csKey, i, field, val) { C.caseStudies[csKey].meta[i][field] = val; scheduleSave(); }
-  function updateCSOutcome(csKey, i, field, val) { C.caseStudies[csKey].outcomes[i][field] = val; scheduleSave(); }
+  function updateCS(csKey, field, val) { C.caseStudies[csKey][field] = val; markDirty(); }
+  function updateCSTag(csKey, i, val) { C.caseStudies[csKey].tags[i] = val; markDirty(); }
+  function updateCSNext(csKey, field, val) { C.caseStudies[csKey].nextProject[field] = val; markDirty(); }
+  function updateCSMeta(csKey, i, field, val) { C.caseStudies[csKey].meta[i][field] = val; markDirty(); }
+  function updateCSOutcome(csKey, i, field, val) { C.caseStudies[csKey].outcomes[i][field] = val; markDirty(); }
 
   /* Update a field on a section or decision item (num, label, heading, title) */
   function updateCSItemField(csKey, listKey, itemIdx, field, val) {
     C.caseStudies[csKey][listKey][itemIdx][field] = val;
-    scheduleSave();
+    markDirty();
   }
 
   /* Update a field within a block */
   function updateCSBlock(csKey, listKey, itemIdx, blockIdx, field, val) {
     C.caseStudies[csKey][listKey][itemIdx].blocks[blockIdx][field] = val;
-    scheduleSave();
+    markDirty();
   }
 
   /* Update a pair image array field (alts or captions) at a sub-index */
@@ -2590,7 +2807,7 @@
     const block = C.caseStudies[csKey][listKey][itemIdx].blocks[blockIdx];
     if (!block[field]) block[field] = ['', ''];
     block[field][subIdx] = val;
-    scheduleSave();
+    markDirty();
   }
 
   /* Update a sub-item within a list or metric block */
@@ -2603,7 +2820,7 @@
       if (!block.items) block.items = [];
       block.items[subIdx][field] = val;
     }
-    scheduleSave();
+    markDirty();
   }
 
   /* Add a new block to a section or decision — injects into DOM without full re-render */
@@ -2637,7 +2854,7 @@
       else renderCSDecisions(csKey);
     }
 
-    scheduleSave();
+    markDirty();
   }
 
   /* Flush all CS block RTE editors for a given csKey directly from DOM into C.
@@ -2680,7 +2897,7 @@
     C.caseStudies[csKey][listKey][itemIdx].blocks.splice(blockIdx, 1);
     if (listKey === 'sections') renderCSSections(csKey);
     else renderCSDecisions(csKey);
-    scheduleSave();
+    markDirty();
   }
 
   /* Move a block up or down within its section or decision */
@@ -2693,7 +2910,7 @@
     [blocks[blockIdx], blocks[ni]] = [blocks[ni], blocks[blockIdx]];
     if (listKey === 'sections') renderCSSections(csKey);
     else renderCSDecisions(csKey);
-    scheduleSave();
+    markDirty();
   }
 
   /* Add a sub-item to a list or metric block */
@@ -2709,7 +2926,7 @@
     }
     if (listKey === 'sections') renderCSSections(csKey);
     else renderCSDecisions(csKey);
-    scheduleSave();
+    markDirty();
   }
 
   /* Remove a sub-item from a list or metric block */
@@ -2719,18 +2936,18 @@
     if (block.items) block.items.splice(subIdx, 1);
     if (listKey === 'sections') renderCSSections(csKey);
     else renderCSDecisions(csKey);
-    scheduleSave();
+    markDirty();
   }
 
   function addCSSection(csKey) {
     flushCSRTEs(csKey);
     C.caseStudies[csKey].sections.push({ id:'sec-'+Date.now(), num:'0X', label:'New Section', heading:'', blocks:[{type:'paragraph',text:''}] });
-    renderCSSections(csKey); scheduleSave(); showToast('Section added');
+    renderCSSections(csKey); markDirty(); showToast('Section added');
   }
   function addCSDecision(csKey) {
     flushCSRTEs(csKey);
     C.caseStudies[csKey].decisions.push({ id:'dec-'+Date.now(), num:'Decision 0X', title:'New Decision', blocks:[{type:'paragraph',text:''}] });
-    renderCSDecisions(csKey); scheduleSave(); showToast('Decision added');
+    renderCSDecisions(csKey); markDirty(); showToast('Decision added');
   }
   function moveCSItem(csKey, listKey, i, dir, e) {
     e.stopPropagation();
@@ -2741,7 +2958,7 @@
     [arr[i], arr[ni]] = [arr[ni], arr[i]];
     if (listKey === 'sections') renderCSSections(csKey);
     else renderCSDecisions(csKey);
-    scheduleSave();
+    markDirty();
   }
   function removeCSItem(csKey, listKey, i, e) {
     e.stopPropagation();
@@ -2750,7 +2967,7 @@
     C.caseStudies[csKey][listKey].splice(i,1);
     if (listKey === 'sections') renderCSSections(csKey);
     else renderCSDecisions(csKey);
-    scheduleSave();
+    markDirty();
   }
 
   /* ════════════════════════════════════════
@@ -2767,7 +2984,7 @@
     if (row) row.classList.toggle('is-hidden', hidden);
     if (btn) btn.classList.toggle('on', !hidden);
     if (label) label.textContent = hidden ? '○ Section hidden from homepage' : '● Section visible on homepage';
-    scheduleSave();
+    markDirty();
     showToast(hidden ? 'AI section hidden from homepage' : 'AI section visible on homepage');
   }
 
@@ -2778,7 +2995,7 @@
     if (listKey === 'projects')    renderProjects();
     if (listKey === 'experience')  renderExperience();
     if (listKey === 'aiProjects')  renderAiProjects();
-    scheduleSave();
+    markDirty();
     showToast(C.home[listKey][i].hidden ? 'Hidden from live site' : 'Now visible on live site');
   }
 
@@ -2797,7 +3014,7 @@
     }
     if (btn) btn.className = 'toggle-pill-btn' + (cs.hidden ? '' : ' on');
     renderSidebarCS();
-    scheduleSave();
+    markDirty();
     showToast(cs.hidden ? 'Case study hidden from homepage' : 'Case study now published');
   }
 
@@ -2815,7 +3032,7 @@
         if (idx === 3) b.click(); // Reflection is the 4th tab
       });
     }
-    scheduleSave();
+    markDirty();
     showToast(cs.hideReflection ? 'Reflection section hidden' : 'Reflection section shown');
   }
 
@@ -2830,7 +3047,7 @@
     if (!confirm(`Delete all content data for "${name}"?\n\nThe HTML page will remain but render with no content. This cannot be undone from the admin.`)) return;
     delete C.caseStudies[csKey];
     renderSidebarCS();
-    save();
+    manualSave();
     showToast('Deleted: ' + name);
     // Show home panel since the CS panel is now empty
     showPanel('home', document.querySelector('.sidebar-item'));
@@ -2881,7 +3098,7 @@
     main.appendChild(pDiv);
     renderSidebarCS();
     renderCaseStudy(safeKey);
-    save();
+    manualSave();
     showToast('Case study "' + safeKey + '" added — now create work/' + safeKey + '.html');
     // Navigate to it
     const newBtn = document.querySelector(`#sidebar-cs-items button[data-key="${safeKey}"]`);
@@ -2910,11 +3127,11 @@
      GENERIC HELPERS
   ════════════════════════════════════════ */
   function updateItem(listKey, i, field, val) {
-    C.home[listKey][i][field] = val; scheduleSave();
+    C.home[listKey][i][field] = val; markDirty();
   }
 
   function updateNestedItem(section, listKey, i, field, val) {
-    C[section][listKey][i][field] = val; scheduleSave();
+    C[section][listKey][i][field] = val; markDirty();
   }
 
   function moveItem(listKey, i, dir, e, isAbout) {
@@ -2937,7 +3154,7 @@
       if (listKey === 'aiProjects') renderAiProjects();
       if (listKey === 'blog') renderBlog();
     }
-    scheduleSave();
+    markDirty();
   }
 
   function removeItem(listKey, i, e) {
@@ -2948,7 +3165,7 @@
     if (listKey === 'experience') renderExperience();
     if (listKey === 'aiProjects') renderAiProjects();
     if (listKey === 'blog') renderBlog();
-    scheduleSave();
+    markDirty();
   }
 
   function toggleRepeat(header) {
@@ -2958,17 +3175,6 @@
   /* ════════════════════════════════════════
      RICH TEXT EDITOR HELPERS
   ════════════════════════════════════════ */
-  const RTE_TOOLBAR = `
-    <div class="rte-toolbar" onmousedown="event.preventDefault()">
-      <button type="button" class="rte-btn" onclick="rteCmd(this,'bold')" title="Bold"><b>B</b></button>
-      <button type="button" class="rte-btn" onclick="rteCmd(this,'italic')" title="Italic"><em>I</em></button>
-      <span class="rte-sep"></span>
-      <button type="button" class="rte-btn" onclick="rteCmd(this,'insertUnorderedList')" title="Bullet list">• List</button>
-      <button type="button" class="rte-btn" onclick="rteCmd(this,'insertOrderedList')" title="1. List">1. List</button>
-      <span class="rte-sep"></span>
-      <button type="button" class="rte-btn" onclick="rteInsertBr(this)" title="Line break">↵ BR</button>
-    </div>`;
-
   function rteHtml(value, oninputExpr, tall, dataAttrs) {
     const da = dataAttrs ? ' ' + dataAttrs : '';
     return `<div class="rte-wrap">${RTE_TOOLBAR}<div class="rte-editor${tall ? ' tall' : ''}" contenteditable="true" oninput="${oninputExpr}"${da}>${value || ''}</div></div>`;
@@ -2996,8 +3202,6 @@
   /* ════════════════════════════════════════
      VERSIONS
   ════════════════════════════════════════ */
-  const VERSIONS_KEY = 'portfolio_versions_v1';
-
   function saveVersion() {
     const name = document.getElementById('versionNameInput').value.trim() || 'Snapshot';
     const versions = JSON.parse(localStorage.getItem(VERSIONS_KEY) || '[]');
@@ -3037,8 +3241,9 @@
     if (!confirm('Restore this version? Your current unsaved changes will be overwritten.')) return;
     const versions = JSON.parse(localStorage.getItem(VERSIONS_KEY) || '[]');
     C = deepClone(versions[i].content);
-    save();
+    manualSave();
     renderAllPanels();
+    bindSimpleFields(); // re-populate static [data-path] inputs with restored values
     showToast('Restored: ' + versions[i].name);
   }
 
@@ -3101,7 +3306,7 @@
   async function publishToSite() {
     // Flush every contenteditable into C before writing
     flushAllRTEs();
-    save();
+    await manualSave();
 
     const content = buildExportString();
 
@@ -3272,22 +3477,19 @@
     } catch (renderErr) {
       console.warn('renderAllPanels error after import:', renderErr);
     }
-    // Re-bind fields to new content values (clone inputs to remove old listeners)
-    document.querySelectorAll('[data-path]').forEach(function(el) {
-      const clone = el.cloneNode(true);
-      el.parentNode.replaceChild(clone, el);
-    });
+    // Re-bind [data-path] fields — oninput assignment replaces handlers in-place, no cloning needed
     bindSimpleFields();
     showToast('content.js imported — rendering panels…');
-    // Persist to Firestore so the public site picks up the imported content.
+    // Persist to Firestore so the public site picks up the imported content
     if (window.CURRENT_UID) {
-      showSaving();
       try {
         await window.saveContent(C, window.CURRENT_UID);
+        _dirty = false;
         showSaved();
         showToast('\u2714 content.js imported and published to your site');
       } catch (e) {
-        showSaved();
+        // Save failed — mark dirty so the user can retry via the Save button
+        markDirty();
         showToast('content.js imported — Firestore save failed, check connection');
       }
     } else {
@@ -3300,7 +3502,6 @@
   });
 
   /* ── Start ── */
-  init();
   </script>
 </body>
 </html>
