@@ -35,8 +35,10 @@
 
   /* ── Public content: resolve uid from query param → hostname → fallback ── */
   function loadPublicContent() {
-    var hostname = window.location.hostname;
-    var isLocal  = (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '');
+    var hostname  = window.location.hostname;
+    var isFileUrl = (window.location.protocol === 'file:');
+    // Treat only actual local dev servers as "local" — file:// should still try Firestore
+    var isLocal   = !isFileUrl && (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '');
 
     // 1. Check for ?uid= query parameter — used for default user portfolio URLs
     var params   = new URLSearchParams(window.location.search);
@@ -53,9 +55,23 @@
         .catch(function () { return null; });
     }
 
-    // 2. Dev environment — skip domain lookup, use localStorage or content.js
+    // 2. Dev environment (localhost) — skip domain lookup, use localStorage or content.js
     if (isLocal) {
       return Promise.resolve(null);
+    }
+
+    // 2b. file:// — no domain to look up, go straight to legacy Firestore path
+    if (isFileUrl) {
+      console.log('[portfolio] file:// detected — skipping domain lookup, trying legacy path');
+      return window.fbDb.collection('portfolio').doc('content').get()
+        .then(function (doc) {
+          if (doc.exists && doc.data() && doc.data().data) {
+            console.log('[portfolio] Content loaded from legacy path (file:// mode)');
+            return JSON.parse(doc.data().data);
+          }
+          return null;
+        })
+        .catch(function () { return null; });
     }
 
     // 3. Custom domain → look up domains/{hostname} → uid → content
@@ -157,35 +173,52 @@
   };
 
   /**
-   * uploadImage(file, uid, folder)
+   * uploadImage(file, uid, folder, onProgress)
    *
-   * Uploads a File object to Firebase Storage under users/{uid}/images/{folder}/{timestamp}_{name}.
-   * Returns a Promise that resolves to the public download URL string.
-   * Requires firebase-storage-compat.js to be loaded before firebase-config.js.
+   * Uploads a File object to ImgBB and returns a Promise resolving to the direct image URL.
+   * onProgress is called with a percentage (0-100) during upload.
    */
   window.uploadImage = function (file, uid, folder, onProgress) {
-    if (!window.fbStorage) {
-      return Promise.reject(new Error('Firebase Storage SDK not loaded.'));
-    }
-    if (!uid) return Promise.reject(new Error('uid required'));
-
-    var ext       = file.name.split('.').pop();
-    var safeName  = Date.now() + '_' + Math.random().toString(36).slice(2) + '.' + ext;
-    var path      = 'users/' + uid + '/images/' + (folder || 'misc') + '/' + safeName;
-    var ref       = window.fbStorage.ref(path);
-    var task      = ref.put(file);
+    var IMGBB_KEY = '410076e1afb9ee1d1edb428ae07ac617';
 
     return new Promise(function (resolve, reject) {
-      task.on('state_changed',
-        function (snap) {
-          var pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
-          if (typeof onProgress === 'function') onProgress(pct);
-        },
-        reject,
-        function () {
-          task.snapshot.ref.getDownloadURL().then(resolve).catch(reject);
+      var reader = new FileReader();
+      reader.onerror = function () { reject(new Error('Failed to read file')); };
+      reader.onload = function (e) {
+        // Strip the data URL prefix — ImgBB wants the raw base64 string
+        var base64 = e.target.result.replace(/^data:[^;]+;base64,/, '');
+
+        var formData = new FormData();
+        formData.append('key', IMGBB_KEY);
+        formData.append('image', base64);
+        formData.append('name', Date.now() + '_' + file.name);
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', 'https://api.imgbb.com/1/upload');
+
+        if (typeof onProgress === 'function') {
+          xhr.upload.onprogress = function (ev) {
+            if (ev.lengthComputable) onProgress(Math.round((ev.loaded / ev.total) * 100));
+          };
         }
-      );
+
+        xhr.onload = function () {
+          try {
+            var res = JSON.parse(xhr.responseText);
+            if (res.success && res.data && res.data.url) {
+              resolve(res.data.url);
+            } else {
+              reject(new Error(res.error && res.error.message || 'ImgBB upload failed'));
+            }
+          } catch (err) {
+            reject(new Error('ImgBB response parse error'));
+          }
+        };
+
+        xhr.onerror = function () { reject(new Error('Network error during upload')); };
+        xhr.send(formData);
+      };
+      reader.readAsDataURL(file);
     });
   };
 })();
