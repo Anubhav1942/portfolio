@@ -117,16 +117,16 @@
     <div class="nav__inner">
       <a href="https://anubhav1942.github.io/portfolio/" class="nav__logo" aria-label="Anubhav Pandey — Home">Anubhav Pandey</a>
 
-      <ul class="nav__links" role="list">
+      <ul class="nav__links" role="list" id="nav-links-list">
         <li><a href="#work">Work</a></li>
-        <li><a href="https://anubhav1942.github.io/portfolio/about.html">About</a></li>
+        <li><a href="about.html">About</a></li>
         <li><a href="#writing">Blogs</a></li>
-        <li><a href="assets/anubhav-pandey-resume.pdf" target="_blank" rel="noopener" data-track="resume-view" data-track-source="nav">View Resume</a></li>
+        <li><a href="assets/anubhav-pandey-resume.pdf" target="_blank" rel="noopener">View Resume</a></li>
       </ul>
 
-      <div class="nav__actions">
+      <div class="nav__actions" id="nav-cta-area">
         <button type="button" class="nav__btn-primary js-contact-open" data-track="contact" data-track-source="nav">Get in touch</button>
-        <a href="login.html?mode=signup" class="nav__create-link">Create your own portfolio <span aria-hidden="true">→</span></a>
+        <a href="login.html?mode=signup" class="nav__create-link" id="nav-create-link">Create your own portfolio <span aria-hidden="true">→</span></a>
       </div>
 
       <button
@@ -154,8 +154,10 @@
             <span class="sk sk-hero__label"></span>
             <span class="sk sk-hero__h1"></span>
             <span class="sk sk-hero__h1-2"></span>
+            <span class="sk sk-hero__h1-3"></span>
             <span class="sk sk-hero__sub-1"></span>
             <span class="sk sk-hero__sub-2"></span>
+            <span class="sk sk-hero__sub-3"></span>
             <div class="sk-hero__stats">
               <div class="sk-hero__stat"><span class="sk sk-hero__stat-val"></span><span class="sk sk-hero__stat-label"></span><span class="sk sk-hero__stat-label-2"></span></div>
               <div class="sk-hero__stat"><span class="sk sk-hero__stat-val"></span><span class="sk sk-hero__stat-label"></span><span class="sk sk-hero__stat-label-2"></span></div>
@@ -171,7 +173,7 @@
           <!-- ── Real content ── -->
           <div class="content-target">
             <div class="hero__label">
-              <span class="label">Product Designer</span>
+              <span class="label" id="hero-label">Product Designer</span>
             </div>
 
             <h1 class="hero__heading" id="hero-heading">
@@ -594,41 +596,19 @@
 
         <nav aria-label="Footer navigation">
           <span class="footer__col-label">Navigation</span>
-          <ul class="footer__links" role="list">
+          <ul class="footer__links" role="list" id="footer-nav-links">
             <li><a href="#work">Work</a></li>
-            <li><a href="https://anubhav1942.github.io/portfolio/about.html">About</a></li>
+            <li><a href="about.html">About</a></li>
             <li><a href="#writing">Blogs</a></li>
           </ul>
         </nav>
 
         <div>
           <span class="footer__col-label">Contact</span>
-          <ul class="footer__links" role="list">
-            <li>
-              <a
-                href="mailto:pandeyanubhav229@gmail.com"
-                data-track="contact"
-                data-track-name="email"
-              >pandeyanubhav229@gmail.com</a>
-            </li>
-            <li>
-              <a
-                href="https://www.linkedin.com/in/anubhavp2000/"
-                target="_blank"
-                rel="noopener noreferrer"
-                data-track="contact"
-                data-track-name="linkedin"
-              >LinkedIn</a>
-            </li>
-            <li>
-              <a
-                href="https://dribbble.com/anubhavp"
-                target="_blank"
-                rel="noopener noreferrer"
-                data-track="external"
-                data-track-name="dribbble"
-              >Dribbble</a>
-            </li>
+          <ul class="footer__links" role="list" id="footer-contact-links">
+            <li><a href="mailto:pandeyanubhav229@gmail.com">pandeyanubhav229@gmail.com</a></li>
+            <li><a href="https://www.linkedin.com/in/anubhavp2000/" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+            <li><a href="https://dribbble.com/anubhavp" target="_blank" rel="noopener noreferrer">Dribbble</a></li>
           </ul>
         </div>
 
@@ -685,6 +665,63 @@
     document.querySelectorAll('[data-content="footer-desc"]').forEach(el => el.innerHTML = g.footerDesc || '');
     document.querySelectorAll('[data-content="copyright"]').forEach(el => el.textContent = g.copyright || '');
     document.querySelectorAll('[data-content="resume-url"]').forEach(el => { el.href = g.resumeUrl || '#'; });
+
+    /* ── Hero label ── */
+    const labelEl = document.getElementById('hero-label');
+    if (labelEl && hero.label) labelEl.textContent = hero.label;
+
+    /* ── Nav links (main list) ── */
+    const navLinksList = document.getElementById('nav-links-list');
+    if (navLinksList && g.navLinks && g.navLinks.length) {
+      navLinksList.innerHTML = g.navLinks
+        .filter(l => !l.hidden)
+        .map(l => {
+          const ext = l.newTab ? ' target="_blank" rel="noopener"' : '';
+          const icon = l.icon ? ` <span aria-hidden="true">${l.icon}</span>` : '';
+          return `<li><a href="${l.url}"${ext}>${l.label}${icon}</a></li>`;
+        }).join('');
+    }
+
+    /* ── Nav CTA area ── */
+    const navCtaArea = document.getElementById('nav-cta-area');
+    if (navCtaArea && g.navCtaLinks && g.navCtaLinks.length) {
+      navCtaArea.innerHTML = g.navCtaLinks
+        .filter(l => !l.hidden)
+        .map(l => {
+          if (l.type === 'contact-btn') {
+            return `<button type="button" class="nav__btn-primary js-contact-open" data-track="contact" data-track-source="nav">${l.label}</button>`;
+          }
+          const icon = l.icon ? ` <span aria-hidden="true">${l.icon}</span>` : '';
+          const ext = l.newTab ? ' target="_blank" rel="noopener"' : '';
+          return `<a href="${l.url}"${ext} class="nav__create-link">${l.label}${icon}</a>`;
+        }).join('');
+      // Re-bind contact modal opener after re-render
+      navCtaArea.querySelectorAll('.js-contact-open').forEach(btn => {
+        btn.addEventListener('click', () => document.dispatchEvent(new CustomEvent('open-contact-modal')));
+      });
+    }
+
+    /* ── Footer nav links ── */
+    const footerNavEl = document.getElementById('footer-nav-links');
+    if (footerNavEl && g.footerNavLinks && g.footerNavLinks.length) {
+      footerNavEl.innerHTML = g.footerNavLinks
+        .filter(l => !l.hidden)
+        .map(l => {
+          const ext = l.newTab ? ' target="_blank" rel="noopener noreferrer"' : '';
+          return `<li><a href="${l.url}"${ext}>${l.label}</a></li>`;
+        }).join('');
+    }
+
+    /* ── Footer contact links ── */
+    const footerContactEl = document.getElementById('footer-contact-links');
+    if (footerContactEl && g.footerContactLinks && g.footerContactLinks.length) {
+      footerContactEl.innerHTML = g.footerContactLinks
+        .filter(l => !l.hidden)
+        .map(l => {
+          const ext = l.newTab ? ' target="_blank" rel="noopener noreferrer"' : '';
+          return `<li><a href="${l.url}"${ext}>${l.label}</a></li>`;
+        }).join('');
+    }
 
     /* ── Hero heading ── */
     const headingEl = document.getElementById('hero-heading');
@@ -761,11 +798,17 @@
     const aiEl = document.getElementById('ai-grid');
     if (aiEl && h.aiProjects) {
       aiEl.innerHTML = h.aiProjects.filter(p => !p.hidden).map(p => `
-        <article class="ai-card" role="listitem">
+        <article class="ai-card is-clickable" role="listitem"
+          onclick="openAiDrawer(this)"
+          data-tag="${(p.tag||'').replace(/"/g,'&quot;')}"
+          data-title="${(p.title||'').replace(/"/g,'&quot;')}"
+          data-desc="${(p.description||'').replace(/"/g,'&quot;')}"
+          data-detail="${(p.detailDescription||'').replace(/"/g,'&quot;')}"
+          data-tool-url="${(p.toolUrl||p.url||'').replace(/"/g,'&quot;')}">
           <span class="ai-card__tag">${p.tag}</span>
           <h3 class="ai-card__title">${p.title}</h3>
           <p class="ai-card__desc">${p.description}</p>
-          <${p.url ? 'a href="'+p.url+'" target="_blank" rel="noopener"' : 'span'} class="ai-card__link">${p.linkText} ${p.url ? '→' : ''}</${p.url ? 'a' : 'span'}>
+          <span class="ai-card__read-more">Read more →</span>
         </article>
       `).join('');
     }
@@ -802,6 +845,66 @@
     document.body.classList.add('content-loaded');
   }, 4000);
   </script>
+
+  <!-- AI Drawer Logic -->
+  <script>
+    function openAiDrawer(card) {
+      var tag     = card.getAttribute('data-tag')     || '';
+      var title   = card.getAttribute('data-title')   || '';
+      var desc    = card.getAttribute('data-desc')    || '';
+      var detail  = card.getAttribute('data-detail')  || '';
+      var toolUrl = card.getAttribute('data-tool-url')|| '';
+
+      document.getElementById('aiDrawerTag').textContent       = tag;
+      document.getElementById('aiDrawerTitle').textContent     = title;
+      document.getElementById('aiDrawerShortDesc').textContent = desc;
+      document.getElementById('aiDrawerDetail').innerHTML      = detail
+        ? detail.replace(/\n/g, '<br/>')
+        : '<span style="opacity:.45">No additional details yet.</span>';
+
+      var btn = document.getElementById('aiDrawerVisitBtn');
+      if (toolUrl) {
+        btn.href = toolUrl;
+        btn.classList.remove('disabled');
+      } else {
+        btn.href = '#';
+        btn.classList.add('disabled');
+      }
+
+      document.getElementById('aiDrawerOverlay').classList.add('is-open');
+      document.getElementById('aiDrawer').classList.add('is-open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeAiDrawer() {
+      document.getElementById('aiDrawerOverlay').classList.remove('is-open');
+      document.getElementById('aiDrawer').classList.remove('is-open');
+      document.body.style.overflow = '';
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeAiDrawer();
+    });
+  </script>
+
+  <!-- AI Project Drawer -->
+  <div class="ai-drawer-overlay" id="aiDrawerOverlay" onclick="closeAiDrawer()" aria-hidden="true"></div>
+  <aside class="ai-drawer" id="aiDrawer" role="dialog" aria-modal="true" aria-labelledby="aiDrawerTitle">
+    <div class="ai-drawer__header">
+      <div class="ai-drawer__meta">
+        <span class="ai-drawer__tag" id="aiDrawerTag"></span>
+        <h2 class="ai-drawer__title" id="aiDrawerTitle"></h2>
+      </div>
+      <button class="ai-drawer__close" onclick="closeAiDrawer()" aria-label="Close">✕</button>
+    </div>
+    <div class="ai-drawer__body">
+      <p class="ai-drawer__short-desc" id="aiDrawerShortDesc"></p>
+      <div class="ai-drawer__detail" id="aiDrawerDetail"></div>
+    </div>
+    <div class="ai-drawer__footer">
+      <a class="ai-drawer__visit-btn" id="aiDrawerVisitBtn" href="#" target="_blank" rel="noopener">Visit tool →</a>
+    </div>
+  </aside>
 
   <!-- Behaviours -->
   <script src="scripts/main.js" defer></script>

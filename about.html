@@ -182,7 +182,7 @@
 
       <div class="nav__actions">
         <button type="button" class="nav__btn-primary js-contact-open" data-track="contact" data-track-source="nav">Get in touch</button>
-        <a href="login.html?mode=signup" class="nav__create-link">Create your own portfolio <span aria-hidden="true">→</span></a>
+        <a href="login.html?mode=signup" class="nav__create-link" id="nav-create-link">Create your own portfolio <span aria-hidden="true">→</span></a>
       </div>
       <button class="nav__toggle" aria-label="Toggle menu" aria-expanded="false">
         <span></span><span></span><span></span>
@@ -425,6 +425,12 @@
   <script src="firebase-config.js"></script>
   <script>
   window.loadContent().then(function(C) {
+    
+    /* ── Hide "Create your own portfolio" nav link ── */
+    if (g && g.hideNavCreate) {
+      const navCreate = document.getElementById('nav-create-link');
+      if (navCreate) navCreate.style.display = 'none';
+    }
     document.body.classList.add('content-loaded');
     if (!C) return;
 

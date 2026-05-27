@@ -629,15 +629,15 @@ p {
 .hero__sub {
   font-size: 1.05rem;
   color: var(--text-sec);
-  max-width: 540px;
   line-height: 1.75;
   margin-bottom: var(--sp-10);
 }
 
 /* Metric strip below hero text */
 .hero__stats {
-  display: flex;
-  gap: var(--sp-12);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  gap: var(--sp-8);
   padding: var(--sp-6) 0;
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
@@ -660,7 +660,6 @@ p {
   line-height: 1.4;
   margin-top: 0.3rem;
   display: block;
-  max-width: 120px;
 }
 
 /* CTAs */
@@ -964,6 +963,178 @@ p {
   color: var(--accent);
 }
 
+.ai-card.is-clickable {
+  cursor: pointer;
+}
+
+.ai-card__read-more {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: color var(--ease);
+}
+
+.ai-card.is-clickable:hover .ai-card__read-more {
+  color: var(--accent);
+}
+
+/* ── AI Project Drawer ── */
+.ai-drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 10, 9, 0.45);
+  backdrop-filter: blur(3px);
+  z-index: 800;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s ease;
+}
+
+.ai-drawer-overlay.is-open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.ai-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(520px, 92vw);
+  background: var(--bg-card);
+  border-left: 1px solid var(--border);
+  z-index: 801;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.28s cubic-bezier(0.32, 0, 0.16, 1);
+  overflow: hidden;
+}
+
+.ai-drawer.is-open {
+  transform: translateX(0);
+}
+
+.ai-drawer__header {
+  padding: 1.5rem 1.75rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-shrink: 0;
+}
+
+.ai-drawer__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.ai-drawer__tag {
+  font-size: 0.67rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent-mid);
+}
+
+.ai-drawer__title {
+  font-family: var(--font-sans);
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--text);
+  letter-spacing: -0.015em;
+  line-height: 1.35;
+}
+
+.ai-drawer__close {
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-sec);
+  font-size: 1rem;
+  flex-shrink: 0;
+  transition: background var(--ease), color var(--ease);
+  line-height: 1;
+}
+
+.ai-drawer__close:hover {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.ai-drawer__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.75rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+.ai-drawer__short-desc {
+  font-size: 0.9rem;
+  color: var(--text-sec);
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.ai-drawer__detail {
+  font-size: 0.875rem;
+  color: var(--text-sec);
+  line-height: 1.8;
+}
+
+.ai-drawer__detail p {
+  margin-bottom: 1rem;
+}
+
+.ai-drawer__detail p:last-child {
+  margin-bottom: 0;
+}
+
+.ai-drawer__footer {
+  padding: 1.25rem 1.75rem;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.ai-drawer__visit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 0.65rem 1.4rem;
+  background: var(--accent);
+  color: #fff;
+  border-radius: var(--radius);
+  text-decoration: none;
+  transition: background var(--ease);
+}
+
+.ai-drawer__visit-btn:hover {
+  background: var(--accent-mid);
+  color: #fff;
+}
+
+.ai-drawer__visit-btn.disabled {
+  background: var(--border);
+  color: var(--text-muted);
+  pointer-events: none;
+}
 
 /* ============================================================
    10. BLOG SHELF
@@ -1497,12 +1668,19 @@ p {
   animation: sk-shimmer 1.5s infinite linear;
 }
 
-/* ── Hero skeleton ── */
-.sk-hero__label  { width: 110px; height: 10px; margin-bottom: var(--sp-6); }
-.sk-hero__h1     { width: 82%; height: 68px; margin-bottom: var(--sp-4); }
-.sk-hero__h1-2   { width: 60%; height: 68px; margin-bottom: var(--sp-8); }
-.sk-hero__sub-1  { width: 88%; height: 14px; margin-bottom: var(--sp-2); }
-.sk-hero__sub-2  { width: 70%; height: 14px; margin-bottom: var(--sp-10); }
+/* ── Hero skeleton ──
+   Sizes tuned to match the real .hero__heading / .hero__sub
+   line-heights and the actual 3-line content layout. The h1
+   spans simulate "Designing clarity / into systems that /
+   resist it." and the sub spans simulate 3 wrapped lines of
+   the intro paragraph. */
+.sk-hero__label  { width: 132px; height: 11px; margin-bottom: var(--sp-6); }
+.sk-hero__h1     { width: 78%; height: 64px; margin-bottom: 0.4rem; }
+.sk-hero__h1-2   { width: 82%; height: 64px; margin-bottom: 0.4rem; }
+.sk-hero__h1-3   { width: 56%; height: 64px; margin-bottom: var(--sp-8); }
+.sk-hero__sub-1  { width: 94%; height: 22px; margin-bottom: 0.35rem; }
+.sk-hero__sub-2  { width: 88%; height: 22px; margin-bottom: 0.35rem; }
+.sk-hero__sub-3  { width: 66%; height: 22px; margin-bottom: var(--sp-10); }
 
 .sk-hero__stats {
   display: flex;
@@ -1514,8 +1692,8 @@ p {
 }
 .sk-hero__stat { display: flex; flex-direction: column; gap: 0.4rem; }
 .sk-hero__stat-val   { width: 64px; height: 28px; }
-.sk-hero__stat-label { width: 90px; height: 10px; }
-.sk-hero__stat-label-2 { width: 72px; height: 10px; margin-top: 2px; }
+.sk-hero__stat-label { width: 160px; height: 14px; }
+.sk-hero__stat-label-2 { width: 120px; height: 14px; margin-top: 2px; }
 
 .sk-hero__ctas { display: flex; gap: var(--sp-8); align-items: center; }
 .sk-hero__btn-primary { width: 110px; height: 40px; border-radius: 3px; }
@@ -1538,15 +1716,24 @@ p {
   gap: var(--sp-6);
 }
 .sk-project-card__top   { display: flex; justify-content: space-between; align-items: center; }
-.sk-project-card__num   { width: 20px; height: 10px; }
-.sk-project-card__tag   { width: 90px; height: 20px; border-radius: 2px; }
-.sk-project-card__title { width: 55%; height: 32px; }
-.sk-project-card__sub   { width: 72%; height: 11px; margin-top: 0.3rem; }
-.sk-project-card__desc-1 { width: 100%; height: 12px; }
-.sk-project-card__desc-2 { width: 92%;  height: 12px; }
-.sk-project-card__desc-3 { width: 80%;  height: 12px; }
-.sk-project-card__metric { width: 60%; height: 18px; padding-top: var(--sp-4); border-top: 1px solid var(--border); }
-.sk-project-card__cta   { width: 100px; height: 12px; margin-top: auto; }
+.sk-project-card__num   { width: 20px; height: 11px; }
+.sk-project-card__tag   { width: 110px; height: 22px; border-radius: 2px; }
+
+/* Title + subtitle are nested in the real layout (h2 contains the subtitle
+   span), so they should sit tight together. Negative margin-top on the
+   subtitle absorbs the parent's flex gap. */
+.sk-project-card__title { width: 48%; height: 28px; }
+.sk-project-card__sub   { width: 80%; height: 16px; margin-top: -1.1rem; }
+
+/* Description simulates a 3-line paragraph. The desc-2/3 spans pull tight
+   under desc-1 (negating the parent flex gap) so the skeleton looks like
+   continuous text rather than three separate bars. */
+.sk-project-card__desc-1 { width: 96%; height: 18px; }
+.sk-project-card__desc-2 { width: 92%; height: 18px; margin-top: -1.1rem; }
+.sk-project-card__desc-3 { width: 75%; height: 18px; margin-top: -1.1rem; }
+
+.sk-project-card__metric { width: 60%; height: 20px; padding-top: var(--sp-4); border-top: 1px solid var(--border); }
+.sk-project-card__cta    { width: 110px; height: 14px; margin-top: auto; }
 
 /* ── Experience skeleton ── */
 .sk-exp__item {
@@ -1629,7 +1816,12 @@ p {
 
 /* ── Responsive skeleton overrides ── */
 @media (max-width: 768px) {
-  .sk-hero__h1, .sk-hero__h1-2 { height: 44px; }
+  .sk-hero__h1,
+  .sk-hero__h1-2,
+  .sk-hero__h1-3 { height: 46px; }
+  .sk-hero__sub-1,
+  .sk-hero__sub-2,
+  .sk-hero__sub-3 { height: 20px; }
   .sk-projects__grid { grid-template-columns: 1fr; }
   .sk-exp__item { grid-template-columns: 1fr; }
   .sk-ai__grid  { grid-template-columns: 1fr; }

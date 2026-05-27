@@ -454,7 +454,19 @@
     }
 
     .btn-icon:hover { background: var(--bg); color: var(--text); }
-    .btn-icon.danger:hover { background: #FEF0EE; border-color: var(--danger); color: var(--danger); }
+    .btn-icon.danger:hover, .btn-icon--danger:hover { background: #FEF0EE; border-color: var(--danger); color: var(--danger); }
+
+    .btn-sm {
+      font-size: 0.78rem;
+      padding: 0.3rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: none;
+      cursor: pointer;
+      color: var(--text-sec);
+      transition: background var(--ease), color var(--ease);
+    }
+    .btn-sm:hover { background: var(--bg); color: var(--text); }
 
     .repeat-item-body {
       padding: 1rem;
@@ -1165,6 +1177,9 @@
         <button class="sidebar-item" onclick="showPanel('settings-profile', this)">
           <span class="sidebar-item-icon">◎</span> Profile & Links
         </button>
+        <button class="sidebar-item" onclick="showPanel('settings-nav', this); renderNavLinksEditors()">
+          <span class="sidebar-item-icon">≡</span> Nav &amp; Footer Links
+        </button>
         <button class="sidebar-item" onclick="showPanel('settings-site', this)">
           <span class="sidebar-item-icon">◈</span> Domain & Analytics
         </button>
@@ -1462,7 +1477,60 @@
               </div>
             </div>
             <div class="field full"><label>Copyright line</label><input type="text" data-path="global.copyright" /></div>
+            <div class="field full" style="padding-top:0.5rem;border-top:1px solid var(--border);margin-top:0.5rem">
+              <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;font-weight:500">
+                <input type="checkbox" id="hideNavCreate-toggle" onchange="C.global.hideNavCreate=this.checked;markDirty()" style="width:16px;height:16px;cursor:pointer" />
+                Hide "Create your own portfolio" link from navbar
+              </label>
+              <p style="font-size:0.78rem;color:var(--text-muted);margin-top:0.25rem;margin-left:1.5rem">When checked, the signup prompt in the top navigation will be hidden on all pages.</p>
+            </div>
           </div>
+        </div>
+      </div>
+
+      <!-- ── SETTINGS: NAV & FOOTER LINKS ── -->
+      <div class="panel" id="panel-settings-nav">
+        <div class="panel-header">
+          <div class="panel-title">Navigation &amp; Footer Links</div>
+          <div class="panel-desc">Manage the links that appear in the top navigation and footer. Add, remove, reorder, or hide items.</div>
+        </div>
+
+        <!-- NAV MAIN LINKS -->
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-header" style="display:flex;align-items:center;justify-content:space-between">
+            <span style="font-weight:600;font-size:0.9rem">Main Nav Links</span>
+            <button class="btn-sm" onclick="addNavLink('navLinks')">+ Add Link</button>
+          </div>
+          <div class="card-body" id="nav-links-editor"></div>
+        </div>
+
+        <!-- NAV CTA LINKS -->
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-header" style="display:flex;align-items:center;justify-content:space-between">
+            <span style="font-weight:600;font-size:0.9rem">Nav Right-Side Actions</span>
+            <button class="btn-sm" onclick="addNavLink('navCtaLinks')">+ Add Link</button>
+          </div>
+          <div class="card-body" id="nav-cta-links-editor">
+            <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:0.75rem">These appear on the right side of the nav. Use type "contact-btn" for the contact modal button.</p>
+          </div>
+        </div>
+
+        <!-- FOOTER NAV LINKS -->
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-header" style="display:flex;align-items:center;justify-content:space-between">
+            <span style="font-weight:600;font-size:0.9rem">Footer — Navigation Column</span>
+            <button class="btn-sm" onclick="addNavLink('footerNavLinks')">+ Add Link</button>
+          </div>
+          <div class="card-body" id="footer-nav-links-editor"></div>
+        </div>
+
+        <!-- FOOTER CONTACT LINKS -->
+        <div class="card">
+          <div class="card-header" style="display:flex;align-items:center;justify-content:space-between">
+            <span style="font-weight:600;font-size:0.9rem">Footer — Contact Column</span>
+            <button class="btn-sm" onclick="addNavLink('footerContactLinks')">+ Add Link</button>
+          </div>
+          <div class="card-body" id="footer-contact-links-editor"></div>
         </div>
       </div>
 
@@ -1878,6 +1946,99 @@
   }
 
   /* ── Panel navigation ── */
+  /* ════════════════════════════════════════
+     NAV & FOOTER LINK EDITORS
+  ════════════════════════════════════════ */
+
+  function renderNavLinksEditors() {
+    // Seed defaults if arrays are missing (first time, or Firestore data pre-dates this feature)
+    if (!C.global.navLinks || !C.global.navLinks.length) {
+      C.global.navLinks = [
+        { label: 'Work',        url: '#work',                                                 hidden: false },
+        { label: 'About',       url: 'about.html',                                            hidden: false },
+        { label: 'Blogs',       url: '#writing',                                              hidden: false },
+        { label: 'View Resume', url: 'assets/anubhav-pandey-resume.pdf', icon: '↗', newTab: true, hidden: false }
+      ];
+    }
+    if (!C.global.navCtaLinks || !C.global.navCtaLinks.length) {
+      C.global.navCtaLinks = [
+        { label: 'Get in touch',              type: 'contact-btn',                                       hidden: false },
+        { label: 'Create your own portfolio', url: 'login.html?mode=signup', icon: '→',                 hidden: false }
+      ];
+    }
+    if (!C.global.footerNavLinks || !C.global.footerNavLinks.length) {
+      C.global.footerNavLinks = [
+        { label: 'Work',  url: '#work'      },
+        { label: 'About', url: 'about.html' },
+        { label: 'Blogs', url: '#writing'   }
+      ];
+    }
+    if (!C.global.footerContactLinks || !C.global.footerContactLinks.length) {
+      C.global.footerContactLinks = [
+        { label: C.global.email || '', url: 'mailto:' + (C.global.email || ''),                           newTab: false },
+        { label: 'LinkedIn',           url: C.global.linkedin || 'https://linkedin.com',                  newTab: true  },
+        { label: 'Dribbble',           url: C.global.dribbble || 'https://dribbble.com',                  newTab: true  }
+      ];
+    }
+    renderLinkEditor('navLinks',          'nav-links-editor',           ['label','url','icon','newTab','hidden']);
+    renderLinkEditor('navCtaLinks',       'nav-cta-links-editor',       ['label','url','icon','type','newTab','hidden']);
+    renderLinkEditor('footerNavLinks',    'footer-nav-links-editor',    ['label','url','hidden']);
+    renderLinkEditor('footerContactLinks','footer-contact-links-editor',['label','url','newTab','hidden']);
+  }
+
+  function renderLinkEditor(key, containerId, fields) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    if (!C.global[key]) C.global[key] = [];
+    const links = C.global[key];
+
+    container.innerHTML = links.map((link, i) => `
+      <div class="link-editor-row" style="display:grid;grid-template-columns:1fr 1fr auto auto auto auto;gap:0.4rem;align-items:center;padding:0.5rem 0;border-bottom:1px solid var(--border)">
+        <input type="text" value="${esc(link.label||'')}" placeholder="Label"
+          oninput="C.global['${key}'][${i}].label=this.value;markDirty()" style="font-size:0.82rem" />
+        ${fields.includes('url') ? `<input type="text" value="${esc(link.url||'')}" placeholder="URL or #anchor"
+          oninput="C.global['${key}'][${i}].url=this.value;markDirty()" style="font-size:0.82rem" />` : '<span></span>'}
+        ${fields.includes('icon') ? `<input type="text" value="${esc(link.icon||'')}" placeholder="Icon (→ ↗)"
+          oninput="C.global['${key}'][${i}].icon=this.value;markDirty()" style="width:56px;font-size:0.82rem;text-align:center" title="Icon/arrow after label" />` : ''}
+        ${fields.includes('type') ? `<input type="text" value="${esc(link.type||'')}" placeholder="type"
+          oninput="C.global['${key}'][${i}].type=this.value;markDirty()" style="width:80px;font-size:0.75rem" title="contact-btn for modal trigger" />` : ''}
+        ${fields.includes('newTab') ? `<label title="Open in new tab" style="font-size:0.75rem;white-space:nowrap;cursor:pointer">
+          <input type="checkbox" ${link.newTab ? 'checked' : ''} onchange="C.global['${key}'][${i}].newTab=this.checked;markDirty()" /> New tab
+        </label>` : ''}
+        ${fields.includes('hidden') ? `<label title="Hide this link" style="font-size:0.75rem;white-space:nowrap;cursor:pointer">
+          <input type="checkbox" ${link.hidden ? 'checked' : ''} onchange="C.global['${key}'][${i}].hidden=this.checked;markDirty()" /> Hide
+        </label>` : ''}
+        <div style="display:flex;gap:0.25rem">
+          ${i > 0 ? `<button class="btn-icon" title="Move up" onclick="moveNavLink('${key}',${i},-1)">↑</button>` : '<span style="width:24px"></span>'}
+          ${i < links.length-1 ? `<button class="btn-icon" title="Move down" onclick="moveNavLink('${key}',${i},1)">↓</button>` : '<span style="width:24px"></span>'}
+          <button class="btn-icon btn-icon--danger" title="Remove" onclick="removeNavLink('${key}',${i})">×</button>
+        </div>
+      </div>
+    `).join('') || '<p style="font-size:0.82rem;color:var(--text-muted);padding:0.5rem 0">No links yet. Click + Add Link.</p>';
+  }
+
+  function addNavLink(key) {
+    if (!C.global[key]) C.global[key] = [];
+    C.global[key].push({ label: 'New Link', url: '#', hidden: false });
+    markDirty();
+    renderNavLinksEditors();
+  }
+
+  function removeNavLink(key, i) {
+    C.global[key].splice(i, 1);
+    markDirty();
+    renderNavLinksEditors();
+  }
+
+  function moveNavLink(key, i, dir) {
+    const arr = C.global[key];
+    const j = i + dir;
+    if (j < 0 || j >= arr.length) return;
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+    markDirty();
+    renderNavLinksEditors();
+  }
+
   function showPanel(id, btn) {
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
@@ -1945,6 +2106,10 @@
     if (profilePhotoVal && profileThumb) {
       profileThumb.style.backgroundImage = 'url(' + profilePhotoVal + ')';
     }
+
+    // Sync hideNavCreate checkbox
+    const hideNavToggle = document.getElementById('hideNavCreate-toggle');
+    if (hideNavToggle) hideNavToggle.checked = !!(C.global && C.global.hideNavCreate);
   }
 
   /* ── Dirty tracking (replaces autosave) ── */

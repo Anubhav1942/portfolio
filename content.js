@@ -22,7 +22,35 @@ window.CONTENT = {
     resumeUrl:   "https://drive.google.com/file/d/1M_Dw0t9avEZ7Y_Web8o-7EVGs0UCwxro/view?usp=sharing",
     gaId:        "G-5D0X4RLR71",
     footerDesc:  "Product Designer. Designing clarity into systems that resist it. Open to founding designer and senior product design roles.",
-    copyright:   "© 2026 Anubhav Pandey. All rights reserved."
+    copyright:   "© 2026 Anubhav Pandey. All rights reserved.",
+
+    /* ── Navbar links (main list) ── */
+    navLinks: [
+      { label: "Work",        url: "#work",                                                        hidden: false },
+      { label: "About",       url: "about.html",                                                   hidden: false },
+      { label: "Blogs",       url: "#writing",                                                     hidden: false },
+      { label: "View Resume", url: "assets/anubhav-pandey-resume.pdf", icon: "↗", newTab: true,   hidden: false }
+    ],
+
+    /* ── Navbar right-side CTA area ── */
+    navCtaLinks: [
+      { label: "Get in touch",               type: "contact-btn",                                                          hidden: false },
+      { label: "Create your own portfolio",  url: "login.html?mode=signup", icon: "→",                                    hidden: false }
+    ],
+
+    /* ── Footer navigation column ── */
+    footerNavLinks: [
+      { label: "Work",  url: "#work"      },
+      { label: "About", url: "about.html" },
+      { label: "Blogs", url: "#writing"   }
+    ],
+
+    /* ── Footer contact column ── */
+    footerContactLinks: [
+      { label: "pandeyanubhav229@gmail.com", url: "mailto:pandeyanubhav229@gmail.com"              },
+      { label: "LinkedIn",                   url: "https://www.linkedin.com/in/anubhavp2000/", newTab: true },
+      { label: "Dribbble",                   url: "https://dribbble.com/anubhavp",             newTab: true }
+    ]
   },
 
   /* ─────────────────────────────────────────
