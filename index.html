@@ -115,7 +115,7 @@
   <!-- ===================== NAVIGATION ===================== -->
   <nav class="nav" role="navigation" aria-label="Main navigation">
     <div class="nav__inner">
-      <a href="https://anubhav1942.github.io/portfolio/" class="nav__logo" aria-label="Anubhav Pandey — Home">Anubhav Pandey</a>
+      <a href="https://anubhav1942.github.io/portfolio/" class="nav__logo" aria-label="Anubhav Pandey — Home">Anubhav</a>
 
       <ul class="nav__links" role="list" id="nav-links-list">
         <li><a href="#work">Work</a></li>
@@ -150,67 +150,79 @@
         <div class="hero__inner">
 
           <!-- ── Skeleton ── -->
-          <div class="sk-wrap" aria-hidden="true">
-            <span class="sk sk-hero__label"></span>
-            <span class="sk sk-hero__h1"></span>
-            <span class="sk sk-hero__h1-2"></span>
-            <span class="sk sk-hero__h1-3"></span>
-            <span class="sk sk-hero__sub-1"></span>
-            <span class="sk sk-hero__sub-2"></span>
-            <span class="sk sk-hero__sub-3"></span>
-            <div class="sk-hero__stats">
-              <div class="sk-hero__stat"><span class="sk sk-hero__stat-val"></span><span class="sk sk-hero__stat-label"></span><span class="sk sk-hero__stat-label-2"></span></div>
-              <div class="sk-hero__stat"><span class="sk sk-hero__stat-val"></span><span class="sk sk-hero__stat-label"></span><span class="sk sk-hero__stat-label-2"></span></div>
-              <div class="sk-hero__stat"><span class="sk sk-hero__stat-val"></span><span class="sk sk-hero__stat-label"></span><span class="sk sk-hero__stat-label-2"></span></div>
-              <div class="sk-hero__stat"><span class="sk sk-hero__stat-val"></span><span class="sk sk-hero__stat-label"></span></div>
+          <div class="sk-wrap hero__layout" aria-hidden="true">
+            <div class="hero__left">
+              <span class="sk sk-hero__label"></span>
+              <span class="sk sk-hero__h1"></span>
+              <span class="sk sk-hero__h1-2"></span>
+              <span class="sk sk-hero__h1-3"></span>
+              <span class="sk sk-hero__sub-1"></span>
+              <span class="sk sk-hero__sub-2"></span>
+              <span class="sk sk-hero__sub-3"></span>
+              <div class="sk-hero__ctas">
+                <span class="sk sk-hero__btn-primary"></span>
+                <span class="sk sk-hero__btn-ghost"></span>
+              </div>
             </div>
-            <div class="sk-hero__ctas">
-              <span class="sk sk-hero__btn-primary"></span>
-              <span class="sk sk-hero__btn-ghost"></span>
+            <div class="hero__right">
+              <div class="sk-hero__stats">
+                <div class="sk-hero__stat"><span class="sk sk-hero__stat-val"></span><span class="sk sk-hero__stat-label"></span><span class="sk sk-hero__stat-label-2"></span></div>
+                <div class="sk-hero__stat"><span class="sk sk-hero__stat-val"></span><span class="sk sk-hero__stat-label"></span><span class="sk sk-hero__stat-label-2"></span></div>
+                <div class="sk-hero__stat"><span class="sk sk-hero__stat-val"></span><span class="sk sk-hero__stat-label"></span></div>
+                <div class="sk-hero__stat"><span class="sk sk-hero__stat-val"></span><span class="sk sk-hero__stat-label"></span></div>
+              </div>
             </div>
           </div>
 
           <!-- ── Real content ── -->
-          <div class="content-target">
-            <div class="hero__label">
-              <span class="label" id="hero-label">Product Designer</span>
-            </div>
+          <div class="content-target hero__layout">
 
-            <h1 class="hero__heading" id="hero-heading">
-              Designing clarity<br />
-              into systems that<br />
-              <em>resist it.</em>
-            </h1>
+            <!-- Left: label, heading, subtitle, CTAs -->
+            <div class="hero__left">
+              <div class="hero__label">
+                <span class="label" id="hero-label">Product Designer</span>
+              </div>
 
-            <p class="hero__sub" id="hero-subtitle">
-              I was the founding designer at Carboledger — an enterprise B2B SaaS for
-              sustainability compliance. 11 interconnected modules. 4-person team.
-              Every UX decision mine.
-            </p>
+              <h1 class="hero__heading" id="hero-heading">
+                Designing clarity<br />
+                into systems that<br />
+                <em>resist it.</em>
+              </h1>
 
-            <div class="hero__stats" id="hero-stats" role="list" aria-label="Key outcomes">
-              <div role="listitem">
-                <span class="hero__stat-value">&gt;95%</span>
-                <span class="hero__stat-label">Reduction in enterprise request turnaround</span>
-              </div>
-              <div role="listitem">
-                <span class="hero__stat-value">14k+</span>
-                <span class="hero__stat-label">Structured data fields managed in one workflow</span>
-              </div>
-              <div role="listitem">
-                <span class="hero__stat-value">~80%</span>
-                <span class="hero__stat-label">Adoption rate across enterprise users</span>
-              </div>
-              <div role="listitem">
-                <span class="hero__stat-value">11</span>
-                <span class="hero__stat-label">Interconnected platform modules owned</span>
+              <p class="hero__sub" id="hero-subtitle">
+                I was the founding designer at Carboledger — an enterprise B2B SaaS for
+                sustainability compliance. 11 interconnected modules. 4-person team.
+                Every UX decision mine.
+              </p>
+
+              <div class="hero__ctas">
+                <a href="#work" class="btn-primary">View Work</a>
+                <a href="assets/anubhav-pandey-resume.pdf" class="btn-ghost" target="_blank" rel="noopener" data-track="resume-view" data-track-source="hero">View Resume</a>
               </div>
             </div>
 
-            <div class="hero__ctas">
-              <a href="#work" class="btn-primary">View Work</a>
-              <a href="assets/anubhav-pandey-resume.pdf" class="btn-ghost" target="_blank" rel="noopener" data-track="resume-view" data-track-source="hero">View Resume</a>
+            <!-- Right: metric cards -->
+            <div class="hero__right">
+              <div class="hero__stats" id="hero-stats" role="list" aria-label="Key outcomes">
+                <div class="hero__stat-card" role="listitem">
+                  <span class="hero__stat-value">&gt;95%</span>
+                  <span class="hero__stat-label">Reduction in enterprise request turnaround</span>
+                </div>
+                <div class="hero__stat-card" role="listitem">
+                  <span class="hero__stat-value">14k+</span>
+                  <span class="hero__stat-label">Structured data fields managed in one workflow</span>
+                </div>
+                <div class="hero__stat-card" role="listitem">
+                  <span class="hero__stat-value">~80%</span>
+                  <span class="hero__stat-label">Adoption rate across enterprise users</span>
+                </div>
+                <div class="hero__stat-card" role="listitem">
+                  <span class="hero__stat-value">11</span>
+                  <span class="hero__stat-label">Interconnected platform modules owned</span>
+                </div>
+              </div>
             </div>
+
           </div>
 
         </div>
@@ -739,7 +751,7 @@
     const statsEl = document.getElementById('hero-stats');
     if (statsEl && hero.stats) {
       statsEl.innerHTML = (hero.stats).filter(s => !s.hidden).map(s => `
-        <div role="listitem">
+        <div class="hero__stat-card" role="listitem">
           <span class="hero__stat-value">${s.value}</span>
           <span class="hero__stat-label">${s.label}</span>
         </div>
@@ -829,12 +841,7 @@
       `).join('');
     }
 
-    /* ── GA4 ID ── */
-    if (g.gaId && g.gaId !== 'G-5D0X4RLR71') {
-      document.querySelectorAll('script[src*="G-5D0X4RLR71"]').forEach(s => {
-        s.src = s.src.replace('G-5D0X4RLR71', g.gaId);
-      });
-    }
+    /* ── GA4 ID — injected dynamically via __injectGA above ── */
   }).catch(function() {
     // Firestore failed — reveal static content.js fallback
     document.body.classList.add('content-loaded');
