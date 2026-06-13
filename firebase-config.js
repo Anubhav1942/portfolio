@@ -28,9 +28,18 @@
   window.fbAuth    = (typeof firebase.auth === 'function') ? firebase.auth() : null;
   window.fbStorage = (typeof firebase.storage === 'function') ? firebase.storage() : null;
 
+  /* ── Environment detection ── */
+  var _host  = window.location.hostname;
+  var IS_DEV = (_host === 'localhost' || _host === '127.0.0.1' || _host === '');
+  // Expose so admin UI can show a DEV badge
+  window.IS_DEV_ENV = IS_DEV;
+
   /* ── Firestore helpers ── */
+  // DEV  → users/{uid}/portfolio/content_dev   (never touches live data)
+  // PROD → users/{uid}/portfolio/content
   function userContentRef(uid) {
-    return window.fbDb.collection('users').doc(uid).collection('portfolio').doc('content');
+    var docName = IS_DEV ? 'content_dev' : 'content';
+    return window.fbDb.collection('users').doc(uid).collection('portfolio').doc(docName);
   }
 
   /* ── Public content: resolve uid from query param → hostname → fallback ── */
@@ -129,15 +138,15 @@
       docPromise = loadPublicContent();
     }
 
+    var lsKey = IS_DEV ? 'portfolio_content_dev_v1' : 'portfolio_content_v1';
     return docPromise.then(function (content) {
       if (content) {
-        // Warm local cache
-        try { localStorage.setItem('portfolio_content_v1', JSON.stringify(content)); } catch (e) {}
+        try { localStorage.setItem(lsKey, JSON.stringify(content)); } catch (e) {}
         return content;
       }
       // Fallback chain: localStorage → content.js
       var stored;
-      try { stored = localStorage.getItem('portfolio_content_v1'); } catch (e) {}
+      try { stored = localStorage.getItem(lsKey); } catch (e) {}
       return stored ? JSON.parse(stored) : (window.CONTENT || {});
     });
   };
@@ -153,10 +162,16 @@
     if (!uid) return Promise.reject(new Error('uid required'));
     var json    = JSON.stringify(C);
     var payload = { data: json, updatedAt: new Date().toISOString() };
-    try { localStorage.setItem('portfolio_content_v1', json); } catch (e) {}
+    var lsKey   = IS_DEV ? 'portfolio_content_dev_v1' : 'portfolio_content_v1';
+    try { localStorage.setItem(lsKey, json); } catch (e) {}
+
+    if (IS_DEV) {
+      // Dev: write ONLY to content_dev — never touches live data
+      return userContentRef(uid).set(payload);
+    }
+    // Production: write to per-user doc + legacy shared path
     return Promise.all([
       userContentRef(uid).set(payload),
-      // Keep old path in sync while public pages haven't migrated to domain routing yet
       window.fbDb.collection('portfolio').doc('content').set(payload)
     ]);
   };

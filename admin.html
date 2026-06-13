@@ -1137,6 +1137,7 @@
       <div class="topbar-dot"></div>
       <span class="topbar-title">Portfolio Admin</span>
       <span class="topbar-subtitle">/ Anubhav Pandey</span>
+      <span id="env-badge" style="display:none;margin-left:0.6rem;padding:0.15rem 0.55rem;border-radius:4px;font-size:0.68rem;font-weight:700;letter-spacing:0.06em;background:#f59e0b;color:#fff;">DEV</span>
     </div>
     <div class="topbar-actions">
       <div class="save-indicator" id="saveIndicator">
@@ -1714,6 +1715,12 @@
       return;
     }
     window.CURRENT_UID = user.uid;
+
+    // Show DEV badge when running locally — writes go to content_dev, never live
+    if (window.IS_DEV_ENV) {
+      var badge = document.getElementById('env-badge');
+      if (badge) badge.style.display = '';
+    }
 
     var base       = window.location.origin;
     var defaultUrl = base + '/index.html?uid=' + user.uid;
