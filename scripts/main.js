@@ -35,11 +35,40 @@ if (nav) {
   }, { passive: true });
 }
 
-// Mobile menu open/close
+// Mobile menu open/close — also injects nav CTA actions into dropdown
 if (navToggle && navLinks) {
   navToggle.addEventListener('click', () => {
     const isOpen = navLinks.classList.toggle('open');
     navToggle.setAttribute('aria-expanded', isOpen);
+
+    // Inject CTA links into mobile menu (remove any previous injection first)
+    navLinks.querySelectorAll('.nav__mobile-cta').forEach(el => el.remove());
+    if (isOpen) {
+      const ctaArea = document.getElementById('nav-cta-area');
+      if (ctaArea) {
+        const separator = document.createElement('li');
+        separator.className = 'nav__mobile-cta';
+        separator.style.cssText = 'width:100%;border-top:1px solid var(--border);margin:0.25rem 0';
+        navLinks.appendChild(separator);
+
+        ctaArea.querySelectorAll('a, button').forEach(el => {
+          const li = document.createElement('li');
+          li.className = 'nav__mobile-cta';
+          const clone = el.cloneNode(true);
+          clone.style.cssText = 'font-size:0.9rem;padding:0.15rem 0';
+          // Re-bind contact modal button
+          if (clone.classList.contains('js-contact-open') || clone.classList.contains('nav__btn-primary')) {
+            clone.addEventListener('click', () => {
+              document.dispatchEvent(new CustomEvent('open-contact-modal'));
+              navLinks.classList.remove('open');
+              navToggle.setAttribute('aria-expanded', 'false');
+            });
+          }
+          li.appendChild(clone);
+          navLinks.appendChild(li);
+        });
+      }
+    }
   });
 }
 
@@ -49,6 +78,14 @@ document.querySelectorAll('.nav__links a').forEach(link => {
     navLinks?.classList.remove('open');
     navToggle?.setAttribute('aria-expanded', 'false');
   });
+});
+
+// Also close when injected CTA links are clicked
+document.addEventListener('click', e => {
+  if (e.target.closest('.nav__mobile-cta a')) {
+    navLinks?.classList.remove('open');
+    navToggle?.setAttribute('aria-expanded', 'false');
+  }
 });
 
 // Mark active nav link based on current path
@@ -99,7 +136,7 @@ function trackEvent(name, params = {}) {
    to any resume download anchor.
    ============================================================ */
 
-document.querySelectorAll('[data-track="resume-download"]').forEach(el => {
+document.querySelectorAll('[data-track="resume-download"], [data-track="resume-view"]').forEach(el => {
   el.addEventListener('click', () => {
     trackEvent('resume_download', {
       source: el.dataset.trackSource || 'unknown',

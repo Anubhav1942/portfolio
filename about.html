@@ -172,15 +172,15 @@
   <!-- NAVIGATION -->
   <nav class="nav" role="navigation" aria-label="Main navigation">
     <div class="nav__inner">
-      <a href="https://anubhav1942.github.io/portfolio/" class="nav__logo" aria-label="Anubhav Pandey — Home">Anubhav Pandey</a>
-      <ul class="nav__links" role="list">
+      <a href="https://anubhav1942.github.io/portfolio/" class="nav__logo" aria-label="Anubhav Pandey — Home">Anubhav</a>
+      <ul class="nav__links" role="list" id="nav-links-list">
         <li><a href="index.html#work">Work</a></li>
-        <li><a href="https://anubhav1942.github.io/portfolio/about.html" class="active">About</a></li>
+        <li><a href="about.html" class="active">About</a></li>
         <li><a href="index.html#writing">Blogs</a></li>
         <li><a href="assets/anubhav-pandey-resume.pdf" target="_blank" rel="noopener" data-track="resume-view" data-track-source="nav">View Resume</a></li>
       </ul>
 
-      <div class="nav__actions">
+      <div class="nav__actions" id="nav-cta-area">
         <button type="button" class="nav__btn-primary js-contact-open" data-track="contact" data-track-source="nav">Get in touch</button>
         <a href="login.html?mode=signup" class="nav__create-link" id="nav-create-link">Create your own portfolio <span aria-hidden="true">→</span></a>
       </div>
@@ -309,6 +309,11 @@
           <!-- Sidebar -->
           <aside class="about-sidebar">
 
+            <!-- Profile picture (optional) -->
+            <div class="about-profile-pic-wrap" id="about-profile-pic-wrap" style="display:none">
+              <img id="about-profile-pic" src="" alt="Anubhav Pandey" />
+            </div>
+
             <div class="sidebar-block">
               <span class="label">Strengths</span>
               <ul class="skills-list" id="about-skills-list" role="list">
@@ -425,19 +430,57 @@
   <script src="firebase-config.js"></script>
   <script>
   window.loadContent().then(function(C) {
-    
-    /* ── Hide "Create your own portfolio" nav link ── */
-    if (g && g.hideNavCreate) {
-      const navCreate = document.getElementById('nav-create-link');
-      if (navCreate) navCreate.style.display = 'none';
-    }
     document.body.classList.add('content-loaded');
     if (!C) return;
 
     const g = C.global || {};
     if (g.gaId) window.__injectGA(g.gaId);
 
+    /* ── Nav links (main list) ── */
+    const navLinksList = document.getElementById('nav-links-list');
+    if (navLinksList && g.navLinks && g.navLinks.length) {
+      navLinksList.innerHTML = g.navLinks
+        .filter(l => !l.hidden)
+        .map(l => {
+          const ext = l.newTab ? ' target="_blank" rel="noopener"' : '';
+          const icon = l.icon ? ` <span aria-hidden="true">${l.icon}</span>` : '';
+          const active = l.url && l.url.includes('about') ? ' class="active"' : '';
+          return `<li><a href="${l.url}"${ext}${active}>${l.label}${icon}</a></li>`;
+        }).join('');
+    }
+
+    /* ── Nav CTA area ── */
+    const navCtaArea = document.getElementById('nav-cta-area');
+    if (navCtaArea && g.navCtaLinks && g.navCtaLinks.length) {
+      navCtaArea.innerHTML = g.navCtaLinks
+        .filter(l => !l.hidden)
+        .map(l => {
+          if (l.type === 'contact-btn') {
+            return `<button type="button" class="nav__btn-primary js-contact-open" data-track="contact" data-track-source="nav">${l.label}</button>`;
+          }
+          const icon = l.icon ? ` <span aria-hidden="true">${l.icon}</span>` : '';
+          const ext = l.newTab ? ' target="_blank" rel="noopener"' : '';
+          return `<a href="${l.url}"${ext} class="nav__create-link">${l.label}${icon}</a>`;
+        }).join('');
+      navCtaArea.querySelectorAll('.js-contact-open').forEach(btn => {
+        btn.addEventListener('click', () => document.dispatchEvent(new CustomEvent('open-contact-modal')));
+      });
+    }
+
+    /* ── Hide "Create your own portfolio" nav link ── */
+    if (g.hideNavCreate) {
+      const navCreate = document.getElementById('nav-create-link');
+      if (navCreate) navCreate.style.display = 'none';
+    }
+
     const a = C.about || {};
+
+    /* ── Profile picture ── */
+    if (a.profileImage) {
+      const picWrap = document.getElementById('about-profile-pic-wrap');
+      const picImg  = document.getElementById('about-profile-pic');
+      if (picWrap && picImg) { picImg.src = a.profileImage; picWrap.style.display = ''; }
+    }
 
     /* ── Hero heading ── */
     const headingEl = document.getElementById('about-heading');

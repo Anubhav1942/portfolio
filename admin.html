@@ -1145,6 +1145,7 @@
       </div>
       <button class="btn-topbar btn-save-manual" id="btnManualSave" onclick="manualSave()" disabled>Save</button>
       <button class="btn-topbar btn-preview" onclick="previewSite()">Preview site ↗</button>
+      <button class="btn-topbar btn-export" onclick="exportContentJsOnly()">Export content.js</button>
       <button class="btn-topbar" onclick="openImportModal()" style="background:transparent;border:1px solid rgba(255,255,255,0.18);color:rgba(255,255,255,0.75)">Import content.js</button>
       <button class="btn-topbar" onclick="logout()" style="background:transparent;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.55)" title="Sign out">Sign out</button>
     </div>
@@ -1319,6 +1320,22 @@
 
         <!-- Bio tab -->
         <div class="panel-tab-content active" id="about-tab-bio">
+          <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+              <div class="card-header-left"><span class="card-header-title">Profile photo</span></div>
+              <span class="card-toggle">▾</span>
+            </div>
+            <div class="card-body">
+              <div class="field-hint" style="margin-bottom:0.5rem">Square photo shown at the top of the sidebar on the About page. Recommended: 600×600 px.</div>
+              <div class="field" style="display:flex;gap:0.75rem;align-items:center">
+                <input type="url" id="about-profile-img-url" data-path="about.profileImage" placeholder="https://… or upload"
+                  oninput="document.getElementById('about-profile-thumb').style.backgroundImage=this.value?'url('+this.value+')':''"
+                  style="flex:1" />
+                <div class="img-preview-thumb" id="about-profile-thumb"></div>
+                <label class="upload-btn" title="Upload photo"><input type="file" accept="image/*" style="display:none" onchange="uploadProfileImage(this)" />⬆</label>
+              </div>
+            </div>
+          </div>
           <div class="card">
             <div class="card-header" onclick="toggleCard(this)">
               <div class="card-header-left"><span class="card-header-title">Hero heading</span></div>
@@ -1873,6 +1890,16 @@
     });
   }
 
+  function uploadCSBanner(fileInput, csKey) {
+    const file    = fileInput.files[0];
+    const urlEl   = document.getElementById('cs-' + csKey + '-banner-url');
+    const thumbEl = document.getElementById('cs-' + csKey + '-banner-thumb');
+    const labelEl = fileInput.closest('label');
+    uploadImageToField(file, csKey, urlEl, thumbEl, labelEl).then(function() {
+      if (urlEl) updateCS(csKey, 'bannerImage', urlEl.value);
+    });
+  }
+
   function uploadProjectCover(fileInput, idx) {
     const file    = fileInput.files[0];
     const row     = fileInput.closest('.repeat-item-body');
@@ -2098,6 +2125,11 @@
         if (path === 'global.profilePhoto' && profileThumb) {
           profileThumb.style.backgroundImage = v ? 'url(' + v + ')' : '';
         }
+        // Keep about profile pic thumb in sync
+        if (path === 'about.profileImage') {
+          const aboutThumb = document.getElementById('about-profile-thumb');
+          if (aboutThumb) aboutThumb.style.backgroundImage = v ? 'url(' + v + ')' : '';
+        }
       };
     });
 
@@ -2105,6 +2137,13 @@
     const profilePhotoVal = getPath(C, 'global.profilePhoto');
     if (profilePhotoVal && profileThumb) {
       profileThumb.style.backgroundImage = 'url(' + profilePhotoVal + ')';
+    }
+
+    // Initialise about profile pic thumb
+    const aboutProfileVal = getPath(C, 'about.profileImage');
+    const aboutThumb = document.getElementById('about-profile-thumb');
+    if (aboutProfileVal && aboutThumb) {
+      aboutThumb.style.backgroundImage = 'url(' + aboutProfileVal + ')';
     }
 
     // Sync hideNavCreate checkbox
@@ -2260,7 +2299,7 @@
           <div class="field">
             <label>Cover image</label>
             <div style="display:flex;gap:0.6rem;align-items:center">
-              <input type="url" value="${esc(p.coverImage||'')}" placeholder="https://… or upload" oninput="updateItem('projects',${i},'coverImage',this.value)" style="flex:1" />
+              <input type="url" value="${esc(p.coverImage||'')}" placeholder="https://… or upload" oninput="updateItem('projects',${i},'coverImage',this.value);this.nextElementSibling.style.backgroundImage=this.value?'url('+this.value+')':''" style="flex:1" />
               <div class="img-preview-thumb" style="${p.coverImage ? 'background-image:url('+esc(p.coverImage)+')' : ''}"></div>
               <label class="upload-btn" title="Upload from device">
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 8V2M3 5l3-3 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M1.5 9.5h9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
@@ -2357,6 +2396,26 @@
             <div class="field"><label>Tool URL <span class="field-hint">(drawer "Visit tool" button)</span></label><input type="url" value="${esc(p.toolUrl||p.url||'')}" oninput="updateNestedItem('home','aiProjects',${i},'toolUrl',this.value)" /></div>
             <div class="field"><label>Legacy link text</label><input type="text" value="${esc(p.linkText)}" oninput="updateNestedItem('home','aiProjects',${i},'linkText',this.value)" /></div>
           </div>
+          <div class="field">
+            <label>Carousel images <span class="field-hint">(shown in drawer — 960×540 px, 16:9)</span></label>
+            <div id="ai-images-list-${i}" style="display:flex;flex-direction:column;gap:0.4rem;margin-bottom:0.4rem">
+              ${(p.images||[]).map((url,j) => `
+                <div style="display:flex;gap:0.5rem;align-items:center" id="ai-img-row-${i}-${j}">
+                  <input type="url" value="${esc(url)}" placeholder="https://…"
+                    style="flex:1"
+                    oninput="updateAiImage(${i},${j},this.value);this.nextElementSibling.style.backgroundImage=this.value?'url('+this.value+')':''"
+                  />
+                  <div class="img-preview-thumb" style="${url ? 'background-image:url('+esc(url)+')' : ''}"></div>
+                  <label class="upload-btn" title="Upload image"><input type="file" accept="image/*" style="display:none" onchange="uploadAiImage(this,${i},${j})" />⬆</label>
+                  <button class="btn-icon danger" onclick="removeAiImage(${i},${j},event)" title="Remove">✕</button>
+                </div>
+              `).join('')}
+            </div>
+            <div style="display:flex;gap:0.5rem">
+              <button class="btn-add" style="flex:1" onclick="addAiImage(${i})">+ Add image</button>
+              <label class="upload-btn" style="flex:1;justify-content:center" title="Upload new image"><input type="file" accept="image/*" style="display:none" onchange="uploadAiImageNew(this,${i})" />⬆ Upload new</label>
+            </div>
+          </div>
         </div>
       `;
       container.appendChild(item);
@@ -2364,8 +2423,72 @@
   }
 
   function addAiProject() {
-    C.home.aiProjects.push({ tag:'', title:'New Project', description:'', detailDescription:'', linkText:'View', url:'', toolUrl:'' });
+    C.home.aiProjects.push({ tag:'', title:'New Project', description:'', detailDescription:'', linkText:'View', url:'', toolUrl:'', images:[] });
     renderAiProjects(); markDirty(); showToast('Project added');
+  }
+
+  function addAiImage(i) {
+    if (!C.home.aiProjects[i].images) C.home.aiProjects[i].images = [];
+    C.home.aiProjects[i].images.push('');
+    renderAiProjects(); markDirty();
+  }
+
+  function updateAiImage(i, j, val) {
+    if (!C.home.aiProjects[i].images) C.home.aiProjects[i].images = [];
+    C.home.aiProjects[i].images[j] = val;
+    markDirty();
+  }
+
+  function removeAiImage(i, j, e) {
+    e.stopPropagation();
+    C.home.aiProjects[i].images.splice(j, 1);
+    renderAiProjects(); markDirty();
+  }
+
+  async function uploadAiImage(fileInput, i, j) {
+    const file = fileInput.files[0];
+    if (!file) return;
+    const labelEl = fileInput.closest('label');
+    if (labelEl) { labelEl.classList.add('uploading'); }
+    try {
+      const url = await window.uploadImage(file, window.CURRENT_UID, 'ai-projects');
+      if (!C.home.aiProjects[i].images) C.home.aiProjects[i].images = [];
+      C.home.aiProjects[i].images[j] = url;
+      markDirty(); renderAiProjects(); showToast('Image uploaded');
+    } catch(err) { showToast('Upload failed: ' + err.message, true); }
+    finally { if (labelEl) labelEl.classList.remove('uploading'); }
+  }
+
+  async function uploadAiImageNew(fileInput, i) {
+    const file = fileInput.files[0];
+    if (!file) return;
+    const labelEl = fileInput.closest('label');
+    if (labelEl) { labelEl.classList.add('uploading'); }
+    try {
+      const url = await window.uploadImage(file, window.CURRENT_UID, 'ai-projects');
+      if (!C.home.aiProjects[i].images) C.home.aiProjects[i].images = [];
+      C.home.aiProjects[i].images.push(url);
+      markDirty(); renderAiProjects(); showToast('Image uploaded');
+    } catch(err) { showToast('Upload failed: ' + err.message, true); }
+    finally { if (labelEl) labelEl.classList.remove('uploading'); }
+  }
+
+  async function uploadProfileImage(fileInput) {
+    const file = fileInput.files[0];
+    if (!file) return;
+    const labelEl = fileInput.closest('label');
+    if (labelEl) { labelEl.classList.add('uploading'); }
+    try {
+      const url = await window.uploadImage(file, window.CURRENT_UID, 'about');
+      if (!C.about) C.about = {};
+      C.about.profileImage = url;
+      const urlEl = document.getElementById('about-profile-img-url');
+      const thumbEl = document.getElementById('about-profile-thumb');
+      if (urlEl) urlEl.value = url;
+      if (thumbEl) thumbEl.style.backgroundImage = 'url(' + url + ')';
+      markDirty(); showToast('Profile photo uploaded');
+    } catch(err) { showToast('Upload failed: ' + err.message, true); }
+    finally { if (labelEl) labelEl.classList.remove('uploading'); }
   }
 
   /* ════════════════════════════════════════
@@ -2591,6 +2714,18 @@
                 <div class="field"><label>Tag 1</label><input type="text" value="${esc(cs.tags[0]||'')}" oninput="updateCSTag('${csKey}',0,this.value)" /></div>
                 <div class="field full"><label>Subtitle</label>${rteHtml(cs.subtitle,`updateCS('${csKey}','subtitle',this.innerHTML)`)}</div>
                 <div class="field"><label>Tag 2</label><input type="text" value="${esc(cs.tags[1]||'')}" oninput="updateCSTag('${csKey}',1,this.value)" /></div>
+              </div>
+              <div class="field" style="margin-top:0.75rem">
+                <label>Banner image <span style="font-weight:400;color:var(--text-muted)">(shown below outcomes bar on the case study page)</span></label>
+                <div style="display:flex;gap:0.6rem;align-items:center">
+                  <input type="url" value="${esc(cs.bannerImage||'')}" placeholder="https://… or upload" oninput="updateCS('${csKey}','bannerImage',this.value);document.getElementById('cs-${csKey}-banner-thumb').style.backgroundImage=this.value?'url('+this.value+')':''" style="flex:1" id="cs-${csKey}-banner-url" />
+                  <div class="img-preview-thumb" id="cs-${csKey}-banner-thumb" style="${cs.bannerImage ? 'background-image:url('+esc(cs.bannerImage)+')' : ''}"></div>
+                  <label class="upload-btn" title="Upload from device">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 8V2M3 5l3-3 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M1.5 9.5h9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                    Upload
+                    <input type="file" accept="image/*" style="display:none" onchange="uploadCSBanner(this,'${csKey}')" />
+                  </label>
+                </div>
               </div>
             </div>
           </div>
@@ -3453,6 +3588,34 @@
   function buildExportString() {
     const json = JSON.stringify(C, null, 2);
     return `/**\n * PORTFOLIO CONTENT — Single Source of Truth\n * Generated by admin.html on ${new Date().toLocaleDateString()}\n * Edit via: open admin.html in your browser\n */\n\nwindow.CONTENT = ${json};\n`;
+  }
+
+  async function exportContentJsOnly() {
+    flushAllRTEs();
+    const content = buildExportString();
+    try {
+      if (typeof window.showSaveFilePicker === 'function') {
+        const handle = await window.showSaveFilePicker({
+          suggestedName: 'content.js',
+          types: [{ description: 'JavaScript file', accept: { 'application/javascript': ['.js'] } }]
+        });
+        const writable = await handle.createWritable();
+        await writable.write(content);
+        await writable.close();
+        showToast('✔ content.js saved');
+        return;
+      }
+    } catch(err) {
+      if (err.name === 'AbortError') return;
+    }
+    const blob = new Blob([content], { type: 'application/javascript' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = 'content.js';
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('✔ content.js downloaded');
   }
 
   function flushAllRTEs() {

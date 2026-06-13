@@ -599,27 +599,7 @@ p {
 }
 
 .hero__inner {
-  width: 100%;
-}
-
-/* Two-column hero layout */
-.hero__layout {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--sp-16);
-  align-items: center;
-  width: 100%;
-}
-
-.hero__left {
-  display: flex;
-  flex-direction: column;
-}
-
-.hero__right {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
+  max-width: 840px;
 }
 
 .hero__label {
@@ -653,22 +633,15 @@ p {
   margin-bottom: var(--sp-10);
 }
 
-/* 2x2 metric card grid on the right column */
+/* Metric strip below hero text */
 .hero__stats {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
-  width: 100%;
-}
-
-.hero__stat-card {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  padding: 1.25rem 1.25rem 1.125rem;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  background: var(--bg-card);
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  gap: var(--sp-8);
+  padding: var(--sp-6) 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: var(--sp-10);
 }
 
 .hero__stat-value {
@@ -824,6 +797,47 @@ p {
   line-height: 1.4;
 }
 
+.project-card {
+  cursor: pointer;
+}
+
+/* Cover image — bleeds to card edges, sits above all content */
+.project-card__cover {
+  width: calc(100% + 2 * var(--sp-10));
+  margin: calc(-1 * var(--sp-10)) calc(-1 * var(--sp-10)) var(--sp-8);
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--bg-alt);
+}
+
+.project-card__cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.project-card:hover .project-card__cover img {
+  transform: scale(1.03);
+}
+
+/* Case study banner image — full-width below the outcomes bar */
+.cs-banner-image-wrap {
+  width: 100%;
+  overflow: hidden;
+  max-height: 520px;
+  background: var(--bg-alt);
+  margin-top: var(--nav-h);
+}
+
+.cs-banner-image-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 .project-card__cta {
   font-size: 0.78rem;
   font-weight: 500;
@@ -837,6 +851,13 @@ p {
 
 .project-card:hover .project-card__cta {
   color: var(--accent);
+}
+
+/* Stretch the CTA link to cover the entire card */
+.project-card__cta::after {
+  content: '';
+  position: absolute;
+  inset: 0;
 }
 
 
@@ -944,6 +965,7 @@ p {
   display: flex;
   flex-direction: column;
   gap: var(--sp-4);
+  overflow: hidden; /* contain carousel bleed inside border-radius */
   transition: border-color var(--ease), transform var(--ease);
 }
 
@@ -1099,6 +1121,148 @@ p {
 .ai-drawer__close:hover {
   background: var(--bg);
   color: var(--text);
+}
+
+/* ══════════════════════════════════════
+   Embla Carousel — shared atoms
+   ══════════════════════════════════════ */
+
+/* Shared nav button */
+.ai-embla-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(10,10,9,0.52);
+  backdrop-filter: blur(4px);
+  color: #fff;
+  border: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  line-height: 1;
+  transition: background 0.18s, opacity 0.18s;
+  z-index: 4;
+  user-select: none;
+}
+.ai-embla-btn:hover { background: rgba(10,10,9,0.82); }
+.ai-embla-btn--prev { left:  0.6rem; }
+.ai-embla-btn--next { right: 0.6rem; }
+
+/* Shared dots */
+.ai-embla-dots {
+  position: absolute;
+  bottom: 0.55rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.35rem;
+  z-index: 4;
+}
+.ai-embla-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.32);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: background 0.18s, transform 0.18s;
+}
+.ai-embla-dot.is-active {
+  background: #fff;
+  transform: scale(1.25);
+}
+
+/* ── Card Embla ── */
+.ai-card__embla {
+  position: relative;
+  width: calc(100% + 2 * var(--sp-8));
+  /* pull flush to card edges on all three sides, let flex gap handle bottom spacing */
+  margin: calc(-1 * var(--sp-8)) calc(-1 * var(--sp-8)) 0;
+  aspect-ratio: 16 / 9;
+  background: var(--bg-alt);
+  overflow: hidden;
+  user-select: none;
+  flex-shrink: 0;
+}
+.ai-card__embla-viewport {
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+}
+.ai-card__embla-container {
+  display: flex;
+  height: 100%;
+  touch-action: pan-y;
+}
+.ai-card__embla-slide {
+  flex: 0 0 100%;
+  min-width: 0;
+  height: 100%;
+}
+.ai-card__embla-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+}
+/* Hide nav arrows until hover */
+.ai-card__embla .ai-embla-btn { opacity: 0; }
+.ai-card__embla:hover .ai-embla-btn { opacity: 1; }
+
+/* ── Drawer Embla ── */
+.ai-drawer__embla {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: var(--bg-alt);
+  overflow: hidden;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border);
+  user-select: none;
+}
+.ai-drawer__embla-viewport {
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+}
+.ai-drawer__embla-container {
+  display: flex;
+  height: 100%;
+  touch-action: pan-y;
+}
+.ai-drawer__embla-slide {
+  flex: 0 0 100%;
+  min-width: 0;
+  height: 100%;
+}
+.ai-drawer__embla-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+}
+
+/* ── About profile picture ── */
+.about-profile-pic-wrap {
+  width: 100%;
+  margin-bottom: var(--sp-8);
+}
+
+.about-profile-pic-wrap img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: var(--radius);
+  display: block;
+  border: 1px solid var(--border);
 }
 
 .ai-drawer__body {
@@ -1608,25 +1772,14 @@ p {
     display: none;
   }
 
-
-
   .nav__inner {
     display: flex;
     justify-content: space-between;
   }
 
-  .hero__layout {
-    grid-template-columns: 1fr;
-    gap: var(--sp-10);
-  }
-
-  .hero__right {
-    justify-content: flex-start;
-  }
-
   .hero__stats {
-    grid-template-columns: 1fr 1fr;
-    gap: 0.625rem;
+    gap: var(--sp-8);
+    flex-wrap: wrap;
   }
 
   .exp__item {
@@ -1706,17 +1859,6 @@ p {
   animation: sk-shimmer 1.5s infinite linear;
 }
 
-/* ── Nav loading state — fade entire nav__links + nav__actions in together ── */
-.nav__links,
-.nav__actions {
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-.content-loaded .nav__links,
-.content-loaded .nav__actions {
-  opacity: 1;
-}
-
 /* ── Hero skeleton ──
    Sizes tuned to match the real .hero__heading / .hero__sub
    line-heights and the actual 3-line content layout. The h1
@@ -1732,23 +1874,17 @@ p {
 .sk-hero__sub-3  { width: 66%; height: 22px; margin-bottom: var(--sp-10); }
 
 .sk-hero__stats {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
-  width: 100%;
-}
-.sk-hero__stat {
   display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  padding: 1.25rem;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  background: var(--bg-card);
+  gap: var(--sp-12);
+  padding: var(--sp-6) 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: var(--sp-10);
 }
+.sk-hero__stat { display: flex; flex-direction: column; gap: 0.4rem; }
 .sk-hero__stat-val   { width: 64px; height: 28px; }
-.sk-hero__stat-label { width: 80%; height: 14px; }
-.sk-hero__stat-label-2 { width: 60%; height: 14px; margin-top: 2px; }
+.sk-hero__stat-label { width: 160px; height: 14px; }
+.sk-hero__stat-label-2 { width: 120px; height: 14px; margin-top: 2px; }
 
 .sk-hero__ctas { display: flex; gap: var(--sp-8); align-items: center; }
 .sk-hero__btn-primary { width: 110px; height: 40px; border-radius: 3px; }
@@ -1869,6 +2005,17 @@ p {
   opacity: 1;
 }
 
+/* ── Nav loading state: links + actions fade in with content ── */
+.nav__links,
+.nav__actions {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.content-loaded .nav__links,
+.content-loaded .nav__actions {
+  opacity: 1;
+}
+
 /* ── Responsive skeleton overrides ── */
 @media (max-width: 768px) {
   .sk-hero__h1,
@@ -1881,7 +2028,7 @@ p {
   .sk-exp__item { grid-template-columns: 1fr; }
   .sk-ai__grid  { grid-template-columns: 1fr; }
   .sk-blog__list { grid-template-columns: 1fr; }
-  .sk-hero__stats { grid-template-columns: 1fr 1fr; gap: 0.625rem; }
+  .sk-hero__stats { gap: var(--sp-8); flex-wrap: wrap; }
 }
 
 

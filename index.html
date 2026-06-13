@@ -107,7 +107,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
 
   <!-- Styles -->
-  <link rel="stylesheet" href="styles/main.css" />
+  <link rel="stylesheet" href="styles/main.css?v=2" />
 </head>
 
 <body>
@@ -150,79 +150,67 @@
         <div class="hero__inner">
 
           <!-- ── Skeleton ── -->
-          <div class="sk-wrap hero__layout" aria-hidden="true">
-            <div class="hero__left">
-              <span class="sk sk-hero__label"></span>
-              <span class="sk sk-hero__h1"></span>
-              <span class="sk sk-hero__h1-2"></span>
-              <span class="sk sk-hero__h1-3"></span>
-              <span class="sk sk-hero__sub-1"></span>
-              <span class="sk sk-hero__sub-2"></span>
-              <span class="sk sk-hero__sub-3"></span>
-              <div class="sk-hero__ctas">
-                <span class="sk sk-hero__btn-primary"></span>
-                <span class="sk sk-hero__btn-ghost"></span>
-              </div>
+          <div class="sk-wrap" aria-hidden="true">
+            <span class="sk sk-hero__label"></span>
+            <span class="sk sk-hero__h1"></span>
+            <span class="sk sk-hero__h1-2"></span>
+            <span class="sk sk-hero__h1-3"></span>
+            <span class="sk sk-hero__sub-1"></span>
+            <span class="sk sk-hero__sub-2"></span>
+            <span class="sk sk-hero__sub-3"></span>
+            <div class="sk-hero__stats">
+              <div class="sk-hero__stat"><span class="sk sk-hero__stat-val"></span><span class="sk sk-hero__stat-label"></span><span class="sk sk-hero__stat-label-2"></span></div>
+              <div class="sk-hero__stat"><span class="sk sk-hero__stat-val"></span><span class="sk sk-hero__stat-label"></span><span class="sk sk-hero__stat-label-2"></span></div>
+              <div class="sk-hero__stat"><span class="sk sk-hero__stat-val"></span><span class="sk sk-hero__stat-label"></span><span class="sk sk-hero__stat-label-2"></span></div>
+              <div class="sk-hero__stat"><span class="sk sk-hero__stat-val"></span><span class="sk sk-hero__stat-label"></span></div>
             </div>
-            <div class="hero__right">
-              <div class="sk-hero__stats">
-                <div class="sk-hero__stat"><span class="sk sk-hero__stat-val"></span><span class="sk sk-hero__stat-label"></span><span class="sk sk-hero__stat-label-2"></span></div>
-                <div class="sk-hero__stat"><span class="sk sk-hero__stat-val"></span><span class="sk sk-hero__stat-label"></span><span class="sk sk-hero__stat-label-2"></span></div>
-                <div class="sk-hero__stat"><span class="sk sk-hero__stat-val"></span><span class="sk sk-hero__stat-label"></span></div>
-                <div class="sk-hero__stat"><span class="sk sk-hero__stat-val"></span><span class="sk sk-hero__stat-label"></span></div>
-              </div>
+            <div class="sk-hero__ctas">
+              <span class="sk sk-hero__btn-primary"></span>
+              <span class="sk sk-hero__btn-ghost"></span>
             </div>
           </div>
 
           <!-- ── Real content ── -->
-          <div class="content-target hero__layout">
+          <div class="content-target">
+            <div class="hero__label">
+              <span class="label" id="hero-label">Product Designer</span>
+            </div>
 
-            <!-- Left: label, heading, subtitle, CTAs -->
-            <div class="hero__left">
-              <div class="hero__label">
-                <span class="label" id="hero-label">Product Designer</span>
+            <h1 class="hero__heading" id="hero-heading">
+              Designing clarity<br />
+              into systems that<br />
+              <em>resist it.</em>
+            </h1>
+
+            <p class="hero__sub" id="hero-subtitle">
+              I was the founding designer at Carboledger — an enterprise B2B SaaS for
+              sustainability compliance. 11 interconnected modules. 4-person team.
+              Every UX decision mine.
+            </p>
+
+            <div class="hero__stats" id="hero-stats" role="list" aria-label="Key outcomes">
+              <div role="listitem">
+                <span class="hero__stat-value">&gt;95%</span>
+                <span class="hero__stat-label">Reduction in enterprise request turnaround</span>
               </div>
-
-              <h1 class="hero__heading" id="hero-heading">
-                Designing clarity<br />
-                into systems that<br />
-                <em>resist it.</em>
-              </h1>
-
-              <p class="hero__sub" id="hero-subtitle">
-                I was the founding designer at Carboledger — an enterprise B2B SaaS for
-                sustainability compliance. 11 interconnected modules. 4-person team.
-                Every UX decision mine.
-              </p>
-
-              <div class="hero__ctas">
-                <a href="#work" class="btn-primary">View Work</a>
-                <a href="assets/anubhav-pandey-resume.pdf" class="btn-ghost" target="_blank" rel="noopener" data-track="resume-view" data-track-source="hero">View Resume</a>
+              <div role="listitem">
+                <span class="hero__stat-value">14k+</span>
+                <span class="hero__stat-label">Structured data fields managed in one workflow</span>
+              </div>
+              <div role="listitem">
+                <span class="hero__stat-value">~80%</span>
+                <span class="hero__stat-label">Adoption rate across enterprise users</span>
+              </div>
+              <div role="listitem">
+                <span class="hero__stat-value">11</span>
+                <span class="hero__stat-label">Interconnected platform modules owned</span>
               </div>
             </div>
 
-            <!-- Right: metric cards -->
-            <div class="hero__right">
-              <div class="hero__stats" id="hero-stats" role="list" aria-label="Key outcomes">
-                <div class="hero__stat-card" role="listitem">
-                  <span class="hero__stat-value">&gt;95%</span>
-                  <span class="hero__stat-label">Reduction in enterprise request turnaround</span>
-                </div>
-                <div class="hero__stat-card" role="listitem">
-                  <span class="hero__stat-value">14k+</span>
-                  <span class="hero__stat-label">Structured data fields managed in one workflow</span>
-                </div>
-                <div class="hero__stat-card" role="listitem">
-                  <span class="hero__stat-value">~80%</span>
-                  <span class="hero__stat-label">Adoption rate across enterprise users</span>
-                </div>
-                <div class="hero__stat-card" role="listitem">
-                  <span class="hero__stat-value">11</span>
-                  <span class="hero__stat-label">Interconnected platform modules owned</span>
-                </div>
-              </div>
+            <div class="hero__ctas">
+              <a href="#work" class="btn-primary">View Work</a>
+              <a href="assets/anubhav-pandey-resume.pdf" class="btn-ghost" target="_blank" rel="noopener" data-track="resume-view" data-track-source="hero">View Resume</a>
             </div>
-
           </div>
 
         </div>
@@ -650,6 +638,7 @@
   </footer>
 
   <!-- Content layer + renderer -->
+  <script src="https://unpkg.com/embla-carousel@8.5.2/embla-carousel.umd.js"></script>
   <script src="content.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
@@ -751,7 +740,7 @@
     const statsEl = document.getElementById('hero-stats');
     if (statsEl && hero.stats) {
       statsEl.innerHTML = (hero.stats).filter(s => !s.hidden).map(s => `
-        <div class="hero__stat-card" role="listitem">
+        <div role="listitem">
           <span class="hero__stat-value">${s.value}</span>
           <span class="hero__stat-label">${s.label}</span>
         </div>
@@ -769,8 +758,10 @@
           const name = cs.title || p.name;
           const tag  = (cs.tags && cs.tags[0]) || p.tag;
           const desc = cs.subtitle || p.description;
+          const coverImg = p.coverImage ? `<div class="project-card__cover"><img src="${p.coverImage}" alt="${name} cover" loading="lazy" /></div>` : '';
           return `
           <article class="project-card" role="listitem">
+            ${coverImg}
             <div class="project-card__top">
               <span class="project-card__num">${p.number}</span>
               <span class="project-card__tag">${tag}</span>
@@ -809,20 +800,39 @@
     if (aiSection && h.hideAiSection) aiSection.style.display = 'none';
     const aiEl = document.getElementById('ai-grid');
     if (aiEl && h.aiProjects) {
-      aiEl.innerHTML = h.aiProjects.filter(p => !p.hidden).map(p => `
+      aiEl.innerHTML = h.aiProjects.filter(p => !p.hidden).map(p => {
+        const imgs = p.images || [];
+        const cardCarousel = imgs.length > 0 ? `
+          <div class="ai-card__embla" onclick="event.stopPropagation()">
+            <div class="ai-card__embla-viewport">
+              <div class="ai-card__embla-container">
+                ${imgs.map(url => `<div class="ai-card__embla-slide"><img src="${url}" alt="" loading="lazy" /></div>`).join('')}
+              </div>
+            </div>
+            ${imgs.length > 1 ? `
+            <button class="ai-embla-btn ai-embla-btn--prev" aria-label="Previous">&#8592;</button>
+            <button class="ai-embla-btn ai-embla-btn--next" aria-label="Next">&#8594;</button>
+            <div class="ai-embla-dots">
+              ${imgs.map((_,i) => `<button class="ai-embla-dot${i===0?' is-active':''}" aria-label="Slide ${i+1}"></button>`).join('')}
+            </div>` : ''}
+          </div>` : '';
+        return `
         <article class="ai-card is-clickable" role="listitem"
           onclick="openAiDrawer(this)"
           data-tag="${(p.tag||'').replace(/"/g,'&quot;')}"
           data-title="${(p.title||'').replace(/"/g,'&quot;')}"
-          data-desc="${(p.description||'').replace(/"/g,'&quot;')}"
-          data-detail="${(p.detailDescription||'').replace(/"/g,'&quot;')}"
-          data-tool-url="${(p.toolUrl||p.url||'').replace(/"/g,'&quot;')}">
+          data-desc="${JSON.stringify(p.description||'').replace(/"/g,'&quot;')}"
+          data-detail="${JSON.stringify(p.detailDescription||'').replace(/"/g,'&quot;')}"
+          data-tool-url="${(p.toolUrl||p.url||'').replace(/"/g,'&quot;')}"
+          data-images="${JSON.stringify(imgs).replace(/"/g,'&quot;')}">
+          ${cardCarousel}
           <span class="ai-card__tag">${p.tag}</span>
           <h3 class="ai-card__title">${p.title}</h3>
           <p class="ai-card__desc">${p.description}</p>
           <span class="ai-card__read-more">Read more →</span>
-        </article>
-      `).join('');
+        </article>`;
+      }).join('');
+      requestAnimationFrame(function() { initAiCardCarousels(); });
     }
 
     /* ── Blog ── */
@@ -841,7 +851,12 @@
       `).join('');
     }
 
-    /* ── GA4 ID — injected dynamically via __injectGA above ── */
+    /* ── GA4 ID ── */
+    if (g.gaId && g.gaId !== 'G-5D0X4RLR71') {
+      document.querySelectorAll('script[src*="G-5D0X4RLR71"]').forEach(s => {
+        s.src = s.src.replace('G-5D0X4RLR71', g.gaId);
+      });
+    }
   }).catch(function() {
     // Firestore failed — reveal static content.js fallback
     document.body.classList.add('content-loaded');
@@ -855,27 +870,104 @@
 
   <!-- AI Drawer Logic -->
   <script>
+    /* ── Embla carousel instances ── */
+    var _drawerEmbla = null;
+    var _cardEmblaInstances = [];
+
+    function initAiCardCarousels() {
+      // Destroy any previous instances
+      _cardEmblaInstances.forEach(function(e) { try { e.destroy(); } catch(_) {} });
+      _cardEmblaInstances = [];
+
+      document.querySelectorAll('.ai-card__embla').forEach(function(el) {
+        var viewport = el.querySelector('.ai-card__embla-viewport');
+        if (!viewport || !window.EmblaCarousel) return;
+
+        var embla = EmblaCarousel(viewport, { loop: true, align: 'center', dragFree: false });
+        _cardEmblaInstances.push(embla);
+
+        var prevBtn = el.querySelector('.ai-embla-btn--prev');
+        var nextBtn = el.querySelector('.ai-embla-btn--next');
+        var dots    = el.querySelectorAll('.ai-embla-dot');
+
+        function syncDots() {
+          var idx = embla.selectedScrollSnap();
+          dots.forEach(function(d, i) { d.classList.toggle('is-active', i === idx); });
+        }
+
+        if (prevBtn) prevBtn.addEventListener('click', function(e) { e.stopPropagation(); embla.scrollPrev(); });
+        if (nextBtn) nextBtn.addEventListener('click', function(e) { e.stopPropagation(); embla.scrollNext(); });
+        dots.forEach(function(dot, i) {
+          dot.addEventListener('click', function(e) { e.stopPropagation(); embla.scrollTo(i); });
+        });
+        embla.on('select', syncDots);
+      });
+    }
+
     function openAiDrawer(card) {
       var tag     = card.getAttribute('data-tag')     || '';
       var title   = card.getAttribute('data-title')   || '';
-      var desc    = card.getAttribute('data-desc')    || '';
-      var detail  = card.getAttribute('data-detail')  || '';
+      var desc    = ''; try { desc   = JSON.parse(card.getAttribute('data-desc')   || '""'); } catch(e) { desc   = card.getAttribute('data-desc')   || ''; }
+      var detail  = ''; try { detail = JSON.parse(card.getAttribute('data-detail') || '""'); } catch(e) { detail = card.getAttribute('data-detail') || ''; }
       var toolUrl = card.getAttribute('data-tool-url')|| '';
+      var images  = [];
+      try { images = JSON.parse(card.getAttribute('data-images') || '[]'); } catch(e) {}
 
-      document.getElementById('aiDrawerTag').textContent       = tag;
-      document.getElementById('aiDrawerTitle').textContent     = title;
-      document.getElementById('aiDrawerShortDesc').textContent = desc;
-      document.getElementById('aiDrawerDetail').innerHTML      = detail
+      document.getElementById('aiDrawerTag').textContent   = tag;
+      document.getElementById('aiDrawerTitle').textContent = title;
+      // Strip outer <p> wrapper if RTE wrapped description in one
+      var descHtml = (desc || '').trim();
+      if (descHtml.startsWith('<p>') && descHtml.endsWith('</p>') && descHtml.indexOf('<p>', 3) === -1) {
+        descHtml = descHtml.slice(3, -4);
+      }
+      document.getElementById('aiDrawerShortDesc').innerHTML = descHtml;
+      document.getElementById('aiDrawerDetail').innerHTML   = detail
         ? detail.replace(/\n/g, '<br/>')
         : '<span style="opacity:.45">No additional details yet.</span>';
 
       var btn = document.getElementById('aiDrawerVisitBtn');
-      if (toolUrl) {
-        btn.href = toolUrl;
-        btn.classList.remove('disabled');
+      if (toolUrl) { btn.href = toolUrl; btn.classList.remove('disabled'); }
+      else         { btn.href = '#';     btn.classList.add('disabled'); }
+
+      /* Drawer carousel via Embla */
+      if (_drawerEmbla) { try { _drawerEmbla.destroy(); } catch(_) {} _drawerEmbla = null; }
+      var drawerCarousel = document.getElementById('aiDrawerCarousel');
+      var track  = document.getElementById('aiCarouselTrack');
+      var dotsEl = document.getElementById('aiCarouselDots');
+      var prevEl = document.getElementById('aiCarouselPrev');
+      var nextEl = document.getElementById('aiCarouselNext');
+
+      if (images.length > 0) {
+        track.innerHTML = images.map(function(url) {
+          return '<div class="ai-drawer__embla-slide"><img src="' + url + '" alt="" loading="lazy" /></div>';
+        }).join('');
+        dotsEl.innerHTML = images.length > 1 ? images.map(function(_, i) {
+          return '<button class="ai-embla-dot' + (i === 0 ? ' is-active' : '') + '" aria-label="Slide ' + (i+1) + '"></button>';
+        }).join('') : '';
+        prevEl.style.display = images.length > 1 ? '' : 'none';
+        nextEl.style.display = images.length > 1 ? '' : 'none';
+        drawerCarousel.style.display = '';
+
+        requestAnimationFrame(function() {
+          requestAnimationFrame(function() {
+          var viewport = document.getElementById('aiDrawerEmblaViewport');
+          if (!viewport || !window.EmblaCarousel) return;
+          _drawerEmbla = EmblaCarousel(viewport, { loop: true, align: 'center' });
+          var dots = dotsEl.querySelectorAll('.ai-embla-dot');
+
+          function syncDrawerDots() {
+            var idx = _drawerEmbla.selectedScrollSnap();
+            dots.forEach(function(d, i) { d.classList.toggle('is-active', i === idx); });
+          }
+
+          prevEl.onclick = function() { _drawerEmbla.scrollPrev(); };
+          nextEl.onclick = function() { _drawerEmbla.scrollNext(); };
+          dots.forEach(function(dot, i) { dot.onclick = function() { _drawerEmbla.scrollTo(i); }; });
+          _drawerEmbla.on('select', syncDrawerDots);
+          }); // inner rAF
+        });
       } else {
-        btn.href = '#';
-        btn.classList.add('disabled');
+        drawerCarousel.style.display = 'none';
       }
 
       document.getElementById('aiDrawerOverlay').classList.add('is-open');
@@ -891,6 +983,10 @@
 
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') closeAiDrawer();
+      if (_drawerEmbla && document.getElementById('aiDrawer').classList.contains('is-open')) {
+        if (e.key === 'ArrowLeft')  _drawerEmbla.scrollPrev();
+        if (e.key === 'ArrowRight') _drawerEmbla.scrollNext();
+      }
     });
   </script>
 
@@ -903,6 +999,15 @@
         <h2 class="ai-drawer__title" id="aiDrawerTitle"></h2>
       </div>
       <button class="ai-drawer__close" onclick="closeAiDrawer()" aria-label="Close">✕</button>
+    </div>
+    <!-- Embla carousel (shown only when images exist) -->
+    <div class="ai-drawer__embla" id="aiDrawerCarousel" style="display:none">
+      <div class="ai-drawer__embla-viewport" id="aiDrawerEmblaViewport">
+        <div class="ai-drawer__embla-container" id="aiCarouselTrack"></div>
+      </div>
+      <button class="ai-embla-btn ai-embla-btn--prev" id="aiCarouselPrev" aria-label="Previous">&#8592;</button>
+      <button class="ai-embla-btn ai-embla-btn--next" id="aiCarouselNext" aria-label="Next">&#8594;</button>
+      <div class="ai-embla-dots" id="aiCarouselDots"></div>
     </div>
     <div class="ai-drawer__body">
       <p class="ai-drawer__short-desc" id="aiDrawerShortDesc"></p>

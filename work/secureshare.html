@@ -70,7 +70,7 @@
 
     /* ── Hero ── */
     .cs-page-hero {
-      padding-top: calc(var(--nav-h) + var(--sp-16));
+      padding-top: calc(var(--nav-h) + var(--sp-6));
       padding-bottom: var(--sp-16);
       border-bottom: 1px solid var(--border);
     }
@@ -580,7 +580,7 @@
   <!-- NAVIGATION -->
   <nav class="nav" role="navigation" aria-label="Main navigation">
     <div class="nav__inner">
-      <a href="https://anubhav1942.github.io/portfolio/" class="nav__logo" aria-label="Anubhav Pandey — Home">Anubhav Pandey</a>
+      <a href="https://anubhav1942.github.io/portfolio/" class="nav__logo" aria-label="Anubhav Pandey — Home">Anubhav</a>
 
       <ul class="nav__links" role="list">
         <li><a href="../index.html#work" class="active">Work</a></li>
@@ -600,6 +600,11 @@
   </nav>
 
   <main>
+
+    <!-- Banner image (optional — set in admin panel) -->
+    <div class="cs-banner-image-wrap" id="cs-banner-image-wrap" style="display:none">
+      <img id="cs-banner-img" src="" alt="SecureShare banner" />
+    </div>
 
     <!-- ══════════════════════════════════════
          HERO
@@ -670,7 +675,6 @@
         </div>
       </div>
     </div>
-
 
     <!-- ══════════════════════════════════════
          TWO-COLUMN BODY: TOC + CONTENT
@@ -795,25 +799,31 @@
   <script src="../firebase-config.js"></script>
   <script>
   window.loadContent().then(function(C) {
-    
-    /* ── Hide "Create your own portfolio" nav link ── */
-    if (g && g.hideNavCreate) {
+    document.body.classList.add('content-loaded');
+    if (!C) return;
+    const g = C.global || {};
+    if (g.gaId) window.__injectGA(g.gaId);
+    if (g.hideNavCreate) {
       const navCreate = document.getElementById('nav-create-link');
       if (navCreate) navCreate.style.display = 'none';
     }
-    document.body.classList.add('content-loaded');
-    if (!C) return;
-    if (C.global && C.global.gaId) window.__injectGA(C.global.gaId);
 
     const cs = (C.caseStudies || {}).secureshare;
     if (!cs) return;
+
+    /* ── Banner image ── */
+    if (cs.bannerImage) {
+      const bannerWrap = document.getElementById('cs-banner-image-wrap');
+      const bannerImg  = document.getElementById('cs-banner-img');
+      if (bannerWrap && bannerImg) { bannerImg.src = cs.bannerImage; bannerWrap.style.display = ''; }
+    }
 
     /* ── Hero: title, subtitle, tags ── */
     const titleEl = document.getElementById('cs-page-title');
     if (titleEl) titleEl.textContent = cs.title;
 
     const subEl = document.getElementById('cs-page-subtitle');
-    if (subEl) subEl.textContent = cs.subtitle;
+    if (subEl) subEl.innerHTML = cs.subtitle || '';
 
     const tagsEl = document.getElementById('cs-tags');
     if (tagsEl && cs.tags) {

@@ -116,10 +116,16 @@
       setFeedback('', '');
 
       loadEmailJS(function () {
+        // NOTE: parameter keys must match the EmailJS template variables
+        // exactly. The template uses form_name / form_email (NOT from_name /
+        // from_email — a previous typo here silently dropped both fields).
         window.emailjs.send(SERVICE_ID, TEMPLATE_ID, {
-          from_name:  name,
-          from_email: email,
-          message:    message
+          name:       name,
+          form_name:  name,
+          form_email: email,
+          message:    message,
+          title:      'New message from anubhavp.in contact form',
+          time:       new Date().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })
         })
         .then(function () {
           setFeedback('Message sent. I will get back to you shortly.', 'success');
