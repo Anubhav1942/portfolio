@@ -732,9 +732,33 @@
       ).join('');
     }
 
-    /* ── Hero subtitle ── */
+    /* ── Hero subtitle — mobile truncation at 200 chars ── */
     const subEl = document.getElementById('hero-subtitle');
-    if (subEl) subEl.innerHTML = hero.subtitle || '';
+    if (subEl) {
+      const fullText = hero.subtitle || '';
+      subEl.innerHTML = fullText;
+      // Only truncate on mobile (≤640px) and only if text is long
+      if (window.innerWidth <= 640 && fullText.length > 200) {
+        const short = fullText.slice(0, 200).trimEnd() + '…';
+        subEl.innerHTML = short;
+        subEl.dataset.full = fullText;
+        const toggle = document.createElement('button');
+        toggle.className = 'hero__sub-toggle';
+        toggle.textContent = 'Read more';
+        toggle.addEventListener('click', function() {
+          if (toggle.textContent === 'Read more') {
+            subEl.innerHTML = subEl.dataset.full;
+            subEl.appendChild(toggle);
+            toggle.textContent = 'Read less';
+          } else {
+            subEl.innerHTML = short;
+            subEl.appendChild(toggle);
+            toggle.textContent = 'Read more';
+          }
+        });
+        subEl.appendChild(toggle);
+      }
+    }
 
     /* ── Hero stats ── */
     const statsEl = document.getElementById('hero-stats');
