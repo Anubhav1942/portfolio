@@ -856,20 +856,24 @@ p {
   transform: scale(1.03);
 }
 
-/* Case study banner image — full-width below the outcomes bar */
+/* Case study banner — full-width hero image, sits flush under the fixed nav */
 .cs-banner-image-wrap {
   width: 100%;
+  height: 520px;
   overflow: hidden;
-  max-height: 520px;
   background: var(--bg-alt);
-  margin-top: var(--nav-h);
 }
 
 .cs-banner-image-wrap img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center top;
   display: block;
+}
+
+@media (max-width: 768px) {
+  .cs-banner-image-wrap { height: 260px; }
 }
 
 .project-card__cta {
@@ -1812,8 +1816,8 @@ p {
   }
 
   .hero__stats {
-    gap: var(--sp-8);
-    flex-wrap: wrap;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--sp-6);
   }
 
   .exp__item {
