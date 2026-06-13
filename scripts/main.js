@@ -29,11 +29,59 @@ const navToggle = document.querySelector('.nav__toggle');
 const navLinks  = document.querySelector('.nav__links');
 
 // Add .scrolled class after 20px scroll for backdrop blur
-if (nav) {
-  window.addEventListener('scroll', () => {
-    nav.classList.toggle('scrolled', window.scrollY > 20);
-  }, { passive: true });
+// Also detect background brightness under the nav and toggle .nav--light
+function updateNavTheme() {
+  if (!nav) return;
+  const isScrolled = window.scrollY > 20;
+  nav.classList.toggle('scrolled', isScrolled);
+
+  // When scrolled the nav has a light frosted background — always use dark text
+  if (isScrolled) { nav.classList.remove('nav--light'); return; }
+
+  // Sample the element just below the nav centre
+  const navH = nav.getBoundingClientRect().height;
+  const el   = document.elementFromPoint(window.innerWidth / 2, navH + 4);
+  let   bg   = null;
+  let   node = el;
+  while (node && node !== document.documentElement) {
+    const c = getComputedStyle(node).backgroundColor;
+    if (c && c !== 'rgba(0, 0, 0, 0)' && c !== 'transparent') { bg = c; break; }
+    node = node.parentElement;
+  }
+  if (!bg) bg = getComputedStyle(document.body).backgroundColor;
+
+  const m = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+  let dark = false;
+  if (m) {
+    const lum = (0.299 * +m[1] + 0.587 * +m[2] + 0.114 * +m[3]) / 255;
+    dark = lum < 0.5;
+  }
+  nav.classList.toggle('nav--light', dark);
 }
+
+if (nav) {
+  window.addEventListener('scroll', updateNavTheme, { passive: true });
+  // Re-run after Firestore content loads (background may be set dynamically)
+  document.addEventListener('contentLoaded', updateNavTheme);
+  updateNavTheme();
+}
+
+// Called by case-study pages when they show a dark banner image.
+// Image pixels can't be sampled via CSS, so pages opt-in explicitly.
+window.markNavDark = function(el) {
+  if (!nav) return;
+  // Apply immediately if not yet scrolled
+  if (window.scrollY <= 20) nav.classList.add('nav--light');
+  // Remove once the banner scrolls above the nav bottom
+  function check() {
+    if (window.scrollY > 20) { nav.classList.remove('nav--light'); return; }
+    const rect = el.getBoundingClientRect();
+    const navH = nav.getBoundingClientRect().height;
+    // Banner is still covering the nav area → keep light
+    nav.classList.toggle('nav--light', rect.bottom > navH);
+  }
+  window.addEventListener('scroll', check, { passive: true });
+};
 
 // Mobile menu open/close — also injects nav CTA actions into dropdown
 if (navToggle && navLinks) {

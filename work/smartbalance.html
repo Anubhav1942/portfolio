@@ -579,11 +579,11 @@
   <!-- NAVIGATION -->
   <nav class="nav" role="navigation" aria-label="Main navigation">
     <div class="nav__inner">
-      <a href="https://anubhav1942.github.io/portfolio/" class="nav__logo" aria-label="Anubhav Pandey — Home">Anubhav</a>
+      <a href="../index.html" class="nav__logo" aria-label="Anubhav Pandey — Home">Anubhav</a>
 
       <ul class="nav__links" role="list">
         <li><a href="../index.html#work" class="active">Work</a></li>
-        <li><a href="https://anubhav1942.github.io/portfolio/about.html">About</a></li>
+        <li><a href="../about.html">About</a></li>
         <li><a href="../index.html#writing">Blogs</a></li>
         <li><a href="../assets/anubhav-pandey-resume.pdf" target="_blank" rel="noopener" data-track="resume-view" data-track-source="nav">View Resume</a></li>
       </ul>
@@ -759,7 +759,7 @@
           <span class="footer__col-label">Navigation</span>
           <ul class="footer__links" role="list">
             <li><a href="../index.html#work">Work</a></li>
-            <li><a href="https://anubhav1942.github.io/portfolio/about.html">About</a></li>
+            <li><a href="../about.html">About</a></li>
             <li><a href="../index.html#writing">Blogs</a></li>
           </ul>
         </nav>
@@ -811,7 +811,7 @@
     if (cs.bannerImage) {
       const bannerWrap = document.getElementById('cs-banner-image-wrap');
       const bannerImg  = document.getElementById('cs-banner-img');
-      if (bannerWrap && bannerImg) { bannerImg.src = cs.bannerImage; bannerWrap.style.display = ''; }
+      if (bannerWrap && bannerImg) { bannerImg.src = cs.bannerImage; bannerWrap.style.display = ''; if (window.markNavDark) window.markNavDark(bannerWrap); }
     }
 
     /* ── Hero: title, subtitle, tags ── */

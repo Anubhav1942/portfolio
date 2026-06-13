@@ -857,9 +857,12 @@
         s.src = s.src.replace('G-5D0X4RLR71', g.gaId);
       });
     }
+    // Tell main.js to re-check nav theme now that content/backgrounds are set
+    document.dispatchEvent(new Event('contentLoaded'));
   }).catch(function() {
     // Firestore failed — reveal static content.js fallback
     document.body.classList.add('content-loaded');
+    document.dispatchEvent(new Event('contentLoaded'));
   });
 
   // Safety net: never leave skeletons visible beyond 4s
